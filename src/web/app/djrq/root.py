@@ -45,6 +45,7 @@ class Root:
 		self._ctx.DjName = djrow.dj
 		self._ctx.ServerName = dom
 		self._ctx.DjPrefix = prefix
+		self._ctx.WhatsNewDays = 30
 		package = 'web.app.djrq.model.'+djrow.databasetype
 		Queries = importlib.import_module(package+'.queries').Queries
 		try:
@@ -60,7 +61,7 @@ class Root:
 			raise HTTPError("Queries is None!")
 		self._ctx.dbstats = self._ctx.queries.get_song_stats()
 		self._ctx.requests_info = self._ctx.queries.get_new_pending_requests_info()
-		self._ctx.new_counts = self._ctx.queries.get_new_counts(days=720)
+		self._ctx.new_counts = self._ctx.queries.get_new_counts(days=self._ctx.WhatsNewDays)
 
 	def get(self, *arg, **args):
 		""" Handle other endpoints not imported """
