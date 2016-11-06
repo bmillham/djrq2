@@ -1,0 +1,47 @@
+/* vertical navbar */
+
+@media (min-width: 768px) {
+	.sidebar-nav .navbar .navbar-collapse {
+		padding: 0;
+		max-height: none;
+		width: 99px;
+	}
+	.sidebar-nav .navbar ul {
+		float: none;
+	}
+	.sidebar-nav .navbar ul:not {
+		display: block;
+	}
+	.sidebar-nav .navbar li {
+		float: none;
+		display: block;
+	}
+	.sidebar-nav .navbar li a {
+		padding-top: 0px;
+		padding-bottom: 12px;
+		width: 99px;
+	}
+}
+
+@media (min-width: 768px) {
+	.sidebar-nav {
+		position: fixed;
+		/*width: 170px;*/
+		width: 110px;
+		overflow: auto;
+		height: 89vh;
+		padding-left: 0px;
+		//padding-bottom: 12px;
+/*		z-index: 2; */
+	}
+}
+
+.sidebar-nav .navbar-header {float: none;}
+
+.browselist {
+	padding-left: 130px;
+	padding-right: 5px;
+	width: 100vw;
+}
+
+
