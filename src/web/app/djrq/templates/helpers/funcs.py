@@ -43,6 +43,8 @@ def format_percent(number):
 	return numbers.format_percent(number, format="#.#%", locale=l)
 
 def format_size(number):
+	if number is None:
+			return ""
 	s = 1024
 	kb = s
 	mb = kb * s
