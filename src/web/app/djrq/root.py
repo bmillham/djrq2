@@ -33,14 +33,15 @@ class Root:
 			self._ctx.listeners = None
 
 		# Get list of all DJs
-		self._ctx.alldjs = context.db.lastplay.query(DJs).filter(DJs.hide_from_menu == 0)
+		self._ctx.alldjs = context.db.lastplay.query(DJs).filter(DJs.hide_from_menu == 0).order_by(DJs.dj)
 
 		# Import the proper models, based on the database type
-		host = context.request.host.partition(".")[0]
+		host, sep, dom = context.request.host.partition(".")
 		if '-' in host:
 			host = host.split('-')[1] # Strip leading dj-
 		djrow = context.db.lastplay.query(DJs).filter(DJs.dj == host).one()
 		self._ctx.DjName = djrow.dj
+		self._ctx.ServerName = ''.join([sep, dom])
 		package = 'web.app.djrq.model.'+djrow.databasetype
 		Queries = importlib.import_module(package+'.queries').Queries
 		try:
