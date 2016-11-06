@@ -30,7 +30,12 @@
 	      <li role='separator' class='divider'></li>
 	     : for d in ctx.alldjs
 			: if d.dj != ctx.DjName
-				<li><a href='http://${d.dj.lower()}.gelth.local:8080'>${d.dj}</a></li>
+				: if ctx.DjPrefix != ''
+					: dj = '-'.join((ctx.DjPrefix, d.dj))
+				: else
+					: dj = d.dj
+				: end
+				<li><a href='http://${dj.lower()}.${ctx.ServerName}'>${d.dj}</a></li>
 			: end
 		 : end
 		 </ul>

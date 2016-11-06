@@ -38,10 +38,13 @@ class Root:
 		# Import the proper models, based on the database type
 		host, sep, dom = context.request.host.partition(".")
 		if '-' in host:
-			host = host.split('-')[1] # Strip leading dj-
+			prefix, host = host.split('-') # Strip leading dj-
+		else:
+			prefix = ''
 		djrow = context.db.lastplay.query(DJs).filter(DJs.dj == host).one()
 		self._ctx.DjName = djrow.dj
-		self._ctx.ServerName = ''.join([sep, dom])
+		self._ctx.ServerName = dom
+		self._ctx.DjPrefix = prefix
 		package = 'web.app.djrq.model.'+djrow.databasetype
 		Queries = importlib.import_module(package+'.queries').Queries
 		try:
