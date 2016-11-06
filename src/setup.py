@@ -66,6 +66,7 @@ setup(
 						'pytest-cov',
 						'pytest-spec',
 						'pytest-flakes',
+						'backlash',
 					],
 			),
 		
