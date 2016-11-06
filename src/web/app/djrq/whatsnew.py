@@ -14,5 +14,5 @@ class WhatsNew:
 		self.queries = context.queries
 
 	def get(self, *arg, **args):
-		newlist = self.queries.get_new_artists(days=720)
-		return whatsnewtemplate("Whats New", self._ctx, 720, newlist)
+		newlist = self.queries.get_new_artists(days=30)
+		return whatsnewtemplate("Whats New", self._ctx, 30, newlist)
