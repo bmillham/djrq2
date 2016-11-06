@@ -56,6 +56,7 @@ setup(
 				'mysqlclient',
 				'sqlalchemy', # SQLAlchemy for mysql access
 				'babel', # For internationalization
+				'markupsafe',
 			],
 		
 		extras_require = dict(
