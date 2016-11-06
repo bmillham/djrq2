@@ -49,4 +49,4 @@ app=Application(Root, extensions=[
 
 
 if __name__ == "__main__":
-	app.serve('wsgiref')
+	app.serve('wsgiref', host='0.0.0.0')

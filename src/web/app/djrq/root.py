@@ -37,6 +37,8 @@ class Root:
 
 		# Import the proper models, based on the database type
 		host = context.request.host.partition(".")[0]
+		if '-' in host:
+			host = host.split('-')[1] # Strip leading dj-
 		djrow = context.db.lastplay.query(DJs).filter(DJs.dj == host).one()
 		self._ctx.DjName = djrow.dj
 		package = 'web.app.djrq.model.'+djrow.databasetype
