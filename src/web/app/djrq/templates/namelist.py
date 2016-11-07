@@ -23,6 +23,9 @@
 		:   end
 		:   i += 1
 		: end
+		: if not (i % 15)
+			:flush
+		: end
 		: if not row_ended
 		:	i -= 1
 		:	while i % rows != rows - 1 and i > rows - 1

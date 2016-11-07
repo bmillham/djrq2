@@ -12,7 +12,7 @@
 		<table #{table_args}>
 		 <caption #{caption_args}>50 Last Played</caption>
 		 <tr><th>Artist</th><th>Title</th><th>Album</th><th>Length</th><th>Last Played By</th></tr>
-		 : for r in lplist
+		 : for i, r in enumerate(lplist)
 			<tr>
 			 <td>
 			  : use aa_link r.Played.song.artist, 'artist'
@@ -53,6 +53,9 @@
 				(${pc})</span>
 			 : end
 			</tr>
+			: if not (i % 10)
+				: flush
+			: end
 		 : end
 		 </table>
 		 </div>

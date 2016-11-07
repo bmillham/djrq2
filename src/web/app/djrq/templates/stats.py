@@ -34,6 +34,7 @@
 		  </tr>
 		 : end
 		 </table><br />
+		 : flush
 		<table #{table_args}>
 		 <caption #{caption_args}>10 Most Requested</caption>
 		 <tr><th># Plays</th><th>Title</th><th>Artist</th><th>Album</th><th>Last Requested By</th></tr>
@@ -52,6 +53,7 @@
 			</tr>
 		 : end
 		</table><br />
+		: flush
 		<table #{table_args}>
 		 <caption #{caption_args}>Top 10 Requestors</caption>
 		 <tr><th># Requests</th><th>Requestor</th><th>Last Request</th></tr>
@@ -63,6 +65,7 @@
 		  </tr>
 		 : end
 		</table><br />
+		: flush
 		<table #{table_args}>
 		 <caption #{caption_args}>Top 10 Played By Me</caption>
 		 <tr><th>Plays</th><th>Title</th><th>Artist</th><th>Album</th><th>Last Played</th></tr>
@@ -76,6 +79,7 @@
 		  </tr>
 		 : end
 		 </table><br />
+		 : flush
 		 <table #{table_args}>
 		  <caption #{caption_args}>Top 10 Played By Other DJs</caption>
 		  <tr><th>Plays</th><th>Title</th><th>Artist</th><th>Album</th><th>Last Played</th></tr>
@@ -89,7 +93,8 @@
 		   </tr>
 		  : end
 		 </table><br />
-		 		 <table #{table_args}>
+		 : flush
+		 <table #{table_args}>
 		  <caption #{caption_args}>Top 10 Played By All DJs</caption>
 		  <tr><th>Plays</th><th>Title</th><th>Artist</th><th>Album</th><th>Last Played</th></tr>
 		  : for played in stats_info['10 Most Played By All DJs']
