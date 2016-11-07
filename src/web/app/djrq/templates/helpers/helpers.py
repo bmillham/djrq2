@@ -15,10 +15,15 @@
 				data-tid='${row.id}'>Mistag</button>
 		<button class="btn btn-xs btn-primary pull-right r_${row.id}"
 				id='r_${row.id}'
-				data-toggle='modal'
-				data-target='#requestModal'
+				data-toggle="modal"
+				data-target="#requestModal"
 				data-title='${row.title}'
-				data-tid='${row.id}'>Request</button>
+				data-tid='${row.id}'
+				# Disable the button if there are requests
+				${"disabled='disabled'" if len(row.new_requests) > 0 else ""}
+				>
+				${"Request" if len(row.new_requests) == 0 else "Requested"}
+		</button>
     : end
 : end
 

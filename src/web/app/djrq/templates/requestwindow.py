@@ -27,9 +27,10 @@
 	    <form id='requestform' class='ajax' action='/requests' method='post' data-append='.results'>
 	    #<form>
 	     <input type='hidden' id='tid' name='tid'>
+	     <input type='hidden' id='formtype' name='formtype' value='request'>
 		 <div class='form-group'>
           <label for='sitenick'>Your site nick</label>
-          <input type='text' class='form-control' id='sitenick' name='sitenick'>
+          <input type='text' class='form-control' id='sitenick' name='sitenick' required>
           <label for='comment'>Comments</label>
           <input type="textarea" class="form-control" id="comment" name="comment" placeholder="Comments">
          </div>
@@ -59,9 +60,10 @@
 	    <div class="results">Results here</div>
 	   	<form id='mistagform' class='ajax' action='/requests' method='post' data-append='.results'>
 	     <input type='hidden' id='tid' name='tid'>
+	     <input type='hidden' id='formtype' name='formtype' value='mistag'>
 		 <div class='form-group'>
           <label for='sitenick'>Your site nick</label>
-          <input type='text' class='form-control' id='sitenick' name='sitenick'>
+          <input type='text' class='form-control' id='sitenick' name='sitenick' required>
           <label for='title'>Title</label>
           <input type='text' class='form-control' id='title' name='title'>
           <label for='artist'>Artist</label>

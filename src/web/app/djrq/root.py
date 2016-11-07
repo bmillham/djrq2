@@ -47,7 +47,9 @@ class Root:
 		self._ctx.DjPrefix = prefix
 		self._ctx.WhatsNewDays = 30
 		package = 'web.app.djrq.model.'+djrow.databasetype
-		Queries = importlib.import_module(package+'.queries').Queries
+		DbModel = importlib.import_module('.'+djrow.databasetype, 'web.app.djrq.model')
+		self._ctx.DbModel = DbModel
+		Queries = importlib.import_module('.queries', DbModel.__name__).Queries
 		try:
 			self._ctx.Album = importlib.import_module(package+'.album').Album
 		except:

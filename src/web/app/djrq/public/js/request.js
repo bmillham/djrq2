@@ -72,12 +72,11 @@ $(document).on('eldarion-ajax:complete', function(evt, $el, data, textStatus, jq
 		modal.find('#ricon').hide()
 		return;
 	}
-	
+	$(this).find('#requestbutton').text(data.newcount)
 	btn = $(this).find(pre + data.tid)
 	btn.text(newtext) // Update the button text
-	btn.removeAttr('data-toggle')
-	btn.attr('class', 'btn btn-xs btn-disabled pull-right') // Grey out the button
+	btn.attr('disabled', 'disabled') // Grey out and disable the button
 	setTimeout(function() {
 		modal.modal('hide')
-	}, 1000);
+	}, 3000); // Show the thank you message for 3 seconds
 });

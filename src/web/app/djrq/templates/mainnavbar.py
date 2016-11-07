@@ -61,7 +61,7 @@
 	    </li>
 		#<li #{"class='active'" if resource == 'requests' else ''}>
 		: using li_active resource, 'requests'
-		 <a href='/requests'>Requests <span class='badge'>${format_decimal(ctx.requests_info.request_count)}</span></a>
+		 <a href='/requests'>Requests <span class='badge'><span id="requestbutton">${format_decimal(ctx.requests_info.request_count)}</span></span></a>
 		: end
 		#</li>
 		: if ctx.new_counts.new_count > 0
