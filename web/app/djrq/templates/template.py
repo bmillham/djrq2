@@ -8,7 +8,7 @@
 
 : styles = [
 #:			'/public/bootstrap-3.3.7-dist/css/bootstrap.min.css',
-:			'/public/bootstrap/css/united-bootstrap.min.css',
+:			'/public/bootstrap/css/cerulean-bootstrap.min.css',
 #:           '/public/bootstrap-3.3.7-dist/css/bootstrap-theme.min.css',
 :			'/public/fix-padding.css',
 :			'/public/vertical-navbar.css',

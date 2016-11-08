@@ -81,10 +81,11 @@
 	       </li>
 	      </span>
 	      <input type='hidden' class='form-comtrol' name='navbarsearch' placeholder='Search'>
-	      <input type='text' class='form-comtrol' name='stext' placeholder='Search'>
+	      <input type='text' class='form-comtrol' name='stext' placeholder='Search' style='height=25px'>
 	     </div>
 	    </div>
 	   </form>
+	   
 	   <ul class='nav navbar-nav navbar-right'>
 	    <li><a href="/admin"><span class='glyphicon glyphicon-cog'></span></a></li>
 	    : if ctx.listeners is not None
