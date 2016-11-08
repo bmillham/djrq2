@@ -63,18 +63,15 @@ $(document).on('eldarion-ajax:complete', function(evt, $el, data, textStatus, jq
 	var newtext = ''
 	if (mid == 'requestModal') {
 		pre='.r_';
-		newtext = 'Requested'
+		$(this).find('#requestbutton').text(data.newcount)
 	} else if (mid == 'mistagModal') {
 		pre='.m_';
-		newtext = 'Reported'
 	} else if (mid == 'searchModal') {
 		modal.modal('hide');
 		modal.find('#ricon').hide()
 		return;
 	}
-	$(this).find('#requestbutton').text(data.newcount)
 	btn = $(this).find(pre + data.tid)
-	btn.text(newtext) // Update the button text
 	btn.attr('disabled', 'disabled') // Grey out and disable the button
 	setTimeout(function() {
 		modal.modal('hide')

@@ -41,7 +41,17 @@ class Requests:
 			return {'html': 'Thank you for your request {}'.format(args['sitenick']),
 				'tid': args['tid'],
 				'newcount': newcount}
-
-		print('Got a mistag post', arg, args)
-		return {'html': 'Mistag Accepted: {} {}'.format(args['tid'], args['sitenick']),
+		elif args['formtype'] == 'mistag':
+			Mistags = importlib.import_module('.mistags', self._ctx.DbModel.__name__).Mistags
+			now = datetime.utcnow()
+			new_row = Mistags(track_id=args['tid'],
+							  reported=now,
+							  reported_by=args['sitenick'],
+							  comments=args['comment'],
+							  title=args['title'],
+							  artist=args['artist'],
+							  album=args['album'])
+			self._ctx.db.add(new_row)
+			self._ctx.db.commit()
+			return {'html': 'Thank you for your Mistag report {}'.format(args['sitenick']),
 				'tid': args['tid']}

@@ -12,7 +12,9 @@
 				data-title='${row.title}'
 				data-artist='${row.artist.fullname}'
 				data-album='${row.album.fullname}'
-				data-tid='${row.id}'>Mistag</button>
+				data-tid='${row.id}'
+				${"disabled='disabled'" if len(row.mistags) > 0 else ""}
+				>Mistag</button>
 		<button class="btn btn-xs btn-primary pull-right r_${row.id}"
 				id='r_${row.id}'
 				data-toggle="modal"
@@ -22,7 +24,8 @@
 				# Disable the button if there are requests
 				${"disabled='disabled'" if len(row.new_requests) > 0 else ""}
 				>
-				${"Request" if len(row.new_requests) == 0 else "Requested"}
+				#${"Request" if len(row.new_requests) == 0 else "Requested"}
+				Request
 		</button>
     : end
 : end
