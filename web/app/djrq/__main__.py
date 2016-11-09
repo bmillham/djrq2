@@ -9,6 +9,7 @@ from web.ext.serialize import SerializationExtension
 from web.ext.db import DatabaseExtension
 from web.db.sa import SQLAlchemyConnection
 from web.ext.selective import SelectiveDefaultDatabase
+from web.ext.dj import DJExtension
 
 # Import the lastplay model now, to get DJ database information
 from web.app.djrq.model.lastplay import DJs
@@ -44,6 +45,7 @@ app=Application(Root, extensions=[
 			**databases
 			),
 		SelectiveDefaultDatabase(),
+		DJExtension(whatsnewdays=180),
 		])
 
 

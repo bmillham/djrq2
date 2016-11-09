@@ -26,44 +26,6 @@ class Root:
 	def __init__(self, context=None, collection=None, record=None):
 		""" Setup basic stuff needed for all pages """
 		self._ctx = context
-		# Get listeners
-		try:
-			self._ctx.listeners = context.db.default.query(Listeners).one()
-		except:
-			self._ctx.listeners = None
-
-		# Get list of all DJs
-		self._ctx.alldjs = context.db.lastplay.query(DJs).filter(DJs.hide_from_menu == 0).order_by(DJs.dj)
-
-		# Import the proper models, based on the database type
-		host, sep, dom = context.request.host.partition(".")
-		if '-' in host:
-			prefix, host = host.split('-') # Strip leading dj-
-		else:
-			prefix = ''
-		djrow = context.db.lastplay.query(DJs).filter(DJs.dj == host).one()
-		self._ctx.DjName = djrow.dj
-		self._ctx.ServerName = dom
-		self._ctx.DjPrefix = prefix
-		self._ctx.WhatsNewDays = 30
-		package = 'web.app.djrq.model.'+djrow.databasetype
-		DbModel = importlib.import_module('.'+djrow.databasetype, 'web.app.djrq.model')
-		self._ctx.DbModel = DbModel
-		Queries = importlib.import_module('.queries', DbModel.__name__).Queries
-		try:
-			self._ctx.Album = importlib.import_module(package+'.album').Album
-		except:
-			self._ctx.Album = 'Album'
-		try:
-			self._ctx.Artist = importlib.import_module(package+'.artist').Artist
-		except:
-			self._ctx.Artist = 'Artist'
-		self._ctx.queries = Queries(db=self._ctx.db.default)
-		if self._ctx.queries.db is None:
-			raise HTTPError("Queries is None!")
-		self._ctx.dbstats = self._ctx.queries.get_song_stats()
-		self._ctx.requests_info = self._ctx.queries.get_new_pending_requests_info()
-		self._ctx.new_counts = self._ctx.queries.get_new_counts(days=self._ctx.WhatsNewDays)
 
 	def get(self, *arg, **args):
 		""" Handle other endpoints not imported """

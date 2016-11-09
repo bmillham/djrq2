@@ -25,7 +25,7 @@ class Requests:
 
 	def post(self, *arg, **args):
 		if args['formtype'] == 'request':
-			RequestList = importlib.import_module('.requestlist', self._ctx.DbModel.__name__).RequestList
+			RequestList = importlib.import_module('.requestlist', self._ctx.dbmodel.__name__).RequestList
 			now = datetime.utcnow()
 			new_row = RequestList(song_id=args['tid'],
 								  t_stamp=now,
@@ -42,7 +42,7 @@ class Requests:
 				'tid': args['tid'],
 				'newcount': newcount}
 		elif args['formtype'] == 'mistag':
-			Mistags = importlib.import_module('.mistags', self._ctx.DbModel.__name__).Mistags
+			Mistags = importlib.import_module('.mistags', self._ctx.dbmodel.__name__).Mistags
 			now = datetime.utcnow()
 			new_row = Mistags(track_id=args['tid'],
 							  reported=now,

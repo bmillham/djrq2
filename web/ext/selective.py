@@ -6,9 +6,11 @@ class SelectiveDefaultDatabase:
 		self.aliases = aliases
 	
 	def prepare(self, context):
-		host = context.request.host.rpartition(":")[0].split('.')[0]
+		host, sep, host_domain = context.request.host.partition('.')
 		if '-' in host: # So we can handle dj-name and name
-			host = host.split('-')[1]
+			prefix, host = host.split('-')
+		else:
+			prefix = ''
 		host = self.aliases.get(host, host)
 		if host not in context.db:
 			if not self.fallback:
@@ -17,4 +19,8 @@ class SelectiveDefaultDatabase:
 			host = self.fallback
 		
 		context.db.__dict__['default'] = context.db[host]
+		context.__dict__['host_domain'] = host_domain
+		context.djname = host
+		context.djprefix = prefix
+		context.djhost = sep.join((host, host_domain))
 		

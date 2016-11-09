@@ -24,18 +24,18 @@
 	  <div class='collapse navbar-collapse' id='collapse-1'>
 	   <ul class='nav navbar-nav'>
 	    <li class='dropdown ${"active" if resource == "lastplayed" else ""}'>
-	     <a href='/lastplayed' class='dropdown-toggle navbar-brand' data-toggle='dropdown' role='button' aria-haspopup='true' aria-expanded='false'>${ctx.DjName} <span class='badge'>${format_decimal(ctx.dbstats.total_songs)}</span><span class='caret'></span></a>
+	     <a href='/lastplayed' class='dropdown-toggle navbar-brand' data-toggle='dropdown' role='button' aria-haspopup='true' aria-expanded='false'>${ctx.djname} <span class='badge'>${format_decimal(ctx.dbstats.total_songs)}</span><span class='caret'></span></a>
 	     <ul class='dropdown-menu'>
 	      <li #{"class='active'" if resource == 'lastplayed' else ''}><a href='/lastplayed'>Last Played</a></li>
 	      <li role='separator' class='divider'></li>
 	     : for d in ctx.alldjs
-			: if d.dj != ctx.DjName
-				: if ctx.DjPrefix != ''
-					: dj = '-'.join((ctx.DjPrefix, d.dj))
+			: if d.dj != ctx.djname
+				: if ctx.djprefix != ''
+					: dj = '-'.join((ctx.djprefix, d.dj))
 				: else
 					: dj = d.dj
 				: end
-				<li><a href='http://${dj.lower()}.${ctx.ServerName}'>${d.dj}</a></li>
+				<li><a href='http://${dj.lower()}.${ctx.host_domain}'>${d.dj}</a></li>
 			: end
 		 : end
 		 </ul>

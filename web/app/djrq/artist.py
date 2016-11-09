@@ -7,6 +7,6 @@ class Artist:
 	def __init__(self, context, name, *arg, **args):
 		self._ctx = context
 		self.queries = context.queries
-		self.queries.model = context.Artist
+		self.queries.model = context.artist
 
 

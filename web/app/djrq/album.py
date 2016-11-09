@@ -9,4 +9,4 @@ class Album:
 	def __init__(self, context, name, *arg, **args):
 		self._ctx = context
 		self.queries = context.queries
-		self.queries.model = context.Album # Pass the DB model to get
+		self.queries.model = context.album # Pass the DB model to get
