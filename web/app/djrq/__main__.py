@@ -10,6 +10,7 @@ from web.ext.db import DatabaseExtension
 from web.db.sa import SQLAlchemyConnection
 from web.ext.selective import SelectiveDefaultDatabase
 from web.ext.dj import DJExtension
+from web.ext.djhost import DJHostExtension
 
 # Import the lastplay model now, to get DJ database information
 from web.app.djrq.model.lastplay import DJs
@@ -46,6 +47,7 @@ app=Application(Root, extensions=[
 			),
 		SelectiveDefaultDatabase(),
 		DJExtension(),
+		DJHostExtension(),
 		])
 
 
