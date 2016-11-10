@@ -1,5 +1,6 @@
 class SelectiveDefaultDatabase:
 	needs = {'db'}
+	provides = {'selective'}
 	
 	def __init__(self, fallback=None, **aliases):
 		self.fallback = fallback

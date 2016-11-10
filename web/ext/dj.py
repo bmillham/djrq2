@@ -2,7 +2,7 @@ import importlib
 from ..app.djrq.model.lastplay import DJs
 
 class DJExtension:
-	needs = {'db'}
+	needs = {'selective'}
 	
 	def __init__(self, whatsnewdays=30):
 		self.whatsnewdays = whatsnewdays
@@ -17,6 +17,8 @@ class DJExtension:
 		package = 'web.app.djrq.model.'+djrow.databasetype
 		context.__dict__['dbmodel'] = importlib.import_module('.'+djrow.databasetype, 'web.app.djrq.model')
 		context.__dict__['queries'] = importlib.import_module('.queries', context.dbmodel.__name__).Queries(db=context.db.default)
+		Listeners = importlib.import_module('.listeners', context.dbmodel.__name__).Listeners
+
 		try:
 			album = importlib.import_module(package+'.album').Album
 		except:
@@ -25,6 +27,7 @@ class DJExtension:
 			artist = importlib.import_module(package+'.artist').Artist
 		except:
 			artist = 'Artist'
+
 		context.__dict__['artist'] = artist
 		context.__dict__['album'] = album
 		if context.queries.db is None:
@@ -32,6 +35,7 @@ class DJExtension:
 		context.__dict__['dbstats'] = context.queries.get_song_stats()
 		context.__dict__['requests_info'] = context.queries.get_new_pending_requests_info()
 		context.__dict__['new_counts'] = context.queries.get_new_counts(days=context.whatsnewdays)
+
 		try:
 			context.__dict__['listeners'] = context.db.default.query(Listeners).one()
 		except:

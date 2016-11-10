@@ -45,7 +45,7 @@ app=Application(Root, extensions=[
 			**databases
 			),
 		SelectiveDefaultDatabase(),
-		DJExtension(whatsnewdays=180),
+		DJExtension(),
 		])
 
 
