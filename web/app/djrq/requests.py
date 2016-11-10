@@ -1,6 +1,5 @@
 # encoding: utf-8
 
-import importlib
 from .templates.requests import requeststemplate
 from .templates.requestwindow import requestwindowtemplate1
 from datetime import datetime
@@ -25,9 +24,8 @@ class Requests:
 
 	def post(self, *arg, **args):
 		if args['formtype'] == 'request':
-			RequestList = importlib.import_module('.requestlist', self._ctx.dbmodel.__name__).RequestList
 			now = datetime.utcnow()
-			new_row = RequestList(song_id=args['tid'],
+			new_row = self._ctx.requestlist(song_id=args['tid'],
 								  t_stamp=now,
 								  host=self._ctx.response.request.remote_addr,
 								  msg=args['comment'],
@@ -42,9 +40,8 @@ class Requests:
 				'tid': args['tid'],
 				'newcount': newcount}
 		elif args['formtype'] == 'mistag':
-			Mistags = importlib.import_module('.mistags', self._ctx.dbmodel.__name__).Mistags
 			now = datetime.utcnow()
-			new_row = Mistags(track_id=args['tid'],
+			new_row = self._ctx.mistags(track_id=args['tid'],
 							  reported=now,
 							  reported_by=args['sitenick'],
 							  comments=args['comment'],

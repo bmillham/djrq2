@@ -1,5 +1,5 @@
 class SelectiveDefaultDatabase:
-	needs = {'db'}
+	needs = {'djdb'}
 	provides = {'selective'}
 	
 	def __init__(self, fallback=None, **aliases):

@@ -16,10 +16,10 @@ app=Application(Root, extensions=[
 		AnnotationExtension(),
 		DebugExtension(),
 		SerializationExtension(),
+		DJHostExtension(),
 		DJDatabaseExtension(),
 		SelectiveDefaultDatabase(),
 		DJExtension(),
-		DJHostExtension(),
 		])
 
 if __name__ == "__main__":

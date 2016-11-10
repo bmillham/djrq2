@@ -10,9 +10,13 @@ class FakeContext:
 		self.db = {}
 
 class DJDatabaseExtension(DatabaseExtension):
-	_provides = {'db'}
+	_needs = {'djhost'}
+	_provides = {'djdb'}
 
 	def __init__(self, default=None):
+		self.needs = set(self._needs)
+		self.provides = set(self._provides)
+
 		engines = {'lastplay': SQLAlchemyConnection(lastplay_url)}
 		context = FakeContext()
 		engines['lastplay'].start(context)

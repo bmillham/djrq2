@@ -2,6 +2,7 @@ class DJHostExtension:
 	""" Parse the host name to find the DJ name, and save info that
 		will be used in various places """
 	first = True # Parse the host name before anything else is done
+	needs = {'request'}
 	provides = {'djhost'}
 	
 	def __init__(self, **args):

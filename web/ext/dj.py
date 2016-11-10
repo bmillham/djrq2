@@ -1,4 +1,4 @@
-import importlib
+from marrow.package.loader import load
 from ..app.djrq.model.lastplay import DJs
 
 class DJExtension:
@@ -15,21 +15,22 @@ class DJExtension:
 		context.__dict__['djname'] = djrow.dj
 
 		package = 'web.app.djrq.model.'+djrow.databasetype
-		context.__dict__['dbmodel'] = importlib.import_module('.'+djrow.databasetype, 'web.app.djrq.model')
-		context.__dict__['queries'] = importlib.import_module('.queries', context.dbmodel.__name__).Queries(db=context.db.default)
-		Listeners = importlib.import_module('.listeners', context.dbmodel.__name__).Listeners
 
+		context.__dict__['queries'] = load(package+'.queries:Queries')(db=context.db.default)
+		Listeners = load(package + '.listeners:Listeners')
 		try:
-			album = importlib.import_module(package+'.album').Album
+			album = load(package + '.album:Album', default='Album')
 		except:
 			album = 'Album'
 		try:
-			artist = importlib.import_module(package+'.artist').Artist
+			artist = load(package + '.artist:Artist', default='Artist')
 		except:
 			artist = 'Artist'
 
 		context.__dict__['artist'] = artist
 		context.__dict__['album'] = album
+		context.__dict__['requestlist'] = load(package + '.requestlist:RequestList')
+		context.__dict__['mistags'] = load(package + '.mistags:Mistags')
 		if context.queries.db is None:
 			raise HTTPError("Queries is None!")
 		context.__dict__['dbstats'] = context.queries.get_song_stats()
