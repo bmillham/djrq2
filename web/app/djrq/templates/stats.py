@@ -6,7 +6,6 @@
 : from . import table_args, caption_args
 
 : def statstemplate title, ctx, stats_info
-#	: table_args = "border='1' style='border-collapse: collapse; margin-left: auto; margin-right: auto;'"
 	: using page title, ctx, lang="en"
 		<table #{table_args}>
 		 <caption #{caption_args}>Song Statistics</caption>

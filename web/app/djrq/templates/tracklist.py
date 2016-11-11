@@ -51,7 +51,7 @@
 		: c = len(a.songs)
 		: songs = a.songs
 		: n = a.fullname
-	 : except
+	 : except AttributeError
 		: n = a[0]
 		: c = a[1].count()
 		: songs = a[1]
@@ -59,7 +59,7 @@
 	: end
 	: try
 		: r = ctx.resource.__resource__.capitalize()
-	: except
+	: except AttributeError
 		: r = 'Search'
 	: end
 	: if phrase

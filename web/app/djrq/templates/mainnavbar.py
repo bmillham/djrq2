@@ -16,7 +16,7 @@
 : def mainnavbar ctx
 	: try
 		: resource = ctx.resource.__resource__
-	: except
+	: except AttributeError
 		: resource = None
 	: end
 	<nav class='navbar navbar-default navbar-fixed-top'>

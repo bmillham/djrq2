@@ -25,7 +25,6 @@
 	    <img id='ricon' style='display:none' src='/public/icons/horse_7.gif'>
 	    <div class="results">Results here</div>
 	    <form id='requestform' class='ajax' action='/requests' method='post' data-append='.results'>
-	    #<form>
 	     <input type='hidden' id='tid' name='tid'>
 	     <input type='hidden' id='formtype' name='formtype' value='request'>
 		 <div class='form-group'>
@@ -34,9 +33,7 @@
           <label for='comment'>Comments</label>
           <input type="textarea" class="form-control" id="comment" name="comment" placeholder="Comments">
          </div>
-		 
          <button type="submit" class="btn btn-default" >Submit Request</button>
-         #<a href="/requests" class="btn btn-default ajax" data-method='post' data-append='.results'>Submit Request</a>
          <button type="button" class="btn" data-dismiss="modal">Close</button>
         </form>
 	   </div>
