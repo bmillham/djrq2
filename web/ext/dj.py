@@ -1,4 +1,5 @@
 from marrow.package.loader import load
+from sqlalchemy.orm.exc import NoResultFound
 from ..app.djrq.model.lastplay import DJs
 
 class DJExtension:
@@ -18,13 +19,14 @@ class DJExtension:
 
 		context.__dict__['queries'] = load(package+'.queries:Queries')(db=context.db.default)
 		Listeners = load(package + '.listeners:Listeners')
+
 		try:
 			album = load(package + '.album:Album', default='Album')
-		except:
+		except ImportError:
 			album = 'Album'
 		try:
 			artist = load(package + '.artist:Artist', default='Artist')
-		except:
+		except ImportError:
 			artist = 'Artist'
 
 		context.__dict__['artist'] = artist
@@ -40,7 +42,7 @@ class DJExtension:
 
 		try:
 			context.__dict__['listeners'] = context.db.default.query(Listeners).one()
-		except:
+		except NoResultFound:
 			context.__dict__['listeners'] = None
 		context.__dict__['alldjs'] = context.db.lastplay.query(DJs).filter(DJs.hide_from_menu == 0).order_by(DJs.dj)
 

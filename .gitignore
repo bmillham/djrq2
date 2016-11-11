@@ -1,3 +1,4 @@
+.packaging/
 .eggs/README.txt
 .eggs/pytest_runner-2.9-py3.5.egg
 DJRQ2.egg-info/PKG-INFO
