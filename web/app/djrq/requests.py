@@ -23,8 +23,8 @@ class Requests:
 		return requeststemplate("Current Requests", self._ctx, requestlist)
 
 	def post(self, *arg, **args):
+		now = datetime.utcnow()
 		if args['formtype'] == 'request':
-			now = datetime.utcnow()
 			new_row = self._ctx.requestlist(song_id=args['tid'],
 								  t_stamp=now,
 								  host=self._ctx.response.request.remote_addr,
@@ -40,7 +40,6 @@ class Requests:
 				'tid': args['tid'],
 				'newcount': newcount}
 		elif args['formtype'] == 'mistag':
-			now = datetime.utcnow()
 			new_row = self._ctx.mistags(track_id=args['tid'],
 							  reported=now,
 							  reported_by=args['sitenick'],
@@ -52,3 +51,14 @@ class Requests:
 			self._ctx.db.commit()
 			return {'html': 'Thank you for your Mistag report {}'.format(args['sitenick']),
 				'tid': args['tid']}
+		elif args['formtype'] == 'suggestion':
+			new_row = self._ctx.suggestions(
+											comments="{} {}".format(args['comment'], now),
+											title=args['title'],
+											artist=args['artist'],
+											album=args['album'],
+											suggestor=args['sitenick'],
+											)
+			self._ctx.db.add(new_row)
+			self._ctx.db.commit()
+			return {'html': "Thank you for your suggestion"}

@@ -81,3 +81,41 @@
 	 </div>
 	</div>
 : end
+
+: def suggestionmodal ctx
+	<div class="modal fade" id="suggestionModal" tabindex="-1" role="dialog" aria-labelledby="suggestionModalLabel">
+	 <div class="modal-dialog" role="document">
+	  <div class="modal-content">
+	   <div class="modal-header">
+	    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+	     <span aria-hidden="true">&times;</span>
+	    </button>
+	    <h4 class="modal-title" id="suggestionModalLabel">Suggest A Song</h4>
+	    <h6 class='modal-title' id='suggestionModalLabel'>Use this form to suggest a song that the DJ does not currently have</h6>
+	    <h6 class='modal-title' id='suggestionModalLabel'>Do not use the form to request a song! Use the Request buttons on the various pages.</h6>
+	   </div>
+	   <div class="modal-body">
+	   	<img id='ricon' style='display:none' src='/public/icons/horse_7.gif'>
+	    <div class="results">Results here</div>
+	   	<form id='suggestionform' class='ajax' action='/requests' method='post' data-append='.results'>
+	     <input type='hidden' id='formtype' name='formtype' value='suggestion'>
+		 <div class='form-group'>
+          <label for='sitenick'>Your site nick</label>
+          <input type='text' class='form-control' id='sitenick' name='sitenick' required>
+          <label for='title'>Title</label>
+          <input type='text' class='form-control' id='title' name='title'>
+          <label for='artist'>Artist</label>
+          <input type='text' class='form-control' id='artist' name='artist'>
+          <label for='Album'>Album</label>
+          <input type='text' class='form-control' id='album' name='album'>
+          <label for='comment'>Comments</label>
+          <input type="textarea" class="form-control" id="comment" name="comment" placeholder="Comments">
+         </div>
+         <button type="submit" class="btn btn-default">Make Suggestion</button>
+         <button type="button" class="btn" data-dismiss="modal">Close</button>
+        </form>
+	   </div>
+	  </div>
+	 </div>
+	</div>
+: end

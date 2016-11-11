@@ -31,6 +31,7 @@ class DJExtension:
 		context.__dict__['album'] = album
 		context.__dict__['requestlist'] = load(package + '.requestlist:RequestList')
 		context.__dict__['mistags'] = load(package + '.mistags:Mistags')
+		context.__dict__['suggestions'] = load(package + '.suggestions:Suggestions')
 		if context.queries.db is None:
 			raise HTTPError("Queries is None!")
 		context.__dict__['dbstats'] = context.queries.get_song_stats()

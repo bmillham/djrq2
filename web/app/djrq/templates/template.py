@@ -4,7 +4,7 @@
 : from .footer import site_footer
 : from .mainnavbar import mainnavbar
 : from .searchwindow import searchwindow
-: from .requestwindow import requestmodal, mistagmodal
+: from .requestwindow import requestmodal, mistagmodal, suggestionmodal
 
 : styles = [
 #:			'/public/bootstrap-3.3.7-dist/css/bootstrap.min.css',
@@ -23,6 +23,7 @@
 		: use searchwindow ctx
 		: use requestmodal ctx
 		: use mistagmodal ctx
+		: use suggestionmodal ctx
         : use mainnavbar ctx
         <div id='main-content'>
         : yield

@@ -25,8 +25,24 @@ $('#mistagModal').on('show.bs.modal', function(event) {
 	modal.find('#title').val(title)
 	modal.find('#artist').val(artist)
 	modal.find('#album').val(album)
+	modal.find('#comment').val(null)
 	modal.find('#ricon').hide()
 	modal.find('#mistagform').show()
+	modal.find('.results').text('')
+	modal.find(".results").hide()
+});
+
+$('#suggestionModal').on('show.bs.modal', function(event) {
+	var button = $(event.relatedTarget)
+	var modal = $(this)
+	/* Set the modal to show the proper data, hide and show the proper elements */
+
+	modal.find('#title').val('')
+	modal.find('#artist').val('')
+	modal.find('#album').val('')
+	modal.find('#ricon').hide()
+	modal.find('#comment').val(null)
+	modal.find('#suggestionform').show()
 	modal.find('.results').text('')
 	modal.find(".results").hide()
 });
