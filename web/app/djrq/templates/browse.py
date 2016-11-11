@@ -12,7 +12,8 @@
 		: end
 		<div class="browselist">
 		: if names is not None
-			: use namelist ctx, names
+			: flush
+			: yield from namelist(ctx, names)
 		: end
 		</div>
 		</div>
