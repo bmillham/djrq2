@@ -12,7 +12,7 @@ class Played(Base):
     played_by = Column(String(255))
     played_by_me = Column(Integer)
 
-	# TODO: This doesn't work right now. Kept for now until I decide what to do
+    # TODO: This doesn't work right now. Kept for now until I decide what to do
     def get_multi_albums(self):
         return session.query(Song).join(Album).join(Artist).filter(Artist.fullname == self.song.artist.fullname, Song.title == self.song.title)
 

@@ -7,23 +7,23 @@
 : from .requestwindow import requestmodal, mistagmodal, suggestionmodal
 
 : styles = [
-#:			'/public/bootstrap-3.3.7-dist/css/bootstrap.min.css',
-:			'/public/bootstrap/css/cerulean-bootstrap.min.css',
+#:          '/public/bootstrap-3.3.7-dist/css/bootstrap.min.css',
+:           '/public/bootstrap/css/cerulean-bootstrap.min.css',
 #:           '/public/bootstrap-3.3.7-dist/css/bootstrap-theme.min.css',
-:			'/public/fix-padding.css',
-:			'/public/vertical-navbar.css',
-:		   ]
+:           '/public/fix-padding.css',
+:           '/public/vertical-navbar.css',
+:          ]
 : scripts = ['https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js',
 :            '/public/bootstrap/js/bootstrap.min.js',
-:			 '/public/js/eldarion-ajax.min.js',
-:			 '/public/js/request.js']
+:            '/public/js/eldarion-ajax.min.js',
+:            '/public/js/request.js']
 
 : def page title, ctx, header=default_header, footer=site_footer, metadata=[], styles=styles, scripts=scripts, **attributes
     : using _page title, header=header, footer=footer, metadata=metadata, styles=styles, scripts=scripts, **attributes
-		: use searchwindow ctx
-		: use requestmodal ctx
-		: use mistagmodal ctx
-		: use suggestionmodal ctx
+        : use searchwindow ctx
+        : use requestmodal ctx
+        : use mistagmodal ctx
+        : use suggestionmodal ctx
         : use mainnavbar ctx
         <div id='main-content'>
         : yield

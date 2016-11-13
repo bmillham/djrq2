@@ -198,8 +198,8 @@ class Queries:
 
     def get_last_played(self, limit=50):
         return self.db.query(func.count(Played.date_played).label('played_count'), func.avg(Song.time).label('avg_time'), Played).join(Song).\
-			group_by(Played.date_played).\
-			order_by(Played.date_played.desc()).limit(limit)
+            group_by(Played.date_played).\
+            order_by(Played.date_played.desc()).limit(limit)
 
     def get_multi_albums(self, artist_name, song_title):
         return self.db.query(Song).filter(func.lower(Song.artist_fullname) == func.lower(artist_name),\

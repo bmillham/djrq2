@@ -4,11 +4,11 @@
 : from urllib.parse import urlencode, quote_plus
 
 : def letterscountsbar ctx, letterscountslist
-	: try
-	:	selected_letter = ctx.selected_letter
-	: except AttributeError
-	:	selected_letter = None
-	: end
+    : try
+    :   selected_letter = ctx.selected_letter
+    : except AttributeError
+    :   selected_letter = None
+    : end
 
     <div class="col-sm-1">
      <div class="sidebar-nav">
