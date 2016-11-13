@@ -14,6 +14,7 @@ from web.ext.db import DatabaseExtension
 from web.db.mongo import MongoDBConnection
 from web.ext.session import SessionExtension
 from web.session.mongo import MongoSession
+from web.ext.theme import ThemeExtension
 
 from web.app.djrq.model.session import Session
 
@@ -30,6 +31,7 @@ app=Application(Root, extensions=[
         DJDatabaseExtension(sessions=MongoDBConnection(SESSION_URI)),
         SelectiveDefaultDatabase(),
         DJExtension(),
+        ThemeExtension(),
         SessionExtension(secret=SESSION_SECRET,
                          expires=24*90,
                          default=MongoSession(Session, database='sessions'),

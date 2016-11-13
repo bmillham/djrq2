@@ -6,4 +6,5 @@ class Session(MongoSessionStorage):
 
     username = String(default=None)
     sitenick = String(default=None)
+    usertheme = String(default='United')
     #usertheme = String(default=None)

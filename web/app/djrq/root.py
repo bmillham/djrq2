@@ -19,7 +19,7 @@ class Root:
     from .requests import Requests as requests, Requests
     from .lastplayed import LastPlayed as lastplayed
     from .whatsnew import WhatsNew as whatsnew
-
+    from .siteoptions import SiteOptions as siteoptions
 
     public = static(os.path.join(os.path.dirname(__file__), 'public'))
 

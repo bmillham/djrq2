@@ -88,7 +88,16 @@
 
        <ul class='nav navbar-nav navbar-right'>
         <li name='usericon' style='${"display:none" if not ctx.session.sitenick else ""}'><a href="#"><span class='glyphicon glyphicon-user'></span></a></li>
-        <li><a href="/admin"><span class='glyphicon glyphicon-cog'></span></a></li>
+        <li class='dropdown'>
+         <a href='#' class='dropdown-toggle' data-toggle='dropdown' role='button' aria-haspopup='true' aria-expanded='false'>
+          <span class='glyphicon glyphicon-cog'></span>
+          <span class='caret'></span>
+         </a>
+         <ul class='dropdown-menu'>
+          <li><a href="/admin">Admin</a></li>
+          <li><a href='/siteoptions'>Site Options</a></li>
+         </ul>
+        </li>
         : if ctx.listeners is not None
             <li><a href='#'><span class='glyphicon glyphicon-headphones'></span> ${ctx.listeners.current}/${ctx.listeners.max}</a></li>
         : end

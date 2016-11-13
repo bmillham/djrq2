@@ -6,10 +6,7 @@
 : from .searchwindow import searchwindow
 : from .requestwindow import requestmodal, mistagmodal, suggestionmodal
 
-: styles = [
-#:          '/public/bootstrap-3.3.7-dist/css/bootstrap.min.css',
-:           '/public/bootstrap/css/cerulean-bootstrap.min.css',
-#:           '/public/bootstrap-3.3.7-dist/css/bootstrap-theme.min.css',
+: default_styles = [
 :           '/public/fix-padding.css',
 :           '/public/vertical-navbar.css',
 :          ]
@@ -18,7 +15,8 @@
 :            '/public/js/eldarion-ajax.min.js',
 :            '/public/js/request.js']
 
-: def page title, ctx, header=default_header, footer=site_footer, metadata=[], styles=styles, scripts=scripts, **attributes
+: def page title, ctx, header=default_header, footer=site_footer, metadata=[], styles=[], scripts=scripts, **attributes
+    : styles = [ctx.themes[ctx.session.usertheme]] + default_styles
     : using _page title, header=header, footer=footer, metadata=metadata, styles=styles, scripts=scripts, **attributes
         : use searchwindow ctx
         : use requestmodal ctx
