@@ -19,29 +19,29 @@ from marrow.mongo import String
 
 from .root import Root
 
-SESSION_URI = 'mongodb://localhost/djrq2sessions'
+SESSION_URI = 'mongodb://localhost/djrq2'
 SESSION_SECRET = 'xyzzy'
 
 class Session(MongoSessionStorage):
-	__collection__ = 'djrq2sessions'
-	
-	username = String(default=None)
-	usertheme = String(default=None)
+    __collection__ = 'sessions'
+
+    username = String(default=None)
+    sitenick = String(default=None)
+    #usertheme = String(default=None)
 
 app=Application(Root, extensions=[
-		AnnotationExtension(),
-		DebugExtension(),
-		SerializationExtension(),
-		DatabaseExtension(djrq2sessions=MongoDBConnection(SESSION_URI)),
-		DJHostExtension(),
-		DJDatabaseExtension(),
-		SelectiveDefaultDatabase(),
-		DJExtension(),
-		SessionExtension(secret=SESSION_SECRET,
-						 expires=24*90,
-						 default=MongoSession(Session, database='djrq2sessions'),
-						 ),
-		])
+        AnnotationExtension(),
+        DebugExtension(),
+        SerializationExtension(),
+        DJHostExtension(),
+        DJDatabaseExtension(sessions=MongoDBConnection(SESSION_URI)),
+        SelectiveDefaultDatabase(),
+        DJExtension(),
+        SessionExtension(secret=SESSION_SECRET,
+                         expires=24*90,
+                         default=MongoSession(Session, database='sessions'),
+                         ),
+        ])
 
 if __name__ == "__main__":
-	app.serve('wsgiref', host='0.0.0.0')
+    app.serve('wsgiref', host='0.0.0.0')
