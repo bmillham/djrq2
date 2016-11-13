@@ -8,4 +8,4 @@ DJRQ2.egg-info/namespace_packages.txt
 DJRQ2.egg-info/requires.txt
 DJRQ2.egg-info/top_level.txt
 __pycache__/
-/src/web/app/djrq/public/bootstrap/
+web/app/djrq/public/bootstrap/
