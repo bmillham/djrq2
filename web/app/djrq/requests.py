@@ -24,13 +24,15 @@ class Requests:
 
     def post(self, *arg, **args):
         now = datetime.utcnow()
-        self._ctx.session.sitenick = args['sitenick']
+        if not self._ctx.session.sitenick:
+            self._ctx.session.sitenick = args['sitenick']
+        sn = self._ctx.session.sitenick
         if args['formtype'] == 'request':
             new_row = self._ctx.requestlist(song_id=args['tid'],
                                   t_stamp=now,
                                   host=self._ctx.response.request.remote_addr,
                                   msg=args['comment'],
-                                  name=args['sitenick'],
+                                  name=sn,
                                   code=0,
                                   eta=now,
                                   status='new')
@@ -39,11 +41,12 @@ class Requests:
             newcount = self._ctx.queries.get_new_pending_requests_info().request_count
             return {'html': 'Thank you for your request {}'.format(args['sitenick']),
                 'tid': args['tid'],
+                'sitenick': args['sitenick'],
                 'newcount': newcount}
         elif args['formtype'] == 'mistag':
             new_row = self._ctx.mistags(track_id=args['tid'],
                               reported=now,
-                              reported_by=args['sitenick'],
+                              reported_by=sn,
                               comments=args['comment'],
                               title=args['title'],
                               artist=args['artist'],
@@ -51,6 +54,7 @@ class Requests:
             self._ctx.db.add(new_row)
             self._ctx.db.commit()
             return {'html': 'Thank you for your Mistag report {}'.format(args['sitenick']),
+                'sitenick': args['sitenick'],
                 'tid': args['tid']}
         elif args['formtype'] == 'suggestion':
             new_row = self._ctx.suggestions(
@@ -58,8 +62,9 @@ class Requests:
                                             title=args['title'],
                                             artist=args['artist'],
                                             album=args['album'],
-                                            suggestor=args['sitenick'],
+                                            suggestor=sn,
                                             )
             self._ctx.db.add(new_row)
             self._ctx.db.commit()
-            return {'html': "Thank you for your suggestion"}
+            return {'html': "Thank you for your suggestion",
+                    'sitenick': args['sitenick'],}

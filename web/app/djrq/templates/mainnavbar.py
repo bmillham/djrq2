@@ -87,9 +87,7 @@
        </form>
 
        <ul class='nav navbar-nav navbar-right'>
-        : if ctx.session.sitenick
-         <li><a href="#"><span class='glyphicon glyphicon-user'></span></a></li>
-        : end
+        <li name='usericon' style='${"display:none" if not ctx.session.sitenick else ""}'><a href="#"><span class='glyphicon glyphicon-user'></span></a></li>
         <li><a href="/admin"><span class='glyphicon glyphicon-cog'></span></a></li>
         : if ctx.listeners is not None
             <li><a href='#'><span class='glyphicon glyphicon-headphones'></span> ${ctx.listeners.current}/${ctx.listeners.max}</a></li>
