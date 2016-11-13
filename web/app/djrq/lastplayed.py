@@ -12,4 +12,8 @@ class LastPlayed:
 
 	def get(self, *arg, **args):
 		lplist = self.queries.get_last_played()
+		if not self._ctx.session.username:
+			self._ctx.session.username='someusername'
+		else:
+			print("Got a username from the session", self._ctx.session.username)
 		return lastplayedtemplate("50 Last Played", self._ctx, lplist)

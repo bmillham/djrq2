@@ -11,9 +11,9 @@ class FakeContext:
 
 class DJDatabaseExtension(DatabaseExtension):
 	_needs = {'djhost'}
-	_provides = {'djdb'}
+	_provides = {'djdb', 'db'}
 
-	def __init__(self, default=None):
+	def __init__(self, default=None, session=None):
 		self.needs = set(self._needs)
 		self.provides = set(self._provides)
 
@@ -30,4 +30,6 @@ class DJDatabaseExtension(DatabaseExtension):
 			print(d.user, d.password, server)
 
 		engines['lastplay'].stop(context)
+		#if default:
+		#	engines['default'] = default
 		super(DJDatabaseExtension, self).__init__(default, **engines)
