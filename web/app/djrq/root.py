@@ -20,6 +20,7 @@ class Root:
     from .lastplayed import LastPlayed as lastplayed
     from .whatsnew import WhatsNew as whatsnew
     from .siteoptions import SiteOptions as siteoptions
+    from .admin import Admin as admin
 
     public = static(os.path.join(os.path.dirname(__file__), 'public'))
 

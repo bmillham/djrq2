@@ -1,6 +1,7 @@
 from marrow.package.loader import load
 from sqlalchemy.orm.exc import NoResultFound
 from ..app.djrq.model.lastplay import DJs
+from webob.exc import HTTPFound, HTTPError, HTTPNotFound
 
 class DJExtension:
     needs = {'selective'}
@@ -12,7 +13,11 @@ class DJExtension:
         """ Setup basic stuff needed for all pages """
 
         context.__dict__['whatsnewdays'] = self.whatsnewdays
-        djrow = context.db.lastplay.query(DJs).filter(DJs.dj == context.djname).one()
+        try:
+            djrow = context.db.lastplay.query(DJs).filter(DJs.dj == context.djname).one()
+        except NoResultFound:
+            raise HTTPNotFound('Host Not Found')
+
         context.__dict__['djname'] = djrow.dj
 
         package = 'web.app.djrq.model.'+djrow.databasetype
