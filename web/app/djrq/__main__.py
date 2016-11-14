@@ -36,7 +36,11 @@ app=Application(Root, extensions=[
                          expires=24*90,
                          default=MongoSession(Session, database='sessions'),
                          ),
-        ])
+        ] + ([DebugExtension(),] if __debug__ else []),
+        )
 
 if __name__ == "__main__":
-    app.serve('wsgiref', host='0.0.0.0')
+    if __debug__:
+        app.serve('wsgiref', host='0.0.0.0')
+    else:
+        app.serve('fcgi', socket='/home/brian/djrq2-workingcopy/djrq2/var/djrq2-1.sock', umask=000)
