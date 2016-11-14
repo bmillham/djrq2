@@ -68,10 +68,12 @@
         : title = "{} tracks {} {}: {}".format(format_decimal(c), 'on' if r == 'Album' else 'for', r, n)
     : end
     : if dataonly
-        : use _tracklist title, ctx, a, r, songs
+        : flush
+        : yield from _tracklist(title, ctx, a, r, songs)
     : else
         : using page title, ctx, lang="en"
-            : use _tracklist title, ctx, a, r, songs
+            : flush
+            : yield from _tracklist(title, ctx, a, r, songs)
         : end
     : end
 : end
