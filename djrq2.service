@@ -1,7 +1,7 @@
 # For Ubuntu/Mint, copy this file to /lib/systemd/system
-# You will also need to edit the Exec... commands to point to djrq2.sh
-# Also edit djrq2.sh to make sure the paths are correct.
-# To enable the service once you've edited the files and copied this one
+# Edit the ExecStart command to point to where djrq2 is installed
+# Also you will need to install daemontools: sudo apt install daemontools
+# To enable the service once you've edited this files and copied it:
 # sudo systemctl daemon-reload
 # sudo systemctl enable djrq2
 # sudo systemctl start djrq2
@@ -14,9 +14,9 @@ After network.target = auditd.service
 User=brian
 Group=brian
 Type = forking
-ExecStart = /home/brian/djrq2-workingcopy/djrq2/djrq2.sh start
-ExecStop = /home/brian/djrq2-workingcopy/djrq2/djrq2.sh stop
-ExecReload = /home/brian/djrq2-workingcopy/djrq2/djrq2.sh reload
+ExecStart = /sbin/start-stop-daemon -p /var/run/djrq2.pid -d /home/brian/djrq2-workingcopy/djrq2 -b -a /home/brian/djrq2-workingcopy/bin/python -S -- -O -m web.app.djrq
+ExecStop = /sbin/start-stop-daemon -p /var/run/djrq2.pid -K
+ExecStatus = /sbin/start-stop-daemon -p /var/run/djrq2.pid -T
 Restart=always
 
 [Install]
