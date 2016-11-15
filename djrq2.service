@@ -17,6 +17,7 @@ Type = forking
 ExecStart = /home/brian/djrq2-workingcopy/djrq2/djrq2.sh start
 ExecStop = /home/brian/djrq2-workingcopy/djrq2/djrq2.sh stop
 ExecReload = /home/brian/djrq2-workingcopy/djrq2/djrq2.sh reload
+Restart=always
 
 [Install]
 WantedBy = multi-user.target
