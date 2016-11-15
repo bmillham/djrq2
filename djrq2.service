@@ -1,0 +1,22 @@
+# For Ubuntu/Mint, copy this file to /lib/systemd/system
+# You will also need to edit the Exec... commands to point to djrq2.sh
+# Also edit djrq2.sh to make sure the paths are correct.
+# To enable the service once you've edited the files and copied this one
+# sudo systemctl daemon-reload
+# sudo systemctl enable djrq2
+# sudo systemctl start djrq2
+
+[Unit]
+Description = djrq2 daemon
+After network.target = auditd.service
+
+[Service]
+User=brian
+Group=brian
+Type = forking
+ExecStart = /home/brian/djrq2-workingcopy/djrq2/djrq2.sh start
+ExecStop = /home/brian/djrq2-workingcopy/djrq2/djrq2.sh stop
+ExecReload = /home/brian/djrq2-workingcopy/djrq2/djrq2.sh reload
+
+[Install]
+WantedBy = multi-user.target
