@@ -26,7 +26,7 @@
         <li class='dropdown ${"active" if resource == "lastplayed" else ""}'>
          <a href='/lastplayed' class='dropdown-toggle navbar-brand' data-toggle='dropdown' role='button' aria-haspopup='true' aria-expanded='false'>${ctx.djname} <span class='badge'>${format_decimal(ctx.dbstats.total_songs)}</span><span class='caret'></span></a>
          <ul class='dropdown-menu'>
-          <li #{"class='active'" if resource == 'lastplayed' else ''}><a href='/lastplayed'>Last Played</a></li>
+          <li #{" class='active'" if resource == 'lastplayed' else ''}><a href='/lastplayed'>Last Played</a></li>
           <li role='separator' class='divider'></li>
          : for d in ctx.alldjs
             : if d.dj != ctx.djname
@@ -59,17 +59,15 @@
           ><a href="/album">By Album</a></li>
          </ul>
         </li>
-        #<li #{"class='active'" if resource == 'requests' else ''}>
         : using li_active resource, 'requests'
          <a href='/requests'>Requests <span class='badge'><span id="requestbutton">${format_decimal(ctx.requests_info.request_count)}</span></span></a>
         : end
-        #</li>
         : if ctx.new_counts.new_count > 0
-         <li #{"class='active'" if resource == 'whatsnew' else ''}>
+         <li #{" class='active'" if resource == 'whatsnew' else ''}>
           <a href='/whatsnew'>New <span class='badge'>${format_decimal(ctx.new_counts.new_count)}</span></a>
          </li>
         : end
-        <li #{"class='active'" if resource == 'stats' else ''}><a href="/stats">Stats</a></li>
+        <li #{" class='active'" if resource == 'stats' else ''}><a href="/stats">Stats</a></li>
         <li><a href="#" data-toggle='modal' data-target='#suggestionModal'>Suggestion</a></li>
        </ul>
        <form class='navbar-form navbar-left' action='/search' method='post' role='search'>
@@ -99,7 +97,10 @@
          </ul>
         </li>
         : if ctx.listeners is not None
-            <li><a href='#'><span class='glyphicon glyphicon-headphones'></span> ${ctx.listeners.current}/${ctx.listeners.max}</a></li>
+            <li><a href='#'><span class='glyphicon glyphicon-headphones'></span>&nbsp;
+                            <span id='listeners'>${ctx.listeners.current}</span>/<span id='maxlisteners'>${ctx.listeners.max}</span></a>
+            </li>
+
         : end
        </ul>
       </div>
