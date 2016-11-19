@@ -11,6 +11,7 @@
          <div class="col-md-12">
         <table #{table_args}>
          <caption #{caption_args}>50 Last Played</caption>
+         <tbody>
          <tr><th>Artist</th><th>Title</th><th>Album</th><th>Length</th><th>Last Played By</th></tr>
          : for i, r in enumerate(lplist)
             <tr>
@@ -53,8 +54,10 @@
                 (${pc})</span>
              : end
             </tr>
-            : if not (i % 10)
+            : if not (i % 9) and i != 0
+                </tbody>
                 : flush
+                <tbody>
             : end
          : end
          </table>

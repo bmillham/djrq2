@@ -13,6 +13,7 @@
            <th>Track #</th>
        : end
        <th>Title</th><th>Artist</th><th>Album</th><th>Length</th><th>Last Played</th></tr>
+        <tbody>
         : for i, row in enumerate(songs)
             <tr>
              : if r == 'Album'
@@ -33,10 +34,13 @@
               : end
              </td>
             </tr>
-            : if not (i % 100)
+            : if not (i % 49) and i != 0
+                </tbody>
                 : flush
+                <tbody>
             : end
         : end
+      </tbody>
      </table>
 : end
 

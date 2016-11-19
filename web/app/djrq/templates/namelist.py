@@ -5,6 +5,7 @@
      <table #{table_args}>
     : resource = ctx.resource.__resource__
       <caption #{caption_args}>Browsing by ${resource.capitalize()}: ${ctx.selected_letter} <span class='label label-info'>${names.count()}</span></caption>
+      <tbody>
         : row_ended = False
         : for i, name in enumerate(names)
             : if not (i % columns)
@@ -17,9 +18,11 @@
             : if i % columns == columns - 1
                 : row_ended = True
                 </tr>
-            : end
-            : if not (i % 15)
+             : if not int(i / columns) % 14 and i > columns
+                </tbody>
                 : flush
+                <tbody>
+             : end
             : end
         : end
         : if not row_ended
@@ -29,5 +32,6 @@
             : end
             </tr>
         : end
+        </tbody>
      </table>
 : end

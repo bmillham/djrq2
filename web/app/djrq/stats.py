@@ -13,16 +13,5 @@ class Stats:
         self.queries = self._ctx.queries
 
     def get(self, *arg, **args):
-        stats_info = {
-                      'total_artists': self.queries.get_total_artists(),
-                      'total_albums': self.queries.get_total_albums(),
-                      'total_played_by_me': self.queries.get_total_played_by_me(),
-                      'top_10_artists': self.queries.get_top_10(),
-                      '10 Most Requested': self.queries.get_top_requested(),
-                      'Top 10 Requestors': self.queries.get_top_requestors(),
-                      '10 Most Played By Me': self.queries.get_top_played_by(played_by_me=True),
-                      '10 Most Played By Other DJs': self.queries.get_top_played_by(played_by_me=False),
-                      '10 Most Played By All DJs': self.queries.get_top_played_by(played_by_me='all'),
-                     }
-
-        return statstemplate("Library Statistics", self._ctx, stats_info)
+        """ To speed up page loading, do the DB access in the template """
+        return statstemplate("Library Statistics", self._ctx)
