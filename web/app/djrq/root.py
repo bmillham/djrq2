@@ -20,13 +20,17 @@ class Root:
     from .lastplayed import LastPlayed as lastplayed
     from .whatsnew import WhatsNew as whatsnew
     from .siteoptions import SiteOptions as siteoptions
-    from .admin import Admin as admin
+    from .admin.admin import Admin as admin
 
     public = static(os.path.join(os.path.dirname(__file__), 'public'))
 
     def __init__(self, context=None, collection=None, record=None):
         """ Setup basic stuff needed for all pages """
         self._ctx = context
+
+    def authenticate(self, *arg, **args):
+        print("AUthenticating")
+        return "Authenticate"
 
     def get(self, *arg, **args):
         """ Handle other endpoints not imported """

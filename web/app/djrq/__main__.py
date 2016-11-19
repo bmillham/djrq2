@@ -11,6 +11,8 @@ from web.ext.selective import SelectiveDefaultDatabase
 from web.ext.dj import DJExtension
 from web.ext.djhost import DJHostExtension
 from web.ext.db import DatabaseExtension
+from web.ext.acl import ACLExtension, when
+from web.ext.auth import AuthExtension
 from web.db.mongo import MongoDBConnection
 from web.ext.session import SessionExtension
 from web.session.mongo import MongoSession
@@ -27,6 +29,8 @@ app=Application(Root, extensions=[
         AnnotationExtension(),
         DebugExtension(),
         SerializationExtension(),
+        ACLExtension(default=when.always),
+        AuthExtension(),
         DJHostExtension(),
         DJDatabaseExtension(sessions=MongoDBConnection(SESSION_URI)),
         SelectiveDefaultDatabase(),

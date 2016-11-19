@@ -1,5 +1,6 @@
 # encoding: utf-8
 
+from .templates.template import page as _page
 from .templates.requests import requeststemplate
 from .templates.requestwindow import requestwindowtemplate1
 from datetime import datetime
@@ -20,7 +21,7 @@ class Requests:
             return requestwindowtemplate1('New Request', self._ctx, s)
 
         requestlist = self.queries.get_new_pending_requests()
-        return requeststemplate("Current Requests", self._ctx, requestlist)
+        return requeststemplate(_page, "Current Requests", self._ctx, requestlist)
 
     def post(self, *arg, **args):
         now = datetime.utcnow()
