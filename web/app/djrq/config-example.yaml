@@ -1,0 +1,14 @@
+database:
+    uri: mysql://user:passwords@dbserver/lastplay
+
+session:
+    uri: mongodb://localhost/djrq2
+    secret: xyzzy
+    expires: 2160
+    database: sessions
+
+socket:
+    file: /home/brian/djrq2-workingcopy/djrq2/var/djrq2-1.sock
+    umask: 000
+
+

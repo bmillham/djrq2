@@ -43,4 +43,4 @@ if __name__ == "__main__":
     if __debug__:
         app.serve('wsgiref', host='0.0.0.0')
     else:
-        app.serve('fcgi', socket='/home/brian/djrq2-workingcopy/djrq2/var/djrq2-1.sock', umask=000)
+        app.serve('fcgi', socket=config['socket']['file'], umask=config['socket']['umask'])
