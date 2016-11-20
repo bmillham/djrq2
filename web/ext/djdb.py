@@ -1,6 +1,5 @@
 from web.ext.db import DatabaseExtension
 from web.db.sa import SQLAlchemyConnection
-from ..app.djrq.dbconfig import lastplay_url
 from web.app.djrq.model.lastplay import DJs
 
 
@@ -13,11 +12,11 @@ class DJDatabaseExtension(DatabaseExtension):
     _needs = {'djhost'}
     _provides = {'djdb', 'db'}
 
-    def __init__(self, default=None, sessions=None):
+    def __init__(self, default=None, sessions=None, lastplay_uri=None):
         self.needs = set(self._needs)
         self.provides = set(self._provides)
 
-        engines = {'lastplay': SQLAlchemyConnection(lastplay_url)}
+        engines = {'lastplay': SQLAlchemyConnection(lastplay_uri)}
         context = FakeContext()
         engines['lastplay'].start(context)
         djs = engines['lastplay'].Session.query(DJs).filter(DJs.hide_from_menu == 0)

@@ -2,6 +2,8 @@
 
 __import__('cinje')
 
+import yaml
+import os
 from web.core import Application
 from web.ext.annotation import AnnotationExtension
 from web.ext.debug import DebugExtension
@@ -15,26 +17,24 @@ from web.db.mongo import MongoDBConnection
 from web.ext.session import SessionExtension
 from web.session.mongo import MongoSession
 from web.ext.theme import ThemeExtension
-
 from web.app.djrq.model.session import Session
-
 from .root import Root
 
-SESSION_URI = 'mongodb://localhost/djrq2'
-SESSION_SECRET = 'xyzzy'
+with open(os.path.join(os.path.dirname(__file__), 'config.yaml')) as f:
+    config = yaml.safe_load(f)
 
 app=Application(Root, extensions=[
         AnnotationExtension(),
         DebugExtension(),
         SerializationExtension(),
         DJHostExtension(),
-        DJDatabaseExtension(sessions=MongoDBConnection(SESSION_URI)),
+        DJDatabaseExtension(sessions=MongoDBConnection(config['session']['uri']), lastplay_uri=config['database']['uri']),
         SelectiveDefaultDatabase(),
         DJExtension(),
         ThemeExtension(),
-        SessionExtension(secret=SESSION_SECRET,
-                         expires=24*90,
-                         default=MongoSession(Session, database='sessions'),
+        SessionExtension(secret=config['session']['secret'],
+                         expires=config['session']['expires'],
+                         default=MongoSession(Session, database=config['session']['database']),
                          ),
         ] + ([DebugExtension(),] if __debug__ else []),
         )
