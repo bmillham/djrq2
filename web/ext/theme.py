@@ -16,10 +16,18 @@ class ThemeExtension:
                 if fnmatch.fnmatch(name, 'theme-*'):
                     tname = name.split('-')[1]
                     themes[tname.capitalize()] = os.path.join('/public', 'bootstrap', 'css', name)
-        #self.themes = sorted(themes.items(), key=operator.itemgetter(0))
-        #print(self.themes)
+
         self.themes = themes
+        self.padding = {'Cerulean': '50px',
+                        'Cosmo': '50px',
+                        'Cyborg': '50px',
+                        'Darkly': '60px',
+                        'Flatly': '60px',
+                        'Journal': '60px',
+                        'United': '50px',
+                       }
 
 
     def prepare(self, context):
         context.__dict__['themes'] = self.themes
+        context.__dict__['padding'] = self.padding

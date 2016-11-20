@@ -5,9 +5,9 @@
 : from .mainnavbar import mainnavbar
 : from .searchwindow import searchwindow
 : from .requestwindow import requestmodal, mistagmodal, suggestionmodal
+: import os
 
 : default_styles = [
-:           '/public/fix-padding.css',
 :           '/public/vertical-navbar.css',
 :          ]
 : scripts = ['https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js',
@@ -19,7 +19,7 @@
 :           ]
 
 : def page title, ctx, header=default_header, footer=site_footer, metadata=[], styles=[], scripts=scripts, **attributes
-    : styles = [ctx.themes[ctx.session.usertheme]] + default_styles
+    : styles = [ctx.themes[ctx.session.usertheme], os.path.join('/public', 'fix-padding-'+ctx.padding[ctx.session.usertheme]+'.css')] + default_styles
     : using _page title, header=header, footer=footer, metadata=metadata, styles=styles, scripts=scripts, **attributes
         : use searchwindow ctx
         : use requestmodal ctx
