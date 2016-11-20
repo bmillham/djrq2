@@ -21,11 +21,11 @@
        </select>
       </div>
       <input type="search" class="form-control" id="advsearchtext" name="advsearchtext" placeholder="Search">
-     <button type="submit" class="btn btn-default">Search</button>
-     <button type="button" class="btn" data-dismiss="modal">Close</button>
+     <button type="submit" class="btn btn-primary">Search</button>
+     <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
      </form>
     </div>
    </div>
   </div>
  </div>
-: end 
+: end

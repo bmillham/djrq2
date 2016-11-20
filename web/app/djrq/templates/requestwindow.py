@@ -48,8 +48,8 @@
           <label for='comment'>Comments</label>
           <input type="textarea" class="form-control" id="comment" name="comment" placeholder="Comments">
          </div>
-         <button type="submit" class="btn btn-default" >Submit Request</button>
-         <button type="button" class="btn" data-dismiss="modal">Close</button>
+         <button type="submit" class="btn btn-primary" >Submit Request</button>
+         <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
         </form>
        </div>
       </div>
@@ -84,8 +84,8 @@
           <label for='comment'>Comments</label>
           <input type="textarea" class="form-control" id="comment" name="comment" placeholder="Comments">
          </div>
-         <button type="submit" class="btn btn-default">Report Mistag</button>
-         <button type="button" class="btn" data-dismiss="modal">Close</button>
+         <button type="submit" class="btn btn-primary">Report Mistag</button>
+         <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
         </form>
        </div>
       </div>
@@ -121,8 +121,8 @@
           <label for='comment'>Comments</label>
           <input type="textarea" class="form-control" id="comment" name="comment" placeholder="Comments">
          </div>
-         <button type="submit" class="btn btn-default">Make Suggestion</button>
-         <button type="button" class="btn" data-dismiss="modal">Close</button>
+         <button type="submit" class="btn btn-primary">Make Suggestion</button>
+         <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
         </form>
        </div>
       </div>
