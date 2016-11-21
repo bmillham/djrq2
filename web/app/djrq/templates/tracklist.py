@@ -27,7 +27,11 @@
               : if len(row.played) > 0
                 ${time_ago(row.played[0].date_played)} by ${row.played[0].played_by}
                 : if len(row.played) > 1
-                 &nbsp;<span class="badge pull-right">${len(row.played)}</span>
+                 &nbsp;<span class="badge pull-right" title="Played ${len(row.played)} times" data-html='1' data-toggle='popover' data-placement='left auto' data-trigger='hover' data-content="
+                 : for p in row.played
+                  ${p.played_by} ${time_ago(p.date_played)}<br>
+                 : end
+                 ">${len(row.played)}</span>
                 : end
               : else
                 &nbsp;

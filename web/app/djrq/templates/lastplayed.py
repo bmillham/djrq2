@@ -45,13 +45,13 @@
                 ${playlist[0].played_by}
                 ${time_ago(playlist[0].date_played)}
              : if pc > 1
-              <span title="Played ${pc} times:
+              <span class='badge pull-right' title="Played ${pc} times" data-html='1' data-toggle='popover' data-placement='left auto' data-trigger='hover' data-content="
                : for p in playlist
                 ${p.played_by}
-                ${time_ago(p.date_played)}
+                ${time_ago(p.date_played)}<br/>
                : end
               ">
-                (${pc})</span>
+                ${pc}</span>
              : end
             </tr>
             : if not (i % 9) and i != 0
