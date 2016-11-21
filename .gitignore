@@ -10,3 +10,4 @@ DJRQ2.egg-info/top_level.txt
 __pycache__/
 web/app/djrq/public/bootstrap/
 /web/app/djrq/config.yaml
+/var
