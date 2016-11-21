@@ -16,6 +16,7 @@
 :            '/public/js/NchanSubscriber.js',
 :            '/public/js/request.js',
 :            '/public/js/subscribe.js',
+:            '/public/js/enable_tooltips.js',
 :           ]
 
 : def page title, ctx, header=default_header, footer=site_footer, metadata=[], styles=[], scripts=scripts, **attributes

@@ -5,7 +5,7 @@ import operator
 class ThemeExtension:
     """ Find available bootstrap themes """
     #first = True # Parse the host name before anything else is done
-    #needs = {'request'}
+    needs = {'session'}
     provides = {'themes'}
 
     def __init__(self, *arg, **args):
