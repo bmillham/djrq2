@@ -23,7 +23,7 @@
              </td>
              <td>
              : if r.played_count > 1
-              <span data-html='1' data-toggle='tooltip' data-placement='right auto' title="
+              <span data-html='1' data-toggle='popover' data-placement='right auto' data-trigger='hover' title="On ${r.played_count} albums" data-content="
                 : for a in ctx.queries.get_multi_albums(r.Played.song.artist.fullname, r.Played.song.title)
                  ${a.album.fullname}<br />
                 : end
