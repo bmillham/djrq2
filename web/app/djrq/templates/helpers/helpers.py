@@ -15,7 +15,6 @@
                  # Disable the button if there are requests
                  ${"disabled='disabled'" if len(row.new_requests) > 0 else ""}
                  >
-                 #${"Request" if len(row.new_requests) == 0 else "Requested"}
                  Request
          </button>
          <button class="btn btn-xs btn-info m_${row.id}"

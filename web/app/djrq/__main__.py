@@ -18,6 +18,7 @@ from web.ext.session import SessionExtension
 from web.session.mongo import MongoSession
 from web.ext.theme import ThemeExtension
 from web.app.djrq.model.session import Session
+from datetime import timedelta
 from .root import Root
 
 with open(os.path.join(os.path.dirname(__file__), 'config.yaml')) as f:
@@ -28,12 +29,13 @@ app=Application(Root, extensions=[
         DebugExtension(),
         SerializationExtension(),
         DJHostExtension(),
-        DJDatabaseExtension(sessions=MongoDBConnection(config['session']['uri']), lastplay_uri=config['database']['uri']),
+        DJDatabaseExtension(sessions=MongoDBConnection(config['session']['uri']), config=config),
         SelectiveDefaultDatabase(),
-        DJExtension(),
-        ThemeExtension(),
+        DJExtension(config=config['site']),
+        ThemeExtension(default=config['site']['default_theme']),
         SessionExtension(secret=config['session']['secret'],
-                         expires=config['session']['expires'],
+                         expires=timedelta(days=config['session']['expires']),
+                         refresh=True,
                          default=MongoSession(Session, database=config['session']['database']),
                          ),
         ] + ([DebugExtension(),] if __debug__ else []),

@@ -1,5 +1,7 @@
 database:
     uri: mysql://user:passwords@dbserver/lastplay
+    server_map:
+        localhost: gelth.local
 
 session:
     uri: mongodb://localhost/djrq2

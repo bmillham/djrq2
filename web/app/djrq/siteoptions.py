@@ -1,7 +1,7 @@
 # encoding: utf-8
 
 from .templates.siteoptions import siteoptionstemplate
-
+from datetime import timedelta
 
 class SiteOptions:
     __dispatch__ = 'resource'
@@ -17,4 +17,5 @@ class SiteOptions:
 
     def post(self, *arg, **args):
         self._ctx.session.usertheme = args['theme']
+        self._ctx.usertheme = args['theme']
         return siteoptionstemplate("Site Options", self._ctx, updated=True)

@@ -10,7 +10,7 @@
         <div class="row table-responsive">
          <div class="col-md-12">
         <table #{table_args}>
-         <caption #{caption_args}>50 Last Played</caption>
+         <caption #{caption_args}>${ctx.lastplay_count} Last Played</caption>
          <tbody>
          <tr><th>Artist</th><th>Title</th><th>Album</th><th>Length</th><th>Last Played By</th></tr>
          : for i, r in enumerate(lplist)
