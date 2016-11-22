@@ -20,9 +20,8 @@
 :           ]
 
 : def page title, ctx, header=default_header, footer=site_footer, metadata=[], styles=[], scripts=scripts, **attributes
-    : styles = [ctx.themes[ctx.usertheme]] + default_styles
-    : body_style = 'padding-top: {};'.format(ctx.padding[ctx.usertheme])
-    : using _page title, header=header, footer=footer, metadata=metadata, styles=styles, scripts=scripts, style=body_style, **attributes
+    : styles = [ctx.themes[ctx.usertheme], ctx.fixes] + default_styles
+    : using _page title, header=header, footer=footer, metadata=metadata, styles=styles, scripts=scripts, **attributes
         : use searchwindow ctx
         : use requestmodal ctx
         : use mistagmodal ctx

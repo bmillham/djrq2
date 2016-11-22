@@ -79,7 +79,7 @@
            </li>
           </span>
           <input type='hidden' class='form-comtrol' name='navbarsearch' placeholder='Search'>
-          <input type='text' class='form-comtrol' style='line-height:2' data-target="#searchModal" name='stext' placeholder='Search' style='height=25px'>
+          <input type='text' class='form-comtrol' data-target="#searchModal" name='stext' id='stext' placeholder='Search'>
          </div>
         </div>
        </form>
