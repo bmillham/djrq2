@@ -6,13 +6,15 @@ from webob.exc import HTTPFound, HTTPError, HTTPNotFound
 class DJExtension:
     needs = {'selective'}
 
-    def __init__(self, whatsnewdays=30):
-        self.whatsnewdays = whatsnewdays
+    def __init__(self, config=None):
+        self.whatsnewdays = config['whatsnew_days']
+        self.lastplay_count = config['lastplay_count']
 
     def prepare(self, context):
         """ Setup basic stuff needed for all pages """
 
         context.__dict__['whatsnewdays'] = self.whatsnewdays
+        context.__dict__['lastplay_count'] = self.lastplay_count
         try:
             djrow = context.db.lastplay.query(DJs).filter(DJs.dj == context.djname).one()
         except NoResultFound:

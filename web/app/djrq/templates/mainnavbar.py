@@ -70,7 +70,7 @@
         <li #{" class='active'" if resource == 'stats' else ''}><a href="/stats">Stats</a></li>
         <li><a href="#" data-toggle='modal' data-target='#suggestionModal'>Suggestion</a></li>
        </ul>
-       <form class='navbar-form navbar-left' action='/search' method='post' role='search'>
+       <form class='navbar-form navbar-left hidden-xs hidden-sm' action='/search' method='post' role='search'>
         <div class='form-group'>
          <div class='input-group'>
           <span class='input-group-addon'>
@@ -79,12 +79,12 @@
            </li>
           </span>
           <input type='hidden' class='form-comtrol' name='navbarsearch' placeholder='Search'>
-          <input type='text' class='form-comtrol' data-target="#searchModal" name='stext' placeholder='Search' style='height=25px'>
+          <input type='text' class='form-comtrol' data-target="#searchModal" name='stext' id='stext' placeholder='Search'>
          </div>
         </div>
        </form>
 
-       <ul class='nav navbar-nav navbar-right'>
+       <ul class='nav navbar-nav navbar-right hidden-xs hidden-sm'>
         <li name='usericon' style='${"display:none" if not ctx.session.sitenick else ""}'><a href="#"><span class='glyphicon glyphicon-user'></span></a></li>
         <li class='dropdown'>
          <a href='#' class='dropdown-toggle' data-toggle='dropdown' role='button' aria-haspopup='true' aria-expanded='false'>
@@ -102,6 +102,17 @@
             </li>
 
         : end
+       </ul>
+       <ul class='nav navbar-nav navbar-right hidden-md hidden-lg'>
+        <li class='dropdown'>
+         <a href="#" class='dropdown-toggle' data-toggle='dropdown' role='button' aria-haspopup='true' aria-expanded='false'>
+          <span class='glyphicon glyphicon-option-vertical'></span>
+         </a>
+         <ul class='dropdown-menu'>
+          <li><a href='/admin'>Admin</a></li>
+          <li><a href='/siteoptions'>Site Options</a></li>
+         </ul>
+        </li>
        </ul>
       </div>
      </div>

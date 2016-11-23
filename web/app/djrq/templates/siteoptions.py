@@ -14,7 +14,7 @@
           <label for='theme'>Select A Theme</label>
           <select class='form-control' id='theme' name='theme'>
           : for t in sorted(ctx.themes.keys())
-           <option ${'selected' if t == ctx.session.usertheme else ''}>${t}</option>
+           <option ${'selected' if t == ctx.usertheme else ''}>${t}</option>
           : end
           </select>
          </div>

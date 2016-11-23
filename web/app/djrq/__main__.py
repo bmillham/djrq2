@@ -2,6 +2,8 @@
 
 __import__('cinje')
 
+import yaml
+import os
 from web.core import Application
 from web.ext.annotation import AnnotationExtension
 from web.ext.debug import DebugExtension
@@ -17,13 +19,12 @@ from web.db.mongo import MongoDBConnection
 from web.ext.session import SessionExtension
 from web.session.mongo import MongoSession
 from web.ext.theme import ThemeExtension
-
 from web.app.djrq.model.session import Session
-
+from datetime import timedelta
 from .root import Root
 
-SESSION_URI = 'mongodb://localhost/djrq2'
-SESSION_SECRET = 'xyzzy'
+with open(os.path.join(os.path.dirname(__file__), 'config.yaml')) as f:
+    config = yaml.safe_load(f)
 
 app=Application(Root, extensions=[
         AnnotationExtension(),
@@ -32,13 +33,14 @@ app=Application(Root, extensions=[
         ACLExtension(default=when.always),
         AuthExtension(),
         DJHostExtension(),
-        DJDatabaseExtension(sessions=MongoDBConnection(SESSION_URI)),
+        DJDatabaseExtension(sessions=MongoDBConnection(config['session']['uri']), config=config),
         SelectiveDefaultDatabase(),
-        DJExtension(),
-        ThemeExtension(),
-        SessionExtension(secret=SESSION_SECRET,
-                         expires=24*90,
-                         default=MongoSession(Session, database='sessions'),
+        DJExtension(config=config['site']),
+        ThemeExtension(default=config['site']['default_theme']),
+        SessionExtension(secret=config['session']['secret'],
+                         expires=timedelta(days=config['session']['expires']),
+                         refresh=True,
+                         default=MongoSession(Session, database=config['session']['database']),
                          ),
         ] + ([DebugExtension(),] if __debug__ else []),
         )
@@ -47,4 +49,4 @@ if __name__ == "__main__":
     if __debug__:
         app.serve('wsgiref', host='0.0.0.0')
     else:
-        app.serve('fcgi', socket='/home/brian/djrq2-workingcopy/djrq2/var/djrq2-1.sock', umask=000)
+        app.serve('fcgi', socket=config['socket']['file'], umask=config['socket']['umask'])
