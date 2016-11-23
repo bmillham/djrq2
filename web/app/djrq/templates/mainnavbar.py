@@ -104,7 +104,15 @@
         : end
        </ul>
        <ul class='nav navbar-nav navbar-right hidden-md hidden-lg'>
-        <li><a href="#"><span class='glyphicon glyphicon-option-vertical'></span></a></li>
+        <li class='dropdown'>
+         <a href="#" class='dropdown-toggle' data-toggle='dropdown' role='button' aria-haspopup='true' aria-expanded='false'>
+          <span class='glyphicon glyphicon-option-vertical'></span>
+         </a>
+         <ul class='dropdown-menu'>
+          <li><a href='/admin'>Admin</a></li>
+          <li><a href='/siteoptions'>Site Options</a></li>
+         </ul>
+        </li>
        </ul>
       </div>
      </div>
