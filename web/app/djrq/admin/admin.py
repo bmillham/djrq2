@@ -1,12 +1,15 @@
 # encoding: utf-8
 
+from web.ext.acl import when
 from ..templates.admin.admintemplate import page as _page
 from ..templates.requests import requeststemplate
 
+@when(when.matches(True, 'session.authenticated', True))
 class Admin:
     __dispatch__ = 'resource'
     from .suggestions import Suggestions as suggestions
     from .mistags import Mistags as mistags
+    from .auth import Auth as auth
 
     def __init__(self, context, name, *arg, **args):
         self._name = name

@@ -16,7 +16,7 @@
 :           ]
 
 : def page title, ctx, header=default_header, footer=site_footer, metadata=[], styles=[], scripts=scripts, **attributes
-    : styles = [ctx.themes[ctx.session.usertheme]] + default_styles
+    : styles = [ctx.themes[ctx.usertheme], ctx.fixes] + default_styles
     : using _page title, header=header, footer=footer, metadata=metadata, styles=styles, scripts=scripts, **attributes
         : use adminnavbar ctx
         <div id='main-content'>

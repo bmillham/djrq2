@@ -1,6 +1,7 @@
 import os
 import fnmatch
 import operator
+from webob.exc import HTTPFound
 
 class ThemeExtension:
     """ Find available bootstrap themes """
@@ -42,4 +43,11 @@ class ThemeExtension:
 
     def after(self, context):
         context.__dict__['fixes'] = self.fixes[context.usertheme]
+
+        if context.response.status_int == 403:
+            """ If a page is not authorized, redirect to the login page """
+
+            context.response = HTTPFound(location='/admin/auth')
+
+
 

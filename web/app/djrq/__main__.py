@@ -20,6 +20,7 @@ from web.ext.session import SessionExtension
 from web.session.mongo import MongoSession
 from web.ext.theme import ThemeExtension
 from web.app.djrq.model.session import Session
+from web.app.djrq.admin.auth import Auth
 from datetime import timedelta
 from .root import Root
 
@@ -30,19 +31,20 @@ app=Application(Root, extensions=[
         AnnotationExtension(),
         DebugExtension(),
         SerializationExtension(),
-        ACLExtension(default=when.always),
-        AuthExtension(),
         DJHostExtension(),
         DJDatabaseExtension(sessions=MongoDBConnection(config['session']['uri']), config=config),
         SelectiveDefaultDatabase(),
         DJExtension(config=config['site']),
         ThemeExtension(default=config['site']['default_theme']),
+        ACLExtension(default=when.always),
+        AuthExtension(intercept=None, name=None, session='authenticated', lookup=Auth.lookup, authenticate=Auth.authenticate),
         SessionExtension(secret=config['session']['secret'],
                          expires=timedelta(days=config['session']['expires']),
                          refresh=True,
                          default=MongoSession(Session, database=config['session']['database']),
                          ),
         ] + ([DebugExtension(),] if __debug__ else []),
+
         )
 
 if __name__ == "__main__":
