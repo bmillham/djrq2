@@ -24,16 +24,15 @@
       <div class='collapse navbar-collapse' id='collapse-1'>
        <ul class='nav navbar-nav'>
         <li>
-         <a href='/admin/requests'><span class='glyphicon glyphicon-cog'></span> ${ctx.djname} <span class='badge'>${format_decimal(ctx.requests_info.request_count)}</span></a>
+         <a href='/admin/requests'>
+          <span class='glyphicon glyphicon-cog'></span> ${ctx.djname}
+          <span class='badge'>${format_decimal(ctx.requests_info.request_count)}</span>
+         </a>
         </li>
-
-        : if ctx.new_counts.new_count > 0
-         <li #{" class='active'" if resource == 'whatsnew' else ''}>
-          <a href='/whatsnew'>New <span class='badge'>${format_decimal(ctx.new_counts.new_count)}</span></a>
-         </li>
+        : if ctx.session.authenticated
+         <li><a href="/admin/mistags">Mistags</a></li>
+         <li><a href="/admin/suggestions">Suggestions</a></li>
         : end
-        <li><a href="/admin/mistags">Mistags</a></li>
-        <li><a href="/admin/suggestions">Suggestions</a></li>
        </ul>
 
        <ul class='nav navbar-nav navbar-right'>
