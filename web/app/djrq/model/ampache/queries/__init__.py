@@ -4,8 +4,15 @@ from ..song import Song
 from ..artist import Artist
 from ..album import Album
 from ..siteoptions import SiteOptions
+from ..users import Users
+from ..suggestions import Suggestions
 from sqlalchemy.sql import func, or_
+from sqlalchemy.orm.exc import NoResultFound
+
+
 from time import time
+import hashlib # Used to verify admin passwords
+#import scrypt # Add this
 
 class Queries:
 
@@ -46,6 +53,15 @@ class Queries:
     @model.setter
     def model(self, value): # Allows changing the model used in some queries
         self.__model = value
+
+    def verify_user(self, uname, pword):
+        try:
+            self.db.query(Users).\
+                    filter(Users.uname == uname,
+                    Users.pword == hashlib.md5(pword.encode()).hexdigest()).one()
+            return True
+        except NoResultFound:
+            return False
 
     def get_options(self):
         return self.db.query(SiteOptions).one()
@@ -194,3 +210,11 @@ class Queries:
     def get_current_requests(self):
         return self.db.query(RequestList).\
                         filter((RequestList.status == 'new') | (RequestList.status == 'pending')).order_by(RequestList.id)
+
+    def get_suggestions(self):
+        return self.db.query(Suggestions)
+
+    def delete_suggestion(self, id):
+        row = self.db.query(Suggestions).filter(Suggestions.id==id).one()
+        self.db.commit()
+        return self.db.delete(row)

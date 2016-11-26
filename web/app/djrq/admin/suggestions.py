@@ -11,4 +11,8 @@ class Suggestions:
         self.queries = context.queries
 
     def get(self, *arg, **args):
-        return suggestionstemplate("Suggestions", self._ctx,  [])
+        if 'delete' in args:
+            self.queries.delete_suggestion(args['delete'])
+
+        suggestions = self.queries.get_suggestions()
+        return suggestionstemplate("Suggestions", self._ctx, suggestions)

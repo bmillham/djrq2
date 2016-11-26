@@ -12,5 +12,4 @@ class Mistags:
         self.queries = context.queries
 
     def get(self, *arg, **args):
-        print(self._ctx.session.authenticated)
         return mistagstemplate("Mistags", self._ctx,  [])

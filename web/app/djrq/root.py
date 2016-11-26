@@ -28,10 +28,6 @@ class Root:
         """ Setup basic stuff needed for all pages """
         self._ctx = context
 
-    def authenticate(self, *arg, **args):
-        print("AUthenticating")
-        return "Authenticate"
-
     def get(self, *arg, **args):
         """ Handle other endpoints not imported """
         if len(arg) == 0:
