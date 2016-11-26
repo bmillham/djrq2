@@ -21,4 +21,4 @@ class Admin:
         if len(arg) > 0 and arg[0] != 'requests':
             return "Page not found: {}".format(arg[0])
         requestlist = self.queries.get_new_pending_requests()
-        return requeststemplate(_page, "Admin", self._ctx, requestlist)
+        return requeststemplate(_page, "Requests", self._ctx, requestlist)

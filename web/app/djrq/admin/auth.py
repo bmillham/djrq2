@@ -22,6 +22,7 @@ class Auth:
     def post(self, *arg, **args):
         r = self._ctx.authenticate(self._ctx, identifier=args['username'], credential=args['password'])
         if r == True:
+            self._ctx.session.username = args['username']
             self._ctx.response = HTTPFound(location='/admin')
         return authtemplate("Login", self._ctx,  [])
 
