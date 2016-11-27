@@ -32,6 +32,7 @@
         : if ctx.session.authenticated
          <li><a href="/admin/mistags">Mistags</a></li>
          <li><a href="/admin/suggestions">Suggestions</a></li>
+         <li><a href='/admin/showinfo'>Show Info</a></li>
         : end
        </ul>
 

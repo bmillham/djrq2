@@ -235,3 +235,12 @@ class Queries:
         else:
             row.status = status
         return self.db.commit()
+
+    def get_showinfo(self):
+        return self.db.query(SiteOptions).one()
+
+    def save_showinfo(self, id, showtitle, showtime):
+        row = self.db.query(SiteOptions).filter(SiteOptions.id==id).one()
+        row.show_title = showtitle
+        row.show_time = showtime
+        return self.db.commit()
