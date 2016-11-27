@@ -6,6 +6,7 @@
 
 : default_styles = [
 :           '/public/fix-padding.css',
+:           '/public/vertical-table.css',
 :          ]
 : scripts = ['https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js',
 :            '/public/bootstrap/js/bootstrap.min.js',

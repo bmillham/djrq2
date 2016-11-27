@@ -1,0 +1,5 @@
+/* vertical table cell alignment */
+
+table.vertical-table > tbody > tr > td {
+    vertical-align: middle;
+}

@@ -5,6 +5,7 @@
 
 : def requeststemplate title, ctx, requestlist
     : using page title, ctx, lang="en"
+        <div class='container'>
         <div class="row table-responsive">
          <div class="col-md-12">
         <table #{table_args}>
@@ -12,6 +13,7 @@
          <tr><th>Artist</th><th>Title</th><th>Album</th><th>Length</th><th>Last Played By</th></tr>
 
          </table>
+         </div>
          </div>
          </div>
     : end

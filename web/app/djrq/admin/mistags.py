@@ -12,4 +12,14 @@ class Mistags:
         self.queries = context.queries
 
     def get(self, *arg, **args):
-        return mistagstemplate("Mistags", self._ctx,  [])
+        if 'delete' in args:
+            self.queries.delete_mistag(args['delete'])
+
+        mistaglist = self._ctx.queries.get_mistags()
+        for r in mistaglist:
+            if r.title == r.song.title and \
+               r.artist == r.song.artist.fullname and \
+               r.album == r.song.album.fullname:
+                   self._ctx.db.delete(r)
+            self._ctx.db.commit()
+        return mistagstemplate("Mistags", self._ctx,  mistaglist)

@@ -5,6 +5,7 @@
 
 : def suggestionstemplate title, ctx, suggestionlist
     : using page title, ctx, lang="en"
+        <div class='container'>
         <div class="row table-responsive">
          <div class="col-md-12">
         <table #{table_args}>
@@ -23,6 +24,7 @@
           </tr>
          : end
          </table>
+         </div>
          </div>
          </div>
     : end

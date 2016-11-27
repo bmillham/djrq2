@@ -6,6 +6,7 @@ from ..album import Album
 from ..siteoptions import SiteOptions
 from ..users import Users
 from ..suggestions import Suggestions
+from ..mistags import Mistags
 from sqlalchemy.sql import func, or_
 from sqlalchemy.orm.exc import NoResultFound
 
@@ -216,5 +217,13 @@ class Queries:
 
     def delete_suggestion(self, id):
         row = self.db.query(Suggestions).filter(Suggestions.id==id).one()
+        self.db.commit()
+        return self.db.delete(row)
+
+    def get_mistags(self):
+        return self.db.query(Mistags)
+
+    def delete_mistag(self, id):
+        row = self.db.query(Mistags).filter(Mistags.id==id).one()
         self.db.commit()
         return self.db.delete(row)
