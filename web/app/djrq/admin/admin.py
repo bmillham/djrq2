@@ -12,6 +12,7 @@ class Admin:
     from .auth import Auth as auth
     from .logout import Logout as logout
     from .showinfo import ShowInfo as showinfo
+    from .requestoptions import RequestOptions as requestoptions
 
     def __init__(self, context, name, *arg, **args):
         self._name = name
