@@ -13,15 +13,15 @@
              <legend>Show Information ${" [Saved]" if saved else ""}</legend>
              <input type='hidden' id='sid' name='sid' value='${showinfo.id}'>
              <div class='control-group'>
-              <label class='control-label' for='showtitle'>Show Title</label>
+              <label class='control-label' for='show_title'>Show Title</label>
               <div class='controls'>
-               <input type='text' class='form-control' id='showtitle' name='showtitle' placeholder='Show Title' value='${showinfo.show_title}'>
+               <input type='text' class='form-control' id='show_title' name='show_title' placeholder='Show Title' value='${showinfo.show_title}'>
               </div>
              </div>
              <div class='control-group'>
-              <label class='control-label' for='showtime'>Show Time</label>
+              <label class='control-label' for='show_time'>Show Time</label>
               <div class='controls'>
-               <input type="datetime" class="form-control" id="showtime" name="showtime" placeholder="Show Start Time" value='${showinfo.show_time}'>
+               <input type="datetime" class="form-control" id="show_time" name="show_time" placeholder="Show Start Time" value='${showinfo.show_time}'>
               </div>
              </div>
             </fieldset>

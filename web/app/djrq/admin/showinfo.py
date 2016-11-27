@@ -11,10 +11,10 @@ class ShowInfo:
         self.queries = context.queries
 
     def get(self, *arg, **args):
-        si = self.queries.get_showinfo()
-        return showinfotemplate("Show Information", self._ctx,  showinfo=si)
+        so = self.queries.get_siteoptions()
+        return showinfotemplate("Show Information", self._ctx,  showinfo=so)
 
     def post(self, *arg, **args):
-        result = self.queries.save_showinfo(args['sid'], args['showtitle'], args['showtime'])
-        si = self.queries.get_showinfo()
-        return showinfotemplate("Show Information [Saved]", self._ctx,  showinfo=si, saved=True)
+        result = self.queries.save_siteoptions(**args)
+        so = self.queries.get_siteoptions()
+        return showinfotemplate("Show Information Saved", self._ctx,  showinfo=so, saved=True)
