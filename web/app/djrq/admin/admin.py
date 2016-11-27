@@ -2,7 +2,7 @@
 
 from web.ext.acl import when
 from ..templates.admin.admintemplate import page as _page
-from ..templates.requests import requeststemplate
+from ..templates.admin.requests import requeststemplate
 
 @when(when.matches(True, 'session.authenticated', True), when.never)
 class Admin:
@@ -20,5 +20,10 @@ class Admin:
     def get(self, *arg, **args):
         if len(arg) > 0 and arg[0] != 'requests':
             return "Page not found: {}".format(arg[0])
+        if 'change_status' in args:
+            if args['status'] == 'delete':
+                self.queries.delete_request(args['id'])
+            else:
+                self.queries.change_request_status(args['id'], args['status'])
         requestlist = self.queries.get_new_pending_requests()
         return requeststemplate(_page, "Requests", self._ctx, requestlist)

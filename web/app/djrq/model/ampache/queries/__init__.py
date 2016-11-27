@@ -217,13 +217,24 @@ class Queries:
 
     def delete_suggestion(self, id):
         row = self.db.query(Suggestions).filter(Suggestions.id==id).one()
-        self.db.commit()
-        return self.db.delete(row)
+        self.db.delete(row)
+        return self.db.commit()
 
     def get_mistags(self):
         return self.db.query(Mistags)
 
     def delete_mistag(self, id):
         row = self.db.query(Mistags).filter(Mistags.id==id).one()
-        self.db.commit()
-        return self.db.delete(row)
+        self.db.delete(row)
+        return self.db.commit()
+
+    def change_request_status(self, id, status):
+        row = self.db.query(RequestList).filter(RequestList.id==id).one()
+        row.status = status
+        return self.db.commit()
+
+    def delete_request(self, id):
+        row = self.db.query(RequestList).filter(RequestList.id==id).one()
+        self.db.delete(row)
+        return self.db.commit()
+
