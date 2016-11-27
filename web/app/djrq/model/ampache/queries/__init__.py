@@ -230,11 +230,8 @@ class Queries:
 
     def change_request_status(self, id, status):
         row = self.db.query(RequestList).filter(RequestList.id==id).one()
-        row.status = status
+        if status == 'delete':
+            self.db.delete(row)
+        else:
+            row.status = status
         return self.db.commit()
-
-    def delete_request(self, id):
-        row = self.db.query(RequestList).filter(RequestList.id==id).one()
-        self.db.delete(row)
-        return self.db.commit()
-

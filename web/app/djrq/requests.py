@@ -40,9 +40,9 @@ class Requests:
             self._ctx.db.add(new_row)
             self._ctx.db.commit()
             newcount = self._ctx.queries.get_new_pending_requests_info().request_count
-            return {'html': 'Thank you for your request {}'.format(args['sitenick']),
+            return {'html': 'Thank you for your request {}'.format(sn),
                 'tid': args['tid'],
-                'sitenick': args['sitenick'],
+                'sitenick': sn,
                 'newcount': newcount}
         elif args['formtype'] == 'mistag':
             new_row = self._ctx.mistags(track_id=args['tid'],
@@ -54,8 +54,8 @@ class Requests:
                               album=args['album'])
             self._ctx.db.add(new_row)
             self._ctx.db.commit()
-            return {'html': 'Thank you for your Mistag report {}'.format(args['sitenick']),
-                'sitenick': args['sitenick'],
+            return {'html': 'Thank you for your Mistag report {}'.format(sn),
+                'sitenick': sn,
                 'tid': args['tid']}
         elif args['formtype'] == 'suggestion':
             new_row = self._ctx.suggestions(
@@ -68,4 +68,4 @@ class Requests:
             self._ctx.db.add(new_row)
             self._ctx.db.commit()
             return {'html': "Thank you for your suggestion",
-                    'sitenick': args['sitenick'],}
+                    'sitenick': sn,}
