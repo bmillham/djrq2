@@ -15,7 +15,7 @@ class DJHostExtension:
         else:
             prefix = ''
 
-        context.__dict__['host_domain'] = host_domain
-        context.__dict__['djname'] = host
-        context.__dict__['djprefix'] = prefix
-        context.__dict__['djhost'] = sep.join((host, host_domain))
+        context.host_domain = host_domain
+        context.djname = host
+        context.djprefix = prefix
+        context.djhost = sep.join((host, host_domain))
