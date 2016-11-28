@@ -12,10 +12,8 @@ class CatalogOptions:
         self.cats = self.queries.get_catalogs()
 
     def get(self, *arg, **args):
-       so = self.queries.get_siteoptions()
-       return catalogoptionstemplate("Catalog Selection", self._ctx,  siteoptions=so, cats=self.cats)
+       return catalogoptionstemplate("Catalog Selection", self._ctx, cats=self.cats)
 
     def post(self, *arg, **args):
         result = self.queries.save_siteoptions(**args)
-        so = self.queries.get_siteoptions()
-        return catalogoptionstemplate("Catalog Selection Saved", self._ctx,  siteoptions=so, cats=self.cats, saved=True)
+        return catalogoptionstemplate("Catalog Selection Saved", self._ctx, cats=self.cats, saved=True)

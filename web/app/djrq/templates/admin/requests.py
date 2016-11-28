@@ -13,6 +13,7 @@
             (${time_length(int(ctx.requests_info.request_length))})
          : except TypeError
           : pass
+         : end
          </caption>
          <tr><th>Status</th><th>Artist</th><th>Album</th><th>Title</th><th>Length</th><th>Requested By</th><th>Last Requested</th></tr>
          : for r in requestlist
@@ -27,7 +28,7 @@
                  : if r.status.capitalize() != status
                     <li><a href=#{"/admin/requests/?change_status&id={}&status={}".format(r.id, status.lower())}>${status.capitalize()}</a></li>
                  : end
-                 : end
+                : end
                 </ul>
               </div>
              </td>

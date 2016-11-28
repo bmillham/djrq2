@@ -53,4 +53,4 @@ class DJExtension:
         except NoResultFound:
             context.__dict__['listeners'] = None
         context.__dict__['alldjs'] = context.db.lastplay.query(DJs).filter(DJs.hide_from_menu == 0).order_by(DJs.dj)
-
+        context.siteoptions = context.queries.get_siteoptions()
