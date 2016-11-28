@@ -8,7 +8,12 @@
 : def requeststemplate page=_page, title=None, ctx=None, requestlist=[]
     : using page title, ctx, lang="en"
         <table #{table_args}>
-         <caption #{caption_args}>${ctx.requests_info.request_count} Requests (${time_length(int(ctx.requests_info.request_length))})</caption>
+         <caption #{caption_args}>${ctx.requests_info.request_count} Requests
+         : try
+            (${time_length(int(ctx.requests_info.request_length))})
+         : except TypeError
+          : pass
+         </caption>
          <tr><th>Status</th><th>Artist</th><th>Album</th><th>Title</th><th>Length</th><th>Requested By</th><th>Last Requested</th></tr>
          : for r in requestlist
             <tr>
