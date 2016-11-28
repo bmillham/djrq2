@@ -24,6 +24,7 @@ class DJExtension:
 
         package = 'web.app.djrq.model.'+djrow.databasetype
 
+        context.__dict__['databasetype'] = djrow.databasetype
         context.__dict__['queries'] = load(package+'.queries:Queries')(db=context.db.default)
         Listeners = load(package + '.listeners:Listeners')
 

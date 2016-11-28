@@ -4,9 +4,14 @@ from ..requestlist import RequestList
 from ..played import Played
 from ..song import Song
 from ..siteoptions import SiteOptions
+from ..users import Users
+from ..suggestions import Suggestions
+from ..mistags import Mistags
 from sqlalchemy.sql import func, or_
+from sqlalchemy.orm.exc import NoResultFound
 import datetime
 from time import time
+import hashlib # Used to verify admin passwords
 
 class Queries:
 
@@ -222,3 +227,55 @@ class Queries:
         r = self.db.query(Song).filter(search.ilike(phrase))
         print("Got results: ", r.count())
         return r
+
+    def verify_user(self, uname, pword):
+        try:
+            self.db.query(Users).\
+                    filter(Users.uname == uname,
+                    Users.pword == hashlib.md5(pword.encode()).hexdigest()).one()
+            return True
+        except NoResultFound:
+            return False
+
+    def get_current_requests(self):
+        return self.db.query(RequestList).\
+                        filter((RequestList.status == 'new') | (RequestList.status == 'pending')).order_by(RequestList.id)
+
+    def get_suggestions(self):
+        return self.db.query(Suggestions)
+
+    def delete_suggestion(self, id):
+        row = self.db.query(Suggestions).filter(Suggestions.id==id).one()
+        self.db.delete(row)
+        return self.db.commit()
+
+    def get_mistags(self):
+        return self.db.query(Mistags)
+
+    def delete_mistag(self, id):
+        row = self.db.query(Mistags).filter(Mistags.id==id).one()
+        self.db.delete(row)
+        return self.db.commit()
+
+    def change_request_status(self, id, status):
+        row = self.db.query(RequestList).filter(RequestList.id==id).one()
+        if status == 'delete':
+            self.db.delete(row)
+        else:
+            row.status = status
+        return self.db.commit()
+
+    def get_siteoptions(self):
+        return self.db.query(SiteOptions).one()
+
+    def save_siteoptions(self, **args):
+        row = self.db.query(SiteOptions).filter(SiteOptions.id==args['sid']).one()
+        for field in args:
+            if field == 'cat_group':
+                row.catalog = ','.join(args[field])
+            elif field != 'sid':
+                row.__setattr__(field, args[field])
+        return self.db.commit()
+
+    def get_catalogs(self):
+        return self.db.query(Catalog).order_by(Catalog.name)

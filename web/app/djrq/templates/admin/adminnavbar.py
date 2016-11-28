@@ -36,7 +36,9 @@
           <li #{" class='active'" if resource == 'suggestions' else ''}><a href="/admin/suggestions">Suggestions</a></li>
           <li #{" class='active'" if resource == 'showinfo' else ''}><a href='/admin/showinfo'>Show Info</a></li>
           <li #{" class='active'" if resource == 'requestoptions' else ''}><a href='/admin/requestoptions'>Request Options</a></li>
-          <li #{" class='active'" if resource == 'catalogoptions' else ''}><a href='/admin/catalogoptions'>Catalog Selection</a></li>
+          : if ctx.databasetype == 'ampache'
+            <li #{" class='active'" if resource == 'catalogoptions' else ''}><a href='/admin/catalogoptions'>Catalog Selection</a></li>
+          : end
          : end
         : except AttributeError
          : pass
