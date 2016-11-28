@@ -4,7 +4,7 @@ from ..templates.admin.catalogoptions import catalogoptionstemplate
 
 class CatalogOptions:
     __dispatch__ = 'resource'
-    __resource__ = 'catalogtoptions'
+    __resource__ = 'catalogoptions'
 
     def __init__(self, context, name, *arg, **args):
         self._ctx = context
