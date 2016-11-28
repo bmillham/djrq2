@@ -13,6 +13,7 @@ class Admin:
     from .logout import Logout as logout
     from .showinfo import ShowInfo as showinfo
     from .requestoptions import RequestOptions as requestoptions
+    from .catalogoptions import CatalogOptions as catalogoptions
 
     def __init__(self, context, name, *arg, **args):
         self._name = name

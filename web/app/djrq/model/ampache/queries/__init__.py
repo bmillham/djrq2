@@ -7,6 +7,7 @@ from ..siteoptions import SiteOptions
 from ..users import Users
 from ..suggestions import Suggestions
 from ..mistags import Mistags
+from ..catalog import Catalog
 from sqlalchemy.sql import func, or_
 from sqlalchemy.orm.exc import NoResultFound
 
@@ -242,6 +243,11 @@ class Queries:
     def save_siteoptions(self, **args):
         row = self.db.query(SiteOptions).filter(SiteOptions.id==args['sid']).one()
         for field in args:
-            if field != 'sid':
+            if field == 'cat_group':
+                row.catalog = ','.join(args[field])
+            elif field != 'sid':
                 row.__setattr__(field, args[field])
         return self.db.commit()
+
+    def get_catalogs(self):
+        return self.db.query(Catalog).order_by(Catalog.name)

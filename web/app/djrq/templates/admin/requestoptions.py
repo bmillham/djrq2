@@ -12,12 +12,6 @@
             <fieldset>
              <legend>Request Options ${" [Saved]" if saved else ""}</legend>
              <input type='hidden' id='sid' name='sid' value='${siteoptions.id}'>
-             #<div class='control-group'>
-             # <label class='control-label' for='limit_requests'>Don't allow requests for tracks played by me within the last</label>
-             # <div class='controls'>
-             #  <input type='text' class='form-control' id='limit_requests' name='limit_requests' value='${siteoptions.limit_requests}'>
-             # </div>
-             #</div>
              <div class='form-group'>
                 <label for='limit_requests'>Don't allow requests for tracks played by me within the last</label>
                 <select class="form-control" id="limit_requests" name="limit_requests">
@@ -30,7 +24,7 @@
                 </select>
              </div>
             </fieldset>
-            <button type="submit" class="btn btn-primary" >Submit</button>
+            <button type="submit" class="btn btn-primary" >Save</button>
            </form>
           </div>
          </div>

@@ -34,6 +34,7 @@
          <li><a href="/admin/suggestions">Suggestions</a></li>
          <li><a href='/admin/showinfo'>Show Info</a></li>
          <li><a href='/admin/requestoptions'>Request Options</a></li>
+         <li><a href='/admin/catalogoptions'>Catalog Selection</a></li>
         : end
        </ul>
 
