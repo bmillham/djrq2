@@ -30,12 +30,16 @@
           <span class='badge'>${format_decimal(ctx.requests_info.request_count)}</span>
          </a>
         </li>
-        : if ctx.session.authenticated
-         <li #{" class='active'" if resource == 'mistags' else ''}><a href="/admin/mistags">Mistags</a></li>
-         <li #{" class='active'" if resource == 'suggestions' else ''}><a href="/admin/suggestions">Suggestions</a></li>
-         <li #{" class='active'" if resource == 'showinfo' else ''}><a href='/admin/showinfo'>Show Info</a></li>
-         <li #{" class='active'" if resource == 'requestoptions' else ''}><a href='/admin/requestoptions'>Request Options</a></li>
-         <li #{" class='active'" if resource == 'catalogoptions' else ''}><a href='/admin/catalogoptions'>Catalog Selection</a></li>
+        : try
+         : if ctx.session.authenticated
+          <li #{" class='active'" if resource == 'mistags' else ''}><a href="/admin/mistags">Mistags</a></li>
+          <li #{" class='active'" if resource == 'suggestions' else ''}><a href="/admin/suggestions">Suggestions</a></li>
+          <li #{" class='active'" if resource == 'showinfo' else ''}><a href='/admin/showinfo'>Show Info</a></li>
+          <li #{" class='active'" if resource == 'requestoptions' else ''}><a href='/admin/requestoptions'>Request Options</a></li>
+          <li #{" class='active'" if resource == 'catalogoptions' else ''}><a href='/admin/catalogoptions'>Catalog Selection</a></li>
+         : end
+        : except AttributeError
+         : pass
         : end
        </ul>
 
