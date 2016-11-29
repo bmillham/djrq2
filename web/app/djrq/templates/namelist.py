@@ -2,6 +2,8 @@
 : from . import table_args, caption_args
 
 : def namelist ctx, names, columns=3
+    <div class='container'>
+     <div class='table-responsive'>
      <table #{table_args}>
     : resource = ctx.resource.__resource__
       <caption #{caption_args}>Browsing by ${resource.capitalize()}: ${ctx.selected_letter} <span class='label label-info'>${names.count()}</span></caption>
@@ -34,4 +36,6 @@
         : end
         </tbody>
      </table>
+     </div>
+    </div>
 : end

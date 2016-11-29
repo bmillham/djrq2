@@ -7,6 +7,7 @@
 
 : def lastplayedtemplate title, ctx, lplist
     : using page title, ctx, lang="en"
+       <div class='container'>
         <div class="row table-responsive">
          <div class="col-md-12">
         <table #{table_args}>
@@ -63,5 +64,6 @@
          </table>
          </div>
          </div>
+        </div>
     : end
 : end

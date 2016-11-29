@@ -8,6 +8,8 @@
 
 : def whatsnewtemplate title, ctx, days, newlist
     : using page title, ctx, lang="en"
+        <div class='container'>
+        <div class='table-responsive'>
         <table #{table_args}>
          <caption #{caption_args}>${format_decimal(ctx.new_counts.new_count)} tracks added in the last ${time_ago(days, add_direction=False)}</caption>
          <tr><th>Artist</th><th>New Tracks</th><th>Size</th><th>Total Play Time</th><th>Date Added</th></tr>
@@ -21,5 +23,7 @@
             </tr>
          : end
         </table>
+        </div>
+        </div>
     : end
 : end

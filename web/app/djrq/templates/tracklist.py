@@ -6,6 +6,8 @@
 : from . import table_args, caption_args
 
 : def _tracklist title, ctx, a, r, songs
+    <div class='container'>
+     <div class='table-responsive'>
      <table #{table_args}>
       <caption #{caption_args}>${title}</caption>
       <tr>
@@ -46,6 +48,8 @@
         : end
       </tbody>
      </table>
+     </div>
+     </div>
 : end
 
 : def tracklist ctx, a, dataonly=False, phrase=None

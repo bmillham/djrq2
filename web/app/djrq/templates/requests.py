@@ -7,6 +7,8 @@
 
 : def requeststemplate page=_page, title=None, ctx=None, requestlist=[]
     : using page title, ctx, lang="en"
+      <div class='container'>
+       <div class='table-responsive'>
         <table #{table_args}>
          <caption #{caption_args}>Current Requests</caption>
          <tr><th>Artist</th><th>Album</th><th>Title</th><th>Requestor</th><th>Status</th><th>Last Requested</th></tr>
@@ -21,5 +23,7 @@
             </tr>
          : end
         </table>
+       </div>
+      </div>
     : end
 : end

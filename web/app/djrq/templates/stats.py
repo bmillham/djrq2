@@ -11,6 +11,8 @@
         : total_played_by_me = queries.get_total_played_by_me()
         : total_artists = queries.get_total_artists()
         : total_albums = queries.get_total_albums()
+        <div class='container'>
+        <div class='table-responsive'>
         <table #{table_args}>
          <caption #{caption_args}>Song Statistics</caption>
          <tbody>
@@ -25,7 +27,11 @@
          <tr><td>Total Song Playtime</td><td>${time_length(ctx.dbstats.song_time)}</td></tr>
          <tr><td>Average Song Length</td><td>${time_length(ctx.dbstats.avg_song_time)}</td></tr>
          </tbody>
-        </table><br />
+        </table>
+        </div>
+        </div><br />
+        <div class='container'>
+        <div class='table-responsive'>
         <table #{table_args}>
          <caption #{caption_args}>Top 10 Artists</caption>
          <tr><th>#</th><th>Artist</th><th>Songs</th></tr>
@@ -36,8 +42,12 @@
            <td>${format_decimal(r.artist_count)}</td>
           </tr>
          : end
-         </table><br />
+         </table>
+         </div>
+         </div><br />
          : flush
+        <div class='container'>
+        <div class='table-responsive'>
         <table #{table_args}>
          <caption #{caption_args}>10 Most Requested</caption>
          <tr><th># Plays</th><th>Title</th><th>Artist</th><th>Album</th><th>Last Requested By</th></tr>
@@ -55,8 +65,12 @@
              : end
             </tr>
          : end
-        </table><br />
+        </table>
+        </div>
+        </div><br />
         : flush
+        <div class='container'>
+        <div class='table-responsive'>
         <table #{table_args}>
          <caption #{caption_args}>Top 10 Requestors</caption>
          <tr><th># Requests</th><th>Requestor</th><th>Last Request</th></tr>
@@ -67,8 +81,12 @@
            <td>${time_ago(r.last_request)}</td>
           </tr>
          : end
-        </table><br />
+        </table>
+        </div>
+        </div><br />
         : flush
+        <div class='container'>
+        <div class='table-responsive'>
         <table #{table_args}>
          <caption #{caption_args}>Top 10 Played By Me</caption>
          <tr><th>Plays</th><th>Title</th><th>Artist</th><th>Album</th><th>Last Played</th></tr>
@@ -81,8 +99,12 @@
            <td>${time_ago(played.date_played)}</td>
           </tr>
          : end
-         </table><br />
+         </table>
+         </div>
+         </div><br />
          : flush
+        <div class='container'>
+        <div class='table-responsive'>
          <table #{table_args}>
           <caption #{caption_args}>Top 10 Played By Other DJs</caption>
           <tr><th>Plays</th><th>Title</th><th>Artist</th><th>Album</th><th>Last Played</th></tr>
@@ -95,8 +117,12 @@
             <td>${time_ago(played.date_played)}</td>
            </tr>
           : end
-         </table><br />
+         </table>
+         </div>
+         </div><br />
          : flush
+        <div class='container'>
+        <div class='table-responsive'>
          <table #{table_args}>
           <caption #{caption_args}>Top 10 Played By All DJs</caption>
           <tr><th>Plays</th><th>Title</th><th>Artist</th><th>Album</th><th>Last Played</th></tr>
@@ -109,6 +135,8 @@
             <td>${time_ago(played.date_played)}</td>
            </tr>
           : end
-         </table><br />
+         </table>
+        </div>
+        </div>
     : end
 : end
