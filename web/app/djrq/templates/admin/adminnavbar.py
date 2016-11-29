@@ -48,9 +48,11 @@
        <ul class='nav navbar-nav navbar-right'>
         <li><a href="/lastplayed"><span class='glyphicon glyphicon-home'></span></a></li>
         <li><a href='/admin/auth/?logout'><span class='glyphicon glyphicon-off'></span></a></li>
-        <li><a href='#'><span class='glyphicon glyphicon-headphones'></span>&nbsp;
+        : if ctx.listeners is not None
+         <li><a href='#'><span class='glyphicon glyphicon-headphones'></span>&nbsp;
                         <span id='listeners'>${ctx.listeners.current}</span>/<span id='maxlisteners'>${ctx.listeners.max}</span></a>
-        </li>
+         </li>
+        : end
         </ul>
       </div>
      </div>
