@@ -19,7 +19,7 @@
              : if r == 'Album'
                  <td>${row.track}</td>
              : end
-             : use request_link row, td=True
+             : use request_link ctx, row, td=True
              : use aa_link row.artist, 'artist', td=True
              : use aa_link row.album, 'album', td=True
              <td>${format_time(row.time)}</td>

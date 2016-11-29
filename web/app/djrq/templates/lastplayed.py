@@ -19,7 +19,7 @@
               : use aa_link r.Played.song.artist, 'artist'
              </td>
              <td>
-              : use request_link r.Played.song
+              : use request_link ctx, r.Played.song
              </td>
              <td>
              : if r.played_count > 1

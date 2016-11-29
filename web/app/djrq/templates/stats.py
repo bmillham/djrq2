@@ -44,7 +44,7 @@
          : for song in queries.get_top_requested()
             <tr>
              <td>${len(song.played_requests)}</td>
-              : use request_link song, td=True
+              : use request_link ctx, song, td=True
               : use aa_link song.artist, 'artist', td=True
               : use aa_link song.album, 'album', td=True
              <td>
@@ -75,7 +75,7 @@
          : for played in queries.get_top_played_by(played_by_me=True)
           <tr>
            <td>${played.played_count}</td>
-            : use request_link played.Played.song, td=True
+            : use request_link ctx, played.Played.song, td=True
             : use aa_link played.Played.song.artist, 'artist', td=True
             : use aa_link played.Played.song.album, 'album', td=True
            <td>${time_ago(played.date_played)}</td>
@@ -89,7 +89,7 @@
           : for played in queries.get_top_played_by(played_by_me=False)
            <tr>
             <td>${played.played_count}</td>
-            : use request_link played.Played.song, td=True
+            : use request_link ctx, played.Played.song, td=True
             : use aa_link played.Played.song.artist, 'artist', td=True
             : use aa_link played.Played.song.album, 'album', td=True
             <td>${time_ago(played.date_played)}</td>
@@ -103,7 +103,7 @@
           : for played in queries.get_top_played_by(played_by_me='all')
            <tr>
             <td>${played.played_count}</td>
-            : use request_link played.Played.song, td=True
+            : use request_link ctx, played.Played.song, td=True
             : use aa_link played.Played.song.artist, 'artist', td=True
             : use aa_link played.Played.song.album, 'album', td=True
             <td>${time_ago(played.date_played)}</td>
