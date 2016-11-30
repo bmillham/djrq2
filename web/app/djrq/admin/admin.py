@@ -7,6 +7,8 @@ from ..templates.admin.requests import requeststemplate
 @when(when.matches(True, 'session.authenticated', True), when.never)
 class Admin:
     __dispatch__ = 'resource'
+    __resource__ = 'admin'
+
     from .suggestions import Suggestions as suggestions
     from .mistags import Mistags as mistags
     from .auth import Auth as auth
@@ -14,6 +16,7 @@ class Admin:
     from .showinfo import ShowInfo as showinfo
     from .requestoptions import RequestOptions as requestoptions
     from .catalogoptions import CatalogOptions as catalogoptions
+    from .uploadfiles import UploadFiles as uploadfiles
 
     def __init__(self, context, name, *arg, **args):
         self._name = name

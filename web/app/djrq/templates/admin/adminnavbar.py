@@ -25,7 +25,7 @@
       <div class='collapse navbar-collapse' id='collapse-1'>
        <ul class='nav navbar-nav'>
         <li #{" class='active'" if resource == None else ''}>
-         <a href='/admin/requests'>
+         <a href='/admin'>
           <span class='glyphicon glyphicon-cog'></span> ${ctx.djname}
           <span class='badge'>${format_decimal(ctx.requests_info.request_count)}</span>
          </a>
@@ -39,6 +39,13 @@
           : if ctx.databasetype == 'ampache'
             <li #{" class='active'" if resource == 'catalogoptions' else ''}><a href='/admin/catalogoptions'>Catalog Selection</a></li>
           : end
+        <li class='dropdown'>
+         <a href='#' class='dropdown-toggle navbar-brand' data-toggle='dropdown' role='button' aria-haspopup='true' aria-expanded='false'>Upload Files<span class='caret'></span></a>
+         <ul class='dropdown-menu'>
+          <li><a href='/admin/uploadfiles/private'>Your Private Area</a></li>
+          <li><a href='/admin/uploadfiles/shared'>DJ Shared Area</a></li>
+         </ul>
+        </li>
          : end
         : except AttributeError
          : pass

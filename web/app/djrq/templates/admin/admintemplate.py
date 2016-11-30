@@ -5,7 +5,9 @@
 : from .adminnavbar import adminnavbar
 
 : default_styles = [
-:           '/public/fix-padding.css',
+:           '/public/css/style.css',
+:           '/public/css/jquery.fileupload.css',
+:           '/public/css/jquery.fileupload-ui.css',
 :           '/public/vertical-table.css',
 :          ]
 : scripts = ['https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js',
@@ -15,8 +17,24 @@
 :            '/public/js/request.js',
 :            '/public/js/subscribe.js',
 :           ]
+: filescripts = ['/public/js/vendor/jquery.ui.widget.js',
+:                '/public/js/jquery.iframe-transport.js',
+:                '/public/js/jquery.fileupload.js',
+:                '/public/js/jquery.fileupload-process.js',
+:                '/public/js/tmpl.min.js',
+:                '/public/js/load-image.all.min.js',
+:                '/public/js/jquery.fileupload-image.js',
+:                '/public/js/jquery.fileupload-audio.js',
+:                '/public/js/jquery.fileupload-video.js',
+:                '/public/js/jquery.fileupload-validate.js',
+:                '/public/js/jquery.fileupload-ui.js',
+:                '/public/js/main.js',
+:               ]
 
 : def page title, ctx, header=default_header, footer=site_footer, metadata=[], styles=[], scripts=scripts, **attributes
+    : if ctx.resource.__resource__ == 'uploadfiles'
+     : scripts = scripts + filescripts
+    : end
     : styles = [ctx.themes[ctx.usertheme], ctx.fixes] + default_styles
     : title = 'Admin: ' + title
     : try
