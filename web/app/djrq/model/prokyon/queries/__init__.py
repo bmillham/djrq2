@@ -9,6 +9,7 @@ from ..suggestions import Suggestions
 from ..mistags import Mistags
 from sqlalchemy.sql import func, or_
 from sqlalchemy.orm.exc import NoResultFound
+from sqlalchemy.ext.serializer import dumps # For backing up tables.
 import datetime
 from time import time
 import hashlib # Used to verify admin passwords
@@ -279,3 +280,18 @@ class Queries:
 
     def get_catalogs(self):
         return self.db.query(Catalog).order_by(Catalog.name)
+
+    def backup_database(self):
+        tables = (RequestList, Played, Song, Mistags)
+        s = []
+        for t in tables:
+            s.append(dumps(self.db.query(t).all()))
+        return s
+
+    def is_updating(self, status=None):
+        row = self.db.query(SiteOptions).one()
+        if status is None:
+            return row.isupdating
+        else:
+            row.isupdating = status
+            return self.db.commit()

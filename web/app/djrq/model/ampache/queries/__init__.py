@@ -10,6 +10,7 @@ from ..mistags import Mistags
 from ..catalog import Catalog
 from sqlalchemy.sql import func, or_
 from sqlalchemy.orm.exc import NoResultFound
+from sqlalchemy.ext.serializer import dumps # For backing up tables.
 
 
 from time import time
@@ -251,3 +252,11 @@ class Queries:
 
     def get_catalogs(self):
         return self.db.query(Catalog).order_by(Catalog.name)
+
+    def backup_database(self):
+        tables = (RequestList, Played, Song, Artist, Album, Mistags, Catalog)
+        s = []
+        for t in tables:
+            s.append(dumps(self.db.query(t).all()))
+
+        return s

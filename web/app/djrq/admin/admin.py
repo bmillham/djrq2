@@ -17,6 +17,7 @@ class Admin:
     from .requestoptions import RequestOptions as requestoptions
     from .catalogoptions import CatalogOptions as catalogoptions
     from .uploadfiles import UploadFiles as uploadfiles
+    from .updatedatabase import UpdateDatabase as updatedatabase
 
     def __init__(self, context, name, *arg, **args):
         self._name = name

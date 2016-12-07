@@ -8,12 +8,12 @@ class SiteOptions(Base):
     show_end = Column(String(255))
     limit_requests = Column(String(255))
     offset = Column(Integer)
-    #catalog = Column(String(255))
+    isupdating = Column(Boolean)
 
     @hybrid_property
     def catalog(self):
         return "1"
- 
+
     @catalog.expression
     def catalog(self):
         return '1'

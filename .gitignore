@@ -11,3 +11,4 @@ __pycache__/
 web/app/djrq/public/bootstrap/
 /web/app/djrq/config.yaml
 /var
+/privatefilearea

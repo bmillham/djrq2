@@ -8,7 +8,7 @@ class Name(object):
         self._fullname = fullname
         self._prefix = prefix
         self._name = name
- 
+
 
     def __unicode__(self):
         from urllib import quote_plus, quote
@@ -21,7 +21,7 @@ class Name(object):
     @property
     def name(self):
         return self._name
-    
+
     @property
     def prefix(self):
         return self._prefix
@@ -60,7 +60,7 @@ class Song(Base):
 
     played = relationship("Played", backref="song", order_by="Played.date_played.desc()")
     requests = relationship("RequestList", backref='song', order_by='RequestList.t_stamp.desc()')
-    new_requests = relationship("RequestList", 
+    new_requests = relationship("RequestList",
         primaryjoin="and_(RequestList.song_id==Song.id, or_(RequestList.status == 'new', RequestList.status=='pending'))")
     played_requests = relationship("RequestList",
                        primaryjoin="and_(RequestList.song_id==Song.id, RequestList.status == 'played')",
@@ -106,7 +106,7 @@ class Song(Base):
     @hybrid_property
     def album(self):
         return Name('album', self.album_fullname, self.album_name, self.album_prefix)
-    
+
     @hybrid_property
     def artist(self):
         return Name('artist', self.artist_fullname, self.artist_name, self.artist_prefix)

@@ -16,6 +16,8 @@
 :            '/public/js/NchanSubscriber.js',
 :            '/public/js/request.js',
 :            '/public/js/subscribe.js',
+:            '/public/js/updatedatabase.js',
+:            '/public/js/updatedatabasesubscribe.js',
 :           ]
 : filescripts = ['/public/js/vendor/jquery.ui.widget.js',
 :                '/public/js/jquery.iframe-transport.js',
