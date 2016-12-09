@@ -1,6 +1,7 @@
 #encoding: cinje
 
 : from .admintemplate import page
+: from .. import table_args, caption_args
 : import os
 
 : def selectfile title, ctx, files=[]
@@ -52,8 +53,36 @@
 : end
 
 : def updateprogress
-    <div class='results' style='display: none'>Results here</div>
+    <div class='results'>Results here</div>
+    <div class='progress'>
+     <div class='progress-bar progress-bar-striped update-progress-bar' role='progressbar' aria-valuenow='0' aria-valuemin='0' aria-valuemax='100' style='min-width: 2em; width: 0%;'>
+      0%
+     </div>
+    </div>
     <div class='backupprogress'><div>
+    <div class='updateartist'></div>
+    <div class='updatealbum'></div>
+    <div class='updatetitle'></div>
+    <div class='difference' id='difference'>
+    <table class='table table-bordered table-striped vertical-table currenttrack-table' style='margin-left: auto; margin-right: auto; width: 100%;'>
+     <tbody>
+      <tr><th>File</th><th>Artist</th><th>Album</th><th>Title</th></tr>
+      <tr><td class='currentfile'></td><td class='currentartist'></td><td class='currentalbum'></td><td class='currenttitle'></td></tr>
+     </tbody>
+    </table>
+    <table class='table table-bordered table-striped vertical-table newtrack-table' style='margin-left: auto; margin-right: auto; width: 100%;'>
+     <caption #{caption_args}>New Tracks <span class='badge updatedcount'>0</span></caption>
+     <tbody>
+      <tr><th>File</th><th>Artist</th><th>Album</th><th>Title</th></tr>
+     </tbody>
+    </table>
+    <table class='table table-bordered table-striped vertical-table difftable' style='margin-left: auto; margin-right: auto; width: 100%;'>
+     <caption #{caption_args}>Updated Tracks <span class='badge updatedcount'>0</span></caption>
+     <tbody>
+      <tr><th>File</th><th>Field</th><th>Original</th><th>Updated</th></tr>
+     </tbody>
+    </table>
+    </div>
 : end
 
 : def updatecomplete ctx
