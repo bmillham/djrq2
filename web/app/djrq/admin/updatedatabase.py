@@ -6,7 +6,7 @@ from glob import glob
 import zipfile
 from time import sleep, time
 from datetime import datetime
-from ..templates.admin.updatedatabase import selectfile, updatedatabase, updatecomplete
+from ..templates.admin.updatedatabase import selectfile, selectdatabasefile, updatecomplete, updateprogress
 from concurrent.futures import ThreadPoolExecutor
 from .backupdatabase import backupdatabase
 
@@ -42,17 +42,18 @@ class UpdateDatabase:
         files = []
         for pattern in ('dat', 'idx', '[Xx][Mm][Ll]'):
             files += glob(os.path.join(self.uploaddir, '*.' + pattern))
-        return updatedatabase('Update Database', self._ctx, files)
+        return selectdatabasefile('Select Database File', self._ctx, files)
 
     def updatedatabase(self, *arg, **args):
         #backupdatabase(self)
-        self._startupdate()
+        #self._startupdate()
         self._ctx.queries.is_updating(status=True)
         self.executor = ThreadPoolExecutor(max_workers=1)
         future = self.executor.submit(backupdatabase, self)
         future.add_done_callback(self._backupcomplete)
         #return {'html': 'Update running'}
-        return True
+        print('Update is running!')
+        return updateprogress('Updating Database', self._ctx)
 
     def _backupcomplete(self, future):
         future = self.executor.submit(self._startupdate)
@@ -99,17 +100,28 @@ class UpdateDatabase:
                     'bitrate': 'bit_rate',
                    }
 
+        d = {'progress': 0,
+             'stage': 'Starting Database Update',
+            }
+        requests.post(self.ws, data=json.dumps(d))
         winampdb = MediaLibrary(self.uploaddir, verbose=False)
         print("%d records in the winamp database" % winampdb.totalrecords)
         count = winampdb.totalrecords
 
         print("Building list of Auto Added tracks")
+        d = {'progress': 0,
+             'stage': 'Updating Database',
+            }
+        requests.post(self.ws, data=json.dumps(d))
         aa = self._ctx.db.query(Song).filter(Song.path == 'AutoAdded', Song.filename=='AutoAdded')
         autoadded = []
         for arow in aa:
             autoadded.append(arow)
         print("Found {} Auto Added tracks".format(len(autoadded)))
 
+        d = {'progress': 0,
+             'stage': 'Updating Database',
+            }
         lartist = None
         lalbum = None
         lp = None
@@ -150,11 +162,6 @@ class UpdateDatabase:
                 s = self._ctx.db.query(Song).filter(Song.path==up, Song.filename==uf).one().__dict__
             except:
                 new_track = {fieldmap[field]: rc[field] for field in fieldmap}
-                #new_track['path'] = up
-                #new_track['filename'] = uf
-                # Fix fields that need to be '' instead of None
-                #for f in ('album_fullname', 'artist_fullname'):
-                #    if new_track[f] is None: new_track[f] = ''
                 new_track['_addition_time'] = datetime.utcnow()
                 track = Song(**new_track)
                 self._ctx.db.add(track)
@@ -165,7 +172,6 @@ class UpdateDatabase:
                 diff = False
                 to_update = {}
                 for field in fieldmap:
-                    if rc[field] == None: rc[field] = ''
                     if rc[field] != s[fieldmap[field]] and field != 'lastmodified':
                         send_update(self.ws, cp, rc, field=field, filename=uf, updatedcount=updatedcount+1)
                         lp = cp

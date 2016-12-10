@@ -29,6 +29,9 @@ def backupdatabase(self):
         cursor.execute(tc[t])
         db.commit()
         print('Getting data to backup')
+        d = {'progress': 0,
+             'stage': 'Backup: Getting Data To Backup for {}'.format(t.__name__)}
+        r = requests.post(self.ws, data=json.dumps(d))
         d = self._ctx.db.query(t)
         count = d.count()
         print('Backing up: ', d.count())
@@ -48,7 +51,9 @@ def backupdatabase(self):
                 lp = cp
                 lt = int(time())
                 #print('update', lt)
-                d = {'backupprogress': '{} DB: {}'.format(t.__name__, int(i/count * 100))}
+                percent = int(i/count * 100)
+                d = {'stage': 'Backing up {}'.format(t.__name__),
+                     'progress': percent}
                 r = requests.post(self.ws, data=json.dumps(d))
         print('Done:', int(time()), int(time()) - st)
         db.commit()
