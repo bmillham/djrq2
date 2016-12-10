@@ -28,6 +28,9 @@ class UpdateDatabase:
     def get(self, *arg, **args):
         files = []
 
+        if self._ctx.queries.is_updating():
+            return updateprogress('Updating Database', self._ctx)
+
         for pattern in ('[Gg][Zz]', '[Gg][Zz][Ii][Pp]', '[Zz][Ii][Pp]', '[Rr][Aa][Rr]'):
             files += glob(os.path.join(self.uploaddir, '*.' + pattern))
         return selectfile("Select Database File", self._ctx, files)
@@ -51,7 +54,6 @@ class UpdateDatabase:
         self.executor = ThreadPoolExecutor(max_workers=1)
         future = self.executor.submit(backupdatabase, self)
         future.add_done_callback(self._backupcomplete)
-        #return {'html': 'Update running'}
         print('Update is running!')
         return updateprogress('Updating Database', self._ctx)
 
@@ -73,7 +75,7 @@ class UpdateDatabase:
         from ..model.prokyon.requestlist import RequestList
         from ..model.nullsoft.nullsoftdb import MediaLibrary
 
-        def send_update(ws, cp, rc, field=None, filename=None, updatedcount=None, newtrack=False):
+        def send_update(ws, cp, rc, field=None, filename=None, updatedcount=None, newtrack=False, stage=None):
             d = {'progress': cp,
                  'updateartist': rc['artist'],
                  'updatealbum': rc['album'],
@@ -84,6 +86,8 @@ class UpdateDatabase:
             if field is not None:
                 d['difference'] = '<tr><td>{}</td><td>{}</td><td>{}</td><td>{}</td></tr>'.format(rc['filename'], field, s[fieldmap[field]], rc[field])
                 d['updatedcount'] = updatedcount
+            if stage is not None:
+                d['stage'] = stage
             if newtrack:
                 d['newtrack'] = '<tr><td>{}</td><td>{}</td><td>{}</td><td>{}</td></tr>'.format(rc['filename'], rc['artist'], rc['album'], rc['title'])
             requests.post(ws, data=json.dumps(d))
@@ -122,6 +126,8 @@ class UpdateDatabase:
         d = {'progress': 0,
              'stage': 'Updating Database',
             }
+        requests.post(self.ws, data=json.dumps(d))
+
         lartist = None
         lalbum = None
         lp = None
@@ -152,9 +158,9 @@ class UpdateDatabase:
             rc['path'] = up
             rc['filename'] = uf
 
-            cp = float('{0:.1f}'.format(i/count*100))
+            cp = '{0:.1f}'.format(i/count*100)
             if lp != cp:
-                send_update(self.ws, cp, rc)
+                send_update(self.ws, cp, rc, stage='Updating Database')
                 lp = cp
                 la = rc['artist']
 
@@ -167,13 +173,13 @@ class UpdateDatabase:
                 self._ctx.db.add(track)
                 self._ctx.db.commit() # Must commit to get the id
                 currentids += [track.id]
-                send_update(self.ws, cp, rc, newtrack=True)
+                send_update(self.ws, cp, rc, newtrack=True, stage='Updating Database')
             else:
                 diff = False
                 to_update = {}
                 for field in fieldmap:
                     if rc[field] != s[fieldmap[field]] and field != 'lastmodified':
-                        send_update(self.ws, cp, rc, field=field, filename=uf, updatedcount=updatedcount+1)
+                        send_update(self.ws, cp, rc, field=field, filename=uf, updatedcount=updatedcount+1, stage='Updating Database')
                         lp = cp
                         diff = True
                         to_update[fieldmap[field]] = rc[field]
@@ -181,17 +187,44 @@ class UpdateDatabase:
                     updatedcount += 1
                     print('Updated', self._ctx.db.query(Song).filter(Song.id==s['id']).update(to_update))
             currentids += [s['id']]
+        d = {'progress': 0,
+             'stage': 'Updating Database: Looking for deleted tracks',
+        }
+        requests.post(self.ws, data=json.dumps(d))
         drows = [x.id for x in self._ctx.db.query(Song.id).filter(~Song.id.in_(currentids)).distinct()]
         print('Deleted:', len(drows), drows)
         if len(drows) > 0:
             print('Getting played')
+            d = {'progress': 0,
+                 'stage': 'Updating Database: Deleting Played',
+            }
+            requests.post(self.ws, data=json.dumps(d))
             playeddeleted = self._ctx.db.query(Played.track_id).filter(Played.track_id.in_(drows)).delete(synchronize_session=False)
             print('Deleted played:', playeddeleted)
+            d = {'progress': 0,
+                 'stage': 'Updating Database: Deleting Requests',
+            }
             requestsdeleted = self._ctx.db.query(RequestList.song_id).filter(RequestList.song_id.in_(drows)).delete(synchronize_session=False)
             print('Requests deleted:', requestsdeleted)
+            d = {'progress': 0,
+                 'stage': 'Updating Database: Deleting Mistags',
+            }
+            requests.post(self.ws, data=json.dumps(d))
             mistagsdeleted = self._ctx.db.query(Mistags.track_id).filter(Mistags.track_id.in_(drows)).delete(synchronize_session=False)
             print('Mistags deleted:', mistagsdeleted)
+            d = {'progress': 0,
+                 'stage': 'Updating Database: Deleting Songs',
+            }
+            requests.post(self.ws, data=json.dumps(d))
             songsdeleted = self._ctx.db.query(Song.id).filter(Song.id.in_(drows)).delete(synchronize_session=False)
             print('Songs deleted:', songsdeleted)
         print('Commiting')
+        d = {'progress': 0,
+             'stage': 'Updating Database: Deleting Played',
+            }
+        requests.post(self.ws, data=json.dumps(d))
         print('Commited', self._ctx.db.commit())
+        d = {'progress': 100,
+             'stage': 'Database Updated',
+            }
+        requests.post(self.ws, data=json.dumps(d))

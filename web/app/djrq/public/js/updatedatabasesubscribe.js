@@ -7,9 +7,9 @@ sub.on("message", function(message, message_metadata) {
   if (m.progress == 100) {
       $('.dbupdate').text("Update Database");
   } else {
-    $('.dbupdate').text('Update Progress: ' + m.progress);
+    $('.dbupdate').text('Update Progress: ' + m.progress + '%');
   }
-  //$('.backupprogress').text(m.backupprogress);
+
   if ("backupprogress" in m) {
       $('.backupprogress').text(m.backupprogress);
   }
@@ -25,9 +25,6 @@ sub.on("message", function(message, message_metadata) {
     $('.currenttrack-table').show();
   }
   if (m.difference != null) {
-    //var div = document.getElementById('difftable');
-    //var content = document.createTextNode(m.difference + '<br>');
-    //div.appendChild(content);
     $('.difftable').show();
     $('.difftable tr:first').after(m.difference);
     $('.updatedcount').text(m.updatedcount);

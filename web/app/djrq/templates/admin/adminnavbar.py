@@ -58,7 +58,6 @@
         : end
         : if ctx.queries.is_updating()
          : print("Is updating")
-         <li>Updating</li>
         : end
         <li><a href="/lastplayed"><span class='glyphicon glyphicon-home'></span></a></li>
         <li><a href='/admin/auth/?logout'><span class='glyphicon glyphicon-off'></span></a></li>
