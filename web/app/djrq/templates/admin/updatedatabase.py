@@ -33,8 +33,6 @@
 : def selectdatabasefile title, ctx, files=[]
     : using page title, ctx, lang='en'
     <div class='container'>
-    #: use updateprogress
-     #<form id='updatedatabase' class='ajax' action='/admin/updatedatabase/updatedatabase' method='post' data-append='.results'>
      <form id='updatedatabase' action='/admin/updatedatabase/updatedatabase' method='post'>
       <fieldset>
        <legend>Update Database</legend>
@@ -71,7 +69,7 @@
      </tbody>
     </table>
     <table class='table table-bordered table-striped vertical-table newtrack-table' style='margin-left: auto; margin-right: auto; width: 100%; display: none;''>
-     <caption #{caption_args}>New Tracks <span class='badge updatedcount'>0</span></caption>
+     <caption #{caption_args}>New Tracks <span class='badge newcount'>0</span></caption>
      <tbody>
       <tr><th>File</th><th>Artist</th><th>Album</th><th>Title</th></tr>
      </tbody>

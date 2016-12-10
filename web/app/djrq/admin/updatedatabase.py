@@ -75,7 +75,7 @@ class UpdateDatabase:
         from ..model.prokyon.requestlist import RequestList
         from ..model.nullsoft.nullsoftdb import MediaLibrary
 
-        def send_update(ws, cp, rc, field=None, filename=None, updatedcount=None, newtrack=False, stage=None):
+        def send_update(ws, cp, rc, field=None, filename=None, updatedcount=None, newcount=None, stage=None):
             d = {'progress': cp,
                  'updateartist': rc['artist'],
                  'updatealbum': rc['album'],
@@ -88,7 +88,8 @@ class UpdateDatabase:
                 d['updatedcount'] = updatedcount
             if stage is not None:
                 d['stage'] = stage
-            if newtrack:
+            if newcount is not None:
+                d['newcount'] = newcount
                 d['newtrack'] = '<tr><td>{}</td><td>{}</td><td>{}</td><td>{}</td></tr>'.format(rc['filename'], rc['artist'], rc['album'], rc['title'])
             requests.post(ws, data=json.dumps(d))
 
@@ -140,6 +141,7 @@ class UpdateDatabase:
         lasttime = starttime
 
         processed = 0
+        newcount = 0
 
         for i, rc in enumerate(winampdb.fetchall()):
             up, uf = ntpath.split(rc['filename'])
@@ -186,7 +188,8 @@ class UpdateDatabase:
                 self._ctx.db.add(track)
                 self._ctx.db.commit() # Must commit to get the id
                 currentids += [track.id]
-                send_update(self.ws, cp, rc, newtrack=True, stage='Updating Database')
+                newcount += 1
+                send_update(self.ws, cp, rc, newcount=newcount, stage='Updating Database')
             else:
                 diff = False
                 to_update = {}

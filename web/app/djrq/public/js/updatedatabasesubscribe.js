@@ -32,6 +32,7 @@ sub.on("message", function(message, message_metadata) {
   if (m.newtrack != null) {
       $('.newtrack-table').show();
       $('.newtrack-table tr:first').after(m.newtrack);
+      $('.newcount').text(m.newcount);
   }
   $('.update-progress-bar').css('width', m.progress+'%').attr('aria-valuenow', m.progress).text(m.progress+'%');
 });
