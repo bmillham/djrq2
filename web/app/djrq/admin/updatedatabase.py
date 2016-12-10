@@ -134,6 +134,13 @@ class UpdateDatabase:
         updatedcount = 0
         currentids = []
 
+        starttime = time()
+        avetime = 0.0
+        avelist = []
+        lasttime = starttime
+
+        processed = 0
+
         for i, rc in enumerate(winampdb.fetchall()):
             up, uf = ntpath.split(rc['filename'])
 
@@ -160,7 +167,13 @@ class UpdateDatabase:
 
             cp = '{0:.1f}'.format(i/count*100)
             if lp != cp:
-                send_update(self.ws, cp, rc, stage='Updating Database')
+                #(avetime*(frecords - fprog))/60
+                eta = (avetime * (count - processed)) / 60
+                if eta > 1:
+                    finish = '{} minutes'.format(round(eta))
+                else:
+                    finish = '{} seconds'.format(round(eta * 60))
+                send_update(self.ws, cp, rc, stage='Updating Database: Estimated Time to Finish {}'.format(finish))
                 lp = cp
                 la = rc['artist']
 
@@ -187,6 +200,15 @@ class UpdateDatabase:
                     updatedcount += 1
                     print('Updated', self._ctx.db.query(Song).filter(Song.id==s['id']).update(to_update))
             currentids += [s['id']]
+            thistime = time()
+            timeint = thistime - lasttime
+            lasttime = thistime
+            avelist.append(float(timeint))
+            #if len(avelist) > 500:
+            #    del(avelist[0])
+            avetime = float(sum(avelist)) / float(len(avelist))
+            processed += 1
+
         d = {'progress': 0,
              'stage': 'Updating Database: Looking for deleted tracks',
         }
