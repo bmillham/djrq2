@@ -4,6 +4,7 @@ import os
 import json
 from glob import glob
 import zipfile
+from rarfile import RarFile
 from time import sleep, time
 from datetime import datetime
 from ..templates.admin.updatedatabase import selectfile, selectdatabasefile, updatecomplete, updateprogress
@@ -38,7 +39,12 @@ class UpdateDatabase:
     def unpack(self, *arg, **args):
         ftype = args['fileselection'].split('.')[-1]
         fn = os.path.join(self.uploaddir, args['fileselection'])
-        with zipfile.ZipFile(fn) as zf:
+        if ftype.lower() == 'rar':
+            mod = RarFile
+        elif ftype == 'zip':
+            mod = zipfile.ZipFile
+
+        with mod(fn) as zf:
             for i in zf.infolist():
                 zf.extract(i, self.uploaddir)
 

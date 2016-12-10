@@ -60,6 +60,7 @@ setup(
                 'babel', # For internationalization
                 'markupsafe',
                 'requests',
+                'rarfile',
             ],
 
         extras_require = dict(
