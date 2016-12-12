@@ -14,8 +14,16 @@ sub.on("message", function(message, message_metadata) {
       $('.backupprogress').text(m.backupprogress);
   }
 
+  if ('spinner' in m) {
+      if (m.spinner) {
+          $('#spinner').show();
+      } else {
+          $('#spinner').hide();
+      }
+  }
+
   if ('stage' in m) {
-      $('.stage h3').text(m.stage);
+      $('#stage').text(m.stage);
   }
   if ('avetime' in m) {
       $('#avetime').text(m.avetime);

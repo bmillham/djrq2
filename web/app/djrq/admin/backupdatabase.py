@@ -11,6 +11,10 @@ from ..model.prokyon.mistags import Mistags
 from ..model.prokyon.song import Song
 
 def backupdatabase(self):
+    updata = {'progress': 0,
+             'spinner': True,
+             'stage': 'Backup: Creating backup database'}
+    requests.post(self.ws, data=json.dumps(updata))
     db = sqlite3.connect(os.path.join(self.uploaddir, 'dbbackup{}'.format(datetime.now().strftime('%Y%m%d-%H%M%S'))))
     cursor = db.cursor()
     tables = (Song, RequestList, Played, Mistags)
@@ -28,37 +32,33 @@ def backupdatabase(self):
     for t in tables:
         cursor.execute(tc[t])
         db.commit()
-        print('Getting data to backup')
-        d = {'progress': 0,
+        updata = {'progress': 0,
+             'spinner': True,
              'stage': 'Backup: Getting Data To Backup for {}'.format(t.__name__)}
-        r = requests.post(self.ws, data=json.dumps(d))
+        requests.post(self.ws, data=json.dumps(updata))
         d = self._ctx.db.query(t)
         count = d.count()
-        print('Backing up: ', d.count())
         lp = 0
         lt = int(time())
-        print('Start time', lt)
         st = lt
+
         for i, r in enumerate(d):
             if i == 0:
-                print('Loop start:', int(time()))
-            #i += 1
+                updata = {'spinner': False,}
+                requests.post(self.ws, data=json.dumps(updata))
+
             cursor.execute(ti[t], r.__dict__)
             cp = int(i/count * 100)
             if lp != cp:
-            #if int(time()) > lt + 1:
-            #if i % 10 == 0:
                 lp = cp
                 lt = int(time())
-                #print('update', lt)
                 percent = int(i/count * 100)
-                d = {'stage': 'Backing up {}'.format(t.__name__),
+                updata = {'stage': 'Backing up {}'.format(t.__name__),
                      'progress': percent}
-                r = requests.post(self.ws, data=json.dumps(d))
-        print('Done:', int(time()), int(time()) - st)
+                requests.post(self.ws, data=json.dumps(updata))
         db.commit()
-        print('Done with table')
+    updata = {'spinner': False,}
+    requests.post(self.ws, data=json.dumps(updata))
     db.close()
     updatedone = int(time())
-    print("UPdate time:", updatedone - updatestart)
     return True
