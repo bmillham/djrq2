@@ -54,8 +54,11 @@ class UpdateDatabase:
         return selectdatabasefile('Select Database File', self._ctx, files)
 
     def updatedatabase(self, *arg, **args):
+        self.fileselection = args['fileselection']
         #backupdatabase(self)
         #self._startupdate()
+        print('updatedatabase', arg, args)
+
         self._ctx.queries.is_updating(status=True)
         self.executor = ThreadPoolExecutor(max_workers=1)
         future = self.executor.submit(backupdatabase, self)
@@ -79,15 +82,20 @@ class UpdateDatabase:
         from ..model.prokyon.played import Played
         from ..model.prokyon.mistags import Mistags
         from ..model.prokyon.requestlist import RequestList
-        from ..model.nullsoft.nullsoftdb import MediaLibrary
+        ftype = self.fileselection.split('.')[-1]
+        print('Got ftype', ftype)
+        if ftype.lower() == 'xml':
+            from ..model.nullsoft.nullsoftxml import MediaLibrary
+        else:
+            from ..model.nullsoft.nullsoftdb import MediaLibrary
 
         def send_update(ws, cp, rc, field=None, filename=None, updatedcount=None, newcount=None, stage=None):
             d = {'progress': cp,
-                 'updateartist': rc['artist'],
-                 'updatealbum': rc['album'],
-                 'updatetitle': rc['title'],
-                 'currentfile': rc['filename'],
-                 'difference': None,
+                 #'updateartist': rc['artist'],
+                 #'updatealbum': rc['album'],
+                 #'updatetitle': rc['title'],
+                 #'currentfile': rc['filename'],
+                 #'difference': None,
                 }
             if field is not None:
                 d['difference'] = '<tr><td>{}</td><td>{}</td><td>{}</td><td>{}</td></tr>'.format(rc['filename'], field, s[fieldmap[field]], rc[field])
@@ -115,7 +123,10 @@ class UpdateDatabase:
              'stage': 'Starting Database Update',
             }
         requests.post(self.ws, data=json.dumps(d))
-        winampdb = MediaLibrary(self.uploaddir, verbose=False)
+        if ftype == 'xml':
+            winampdb = MediaLibrary(db=os.path.join(self.uploaddir, self.fileselection))
+        else:
+            winampdb = MediaLibrary(self.uploaddir, verbose=False)
         print("%d records in the winamp database" % winampdb.totalrecords)
         count = winampdb.totalrecords
 
@@ -151,7 +162,8 @@ class UpdateDatabase:
 
         for i, rc in enumerate(winampdb.fetchall()):
             up, uf = ntpath.split(rc['filename'])
-
+            #print('up', up)
+            #print('uf', uf)
             if 'year' in rc.keys():
                 rc['year'] = str(rc['year'])
             if 'filesize' in rc.keys():
@@ -173,7 +185,7 @@ class UpdateDatabase:
             rc['path'] = up
             rc['filename'] = uf
 
-            cp = '{0:.1f}'.format(i/count*100)
+            cp = '{0:.0f}'.format(i/count*100)
             if lp != cp:
                 #(avetime*(frecords - fprog))/60
                 eta = (avetime * (count - processed)) / 60
@@ -190,31 +202,35 @@ class UpdateDatabase:
             except:
                 new_track = {fieldmap[field]: rc[field] for field in fieldmap}
                 new_track['_addition_time'] = datetime.utcnow()
+                new_track['path'] = up
+                new_track['filename'] = uf
+                print('Adding new track', new_track)
                 track = Song(**new_track)
                 self._ctx.db.add(track)
                 self._ctx.db.commit() # Must commit to get the id
                 currentids += [track.id]
                 newcount += 1
-                send_update(self.ws, cp, rc, newcount=newcount, stage='Updating Database')
+                send_update(self.ws, cp, rc, newcount=newcount, stage='Updating Database: Estimated Time to Finish {}'.format(finish))
             else:
                 diff = False
                 to_update = {}
                 for field in fieldmap:
-                    if rc[field] != s[fieldmap[field]] and field != 'lastmodified':
-                        send_update(self.ws, cp, rc, field=field, filename=uf, updatedcount=updatedcount+1, stage='Updating Database')
+                    if field == 'lastmodified': continue
+                    if rc[field] != s[fieldmap[field]]:
                         lp = cp
                         diff = True
                         to_update[fieldmap[field]] = rc[field]
+                        send_update(self.ws, cp, rc, field=field, filename=uf, updatedcount=updatedcount+1, stage='Updating Database: Estimated Time to Finish {}'.format(finish))
+                        print('Update "{}"=>"{}"'.format(s[fieldmap[field]], rc[field]))
                 if diff:
                     updatedcount += 1
                     print('Updated', self._ctx.db.query(Song).filter(Song.id==s['id']).update(to_update))
-            currentids += [s['id']]
+                    if 'year' in to_update: print(s['year'], rc, to_update)
+                currentids += [s['id']]
             thistime = time()
             timeint = thistime - lasttime
             lasttime = thistime
             avelist.append(float(timeint))
-            #if len(avelist) > 500:
-            #    del(avelist[0])
             avetime = float(sum(avelist)) / float(len(avelist))
             processed += 1
 

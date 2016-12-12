@@ -1,22 +1,22 @@
-from BeautifulSoup import BeautifulSoup
-from datetime import datetime
-import urllib
-import sys
-import htmllib
+#encoding: utf-8
 
-screen = sys.stdout
+from xml.etree import ElementTree
+from datetime import datetime
+#import urllib
+#import sys
+import html
+
 
 __author__="brian"
-__date__ ="$Feb 6, 2011 1:38:17 AM$"
 
 class MediaLibrary:
     """A class to read (not write) the xml created by winamp
        Tries to be as close to the nullsoftdb class as possible
     """
-    
-    def __init__(self, db='/home/brian/rond/Ronslist.xml', verbose=False, html=False):
-        print "Reading the winamp xml"
-        if html: print "<br>"
+
+    def __init__(self, db='/home/brian/djrq2-workingcopy/djrq2/privatefilearea/RonD/sept 27 d.xml', verbose=False, html=False):
+        print("Reading the winamp xml", db)
+
         self.xmlfile = db
         self.dbfields = {}
         self.fieldtypes = {}
@@ -24,148 +24,75 @@ class MediaLibrary:
         self.totalrecords = 0
         self.xmlformat = None
         self.encoding = None
-        self.dfile = None
+        self.tree = None
+        self.root = None
         self.html = html
         self.opendata()
         self.readheader()
         self.createfieldmap()
         self.readindex()
-        
+
     def __getstate__(self):
         odict = self.__dict__.copy()
         del odict['dfile']
         return odict
-        
+
     def __setstate__(self, dict):
         self.__dict__.update(dict)
         self.opendata()
 
     def opendata(self):
         """Opens the data file"""
-        self.dfile = open(self.xmlfile)
-    
+        self.tree = ElementTree.parse(self.xmlfile)
+
     def closedata(self):
         """Closes the data file"""
         self.dfile.close()
-    
+
     def readheader(self):
         """Reads the header of the XML and figures out if it's a EZPLAYLIST or
            and Apple playlist export"""
-        print "Reading header"
-        if self.html: print "<br>"
-        line = 1
-        for l in self.dfile:
-            lbs = BeautifulSoup(l)
-            dtype = lbs.find('plist')
-            ez = lbs.find('ezplaylist')
-            if dtype or ez: break
-            line += 1
-            if line > 10: break
+        root = self.tree.getroot()
+        self.root = root
+        if root.tag == 'EZPLAYLIST':
+            print('XML is EXPLAYLIST format')
+            self.xmlformat = 'MEDIAFILE'
+        elif root.tag == 'plist':
+            print('XML is Apple format')
+            self.xmlformat = 'plist'
+        else:
+            print('Unknown XML format: {}'.format(root))
+            return
 
-        if not dtype and not ez:
-            print "Failed to find a header!"
-        elif dtype:
-            print "XML is Apple format"
-            self.xmlformat = "apple"
-            self.encoding = 'utf-8'
-        elif ez:
-            print "XML is EZPLAYLIST format"
-            self.xmlformat = "ez"
-            self.encoding = 'ISO=8859-1'
-        if self.html: print "<br>"
-        
     def readindex(self):
         """Read the indexes from the xml"""
-        if self.html:
-            print("<table border='1'><tr><th colspan='16'>")
-        print "Finding indexes. This may take a while"
-        if self.html:
-            print "</th></tr>"
-        icount = 0
-        ix = 0
-        if self.xmlformat == 'ez':
-            self.dfile.seek(0)
-        self.dfile.seek(0)
-        offset = self.dfile.tell()
-        tcells = 0
-        while 1:
-            l = self.dfile.readline()
-            if not l: break
-            lbs = BeautifulSoup(l)
-            if self.xmlformat == 'ez':
-                key = lbs.find('mediafile')
-                if key is not None:
-                    ix = icount
-                    icount += 1
-                    self.primaryindex[ix] = offset
-                    if not ix % 250:
-                        if tcells == 0 and self.html:
-                            print "<tr><td>Index</td>"
-                        if self.html: print "<td>"
-                        screen.write('\r%s' % ix)
-                        if self.html: print "</td>"
-                        tcells += 1
-                        if tcells == 15 and self.html:
-                            tcells = 0
-                            print "</tr>"
-                        screen.flush()
-            else:
-                key = lbs.find('key')
-                if key is not None:
-                    k = key.string
-                    if k == 'Playlists':
-                        break
-                    if k == 'Track ID':
-                        val = lbs.find('integer')
-                        ix = int(val.string)
-                        self.primaryindex[ix] = offset
-                        icount += 1
-                        if not icount % 250:
-                            if tcells == 0 and self.html:
-                                print "<tr><td>Index</td>"
-                            if self.html: print "<td>"
-                            screen.write('\r%s' % ix)
-                            screen.flush()
-                            if self.html: print "</td>"
-                            tcells += 1
-                            if tcells == 15 and self.html:
-                                tcells = 0
-                                print "</tr>"
-            offset = self.dfile.tell()
-                
+        self.primaryindex = [i for i, r in enumerate(self.fetchall())]
         self.totalrecords = len(self.primaryindex)
-        if self.html:
-            while tcells < 15:
-                print("<td>&nbsp;</td>")
-                tcells += 1
-            print("</tr>") 
-            print("<tr><th colspan='16'>")
-        print "\nDone Reading %s indexes" % self.totalrecords
-        if self.html: print "</th></td></table>"
-        
+        print('Total records:', self.totalrecords)
+
     def fetchall(self):
         """Read all the records from the winamp xml"""
-        for i in self.primaryindex:
-            row = self.fetchone(i)
+        fields = self.fieldmap
+        intfields = ('filesize', 'trackno', 'length')
+        for i, r in enumerate(self.root.findall(self.xmlformat)):
+            row = {fields[k]:html.unescape(r.findtext(k).strip()) for k in fields}
+            if row['artist'] == '' or row['album'] == '' or row['title'] == '':
+                continue
+            #for k in row:
+            #    if row[k] == ' ': row[k] = ''
+            for r in intfields:
+                if row[r] == '':
+                    row[r] = 0
+                else:
+                    row[r] = int(row[r])
+                if r == 'filesize': row[r] = int(row[r] / 1000)
+            #if r not in intfields:
+            #    row[r] = html.unescape(row[r])
+            row['lastmodified'] = 0
+            row['bitrate'] = 0
+            row['id'] = i
             yield row
-    
-    def fetchone(self, idx):
-        """Reads a single record from the winamp xml"""
-        if idx not in self.primaryindex:
-            print "\nIndex %s is not a primary index" % idx
-            return None
 
-        self.dfile.seek(self.primaryindex[idx])
-        pos = self.dfile.tell()
-        if pos != self.primaryindex[idx]:
-            print "ERROR: Failed to seek to index %s - %s!" % (idx, self.primaryindex['idx'])
-            return None
-        if self.xmlformat == 'apple':
-            record = self.__fetchoneapple(idx)
-        else:
-            record = self.__fetchoneez(idx)
-        return record
-    
     def __fetchoneez(self, idx):
         record = self.rowtemplate()
         offset = self.primaryindex[idx]
@@ -184,7 +111,7 @@ class MediaLibrary:
                 continue
             if r == 'bitrate':
                 fval = 0
-            elif (r == 'size' 
+            elif (r == 'size'
                 or r == 'track'
                 or r == 'time'
                 and val.string is not None):
@@ -192,7 +119,7 @@ class MediaLibrary:
                     fval = int(val.string)
                 except:
                     fval = 0
-            else: 
+            else:
                 if val.string is None:
                     fval = None
                 else:
@@ -201,7 +128,7 @@ class MediaLibrary:
             record[self.fieldmap[r]] = fval
         record['id'] = idx
         return record
-            
+
     def __fetchoneapple(self, idx):
       record = self.rowtemplate()
       for l in self.dfile:
@@ -214,7 +141,7 @@ class MediaLibrary:
                     if ival is not None:
                         if int(ival.string) != idx:
                             break
-                    
+
                 if k in self.fieldmap:
                     ival = lbs.find('integer')
                     sval = lbs.find('string')
@@ -232,7 +159,7 @@ class MediaLibrary:
                         record[self.fieldmap[k]] = self.utcdate(dval.string)
       record['id'] = idx
       return record
-  
+
     def createfieldmap(self):
         """Map of xml to winamp fields"""
         if self.xmlformat == 'apple':
@@ -251,16 +178,16 @@ class MediaLibrary:
           }
         else:
             self.fieldmap = {
-             'artist': 'artist',
-             'title': 'title',
-             'year': 'year',
-             'album': 'album',
-             'bitrate': 'bitrate',
-             'time': 'length',
-             'size': 'filesize',
-             'filename': 'filename',
-             'track': 'trackno',
-             'lastmodified': 'lastmodified',
+             'ARTIST': 'artist',
+             'TITLE': 'title',
+             'YEAR': 'year',
+             'ALBUM': 'album',
+             'BITRATE': 'bitrate',
+             'TIME': 'length',
+             'SIZE': 'filesize',
+             'FILENAME': 'filename',
+             'TRACK': 'trackno',
+             #'LASTMODIFIED': 'lastmodified',
             }
     def utcdate(self, d):
         """Changes the XML date to utc date"""
@@ -276,22 +203,13 @@ class MediaLibrary:
           except:
             date = None
         if not date:
-            print "Failed to convert date: ", d
+            print("Failed to convert date: ", d)
         return date
-    
+
     def rowtemplate(self):
         """Creates a blank row"""
         rowtemplate = {} # Create a blank row template, with all the keys
         for f in self.fieldmap.values():
             rowtemplate[f] = None
-        
+
         return rowtemplate
-    
-    def unescape(self, s):
-        """Decodes &amp; style encoding"""
-        # EZ format has invalid &apos; chars. Fix it.
-        s = s.replace('&apos;', '&#39;')
-        p = htmllib.HTMLParser(None)
-        p.save_bgn()
-        p.feed(s)
-        return p.save_end()
