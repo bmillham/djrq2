@@ -17,6 +17,27 @@ sub.on("message", function(message, message_metadata) {
   if ('stage' in m) {
       $('.stage h3').text(m.stage);
   }
+  if ('avetime' in m) {
+      $('#avetime').text(m.avetime);
+  }
+  if ('checkedtracks' in m) {
+      $('#checkedtracks').text(m.checkedtracks);
+  }
+  if ('totaltracks' in m) {
+      $('#totaltracks').text(m.totaltracks);
+  }
+  if ('deletedtracks' in m) {
+      $('#deletedtracks').text(m.deletedtracks);
+  }
+  if ('deletedrequests' in m) {
+      $('#deletedrequests').text(m.deletedrequests);
+  }
+  if ('deletedplayed' in m) {
+      $('#deletedplayed').text(m.deletedplayed);
+  }
+  if ('deletedmistags' in m) {
+      $('#deletedmistags').text(m.deletedmistags);
+  }
   if ('currentfile' in m) {
     $('.currentartist').text(m.updateartist);
     $('.currentalbum').text(m.updatealbum);
@@ -28,11 +49,13 @@ sub.on("message", function(message, message_metadata) {
     $('.difftable').show();
     $('.difftable tr:first').after(m.difference);
     $('.updatedcount').text(m.updatedcount);
+    $('#updatedtracks').text(m.updatedcount);
   }
   if (m.newtrack != null) {
       $('.newtrack-table').show();
       $('.newtrack-table tr:first').after(m.newtrack);
       $('.newcount').text(m.newcount);
+      $('#addedtracks').text(m.newcount);
   }
   $('.update-progress-bar').css('width', m.progress+'%').attr('aria-valuenow', m.progress).text(m.progress+'%');
 });

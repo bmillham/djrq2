@@ -60,6 +60,16 @@
       0%
      </div>
     </div>
+    <div class='stats'>
+     <table class='table table-bordered table-striped vertical-table stats-table' style='margin-left: auto; margin-right: auto; width: 100%;'>
+      <caption #{caption_args}>Update Statistics</caption>
+      <tbody>
+       <tr><th rowspan=2>Ave. Time</th><th colspan=4>Tracks</th><th colspan=4>Deleted</th></tr>
+       <tr><th>Total</th><th>Checked</th><th>Added</th><th>Updated</th><th>Tracks</th><th>Played</th><th>Requests</th><th>Mistags</th></tr>
+       <tr><td id='avetime'>0</td><td id='totaltracks'>0</td><td id='checkedtracks'>0</td><td id='addedtracks'>0</td><td id='updatedtracks'>0</td>
+           <td id='deletedtracks'>0</td><td id='deletedplayed'>0</td><td id='deletedrequests'>0</td><td id='deletedmistags'>0</td></tr>
+      </tbody>
+     </table>
     <div class='backupprogress'></div>
     <div class='difference' id='difference'>
     <table class='table table-bordered table-striped vertical-table currenttrack-table' style='margin-left: auto; margin-right: auto; width: 100%; display: none;'>
