@@ -88,8 +88,10 @@ class UpdateDatabase:
         else:
             from ..model.nullsoft.nullsoftdb import MediaLibrary
 
-        def send_update(ws, cp=None, rc=None, deletedtracks=None, deletedrequests=None, deletedplayed=None, deletedmistags=None, totaltracks=None, checkedtracks=None, field=None, filename=None, updatedcount=None, newcount=None, stage=None, avetime=None):
+        def send_update(ws, cp=None, rc=None, deletedtracks=None, deletedrequests=None, deletedplayed=None, deletedmistags=None, totaltracks=None, checkedtracks=None, field=None, filename=None, updatedcount=None, newcount=None, stage=None, avetime=None, active=None):
             d = {}
+            if active is not None:
+                d['active'] = active
             if cp is not None:
                 d['progress'] = cp
             if deletedtracks is not None:
@@ -128,7 +130,7 @@ class UpdateDatabase:
                     'bitrate': 'bit_rate',
                    }
 
-        send_update(self.ws, cp=0, stage='Starting Database Update')
+        send_update(self.ws, cp=0, stage='Starting Database Update', active=True)
         if ftype == 'xml':
             winampdb = MediaLibrary(db=os.path.join(self.uploaddir, self.fileselection))
         else:
@@ -249,4 +251,4 @@ class UpdateDatabase:
 
         send_update(self.ws, cp=0, stage='Updating Database: Finalizing Changes')
         self._ctx.db.commit()
-        send_update(self.ws, cp=100, stage='Database Updated')
+        send_update(self.ws, cp=100, stage='Database Updated', active=False)

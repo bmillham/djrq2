@@ -65,6 +65,14 @@ sub.on("message", function(message, message_metadata) {
       $('.newcount').text(m.newcount);
       $('#addedtracks').text(m.newcount);
   }
+  if ('active' in m) {
+      if (m.active) {
+          $('#progress').addClass('active');
+      } else {
+          $('#progress').removeClass('active');
+      }
+  }
+
   $('.update-progress-bar').css('width', m.progress+'%').attr('aria-valuenow', m.progress).text(m.progress+'%');
 });
 
