@@ -14,7 +14,7 @@ class MediaLibrary:
        Tries to be as close to the nullsoftdb class as possible
     """
 
-    def __init__(self, db='/home/brian/djrq2-workingcopy/djrq2/privatefilearea/RonD/sept 27 d.xml', verbose=False, html=False):
+    def __init__(self, db='/home/brian/djrq2-workingcopy/djrq2/privatefilearea/GothAlice/Library.xml', verbose=False, html=False):
         print("Reading the winamp xml", db)
 
         self.xmlfile = db
@@ -66,103 +66,119 @@ class MediaLibrary:
 
     def readindex(self):
         """Read the indexes from the xml"""
-        self.primaryindex = [i for i, r in enumerate(self.fetchall())]
-        self.totalrecords = len(self.primaryindex)
+        if self.xmlformat == 'MEDIAFILE':
+            self.primaryindex = [i for i, r in enumerate(self.fetchall())]
+            self.totalrecords = len(self.primaryindex)
+        elif self.xmlformat == 'plist':
+            self._readplistindex()
         print('Total records:', self.totalrecords)
 
+    def _readplistindex(self):
+        """Read indexes for the apple formatted xml"""
+        self.maindict = self.root.find('dict')
+        # Find the tracks dict
+        dictcount = 0
+        dictloc = 0
+        for k in self.maindict.findall('key'):
+            if k.text in ('Tracks', 'Playlists'):
+                if k.text == 'Tracks':
+                    dictloc = dictcount # This is the dict with tracks
+                dictcount += 1
+        self.tracksdict = self.maindict.findall('dict')[dictloc]
+        keys = self.tracksdict.findall('key')
+        self.primaryindex = [int(k.text) for k in keys]
+        self.totalrecords = len(self.primaryindex)
+
     def fetchall(self):
-        """Read all the records from the winamp xml"""
+        """Read all the records from the xml"""
+        if self.xmlformat == 'MEDIAFILE':
+            for i in self.__fetchallez():
+                yield r
+        elif self.xmlformat == 'plist':
+            for r in self.__fetchallplist():
+                yield r
+
+
+    def __fetchallez(self):
         fields = self.fieldmap
         intfields = ('filesize', 'trackno', 'length')
         for i, r in enumerate(self.root.findall(self.xmlformat)):
             row = {fields[k]:html.unescape(r.findtext(k).strip()) for k in fields}
             if row['artist'] == '' or row['album'] == '' or row['title'] == '':
                 continue
-            #for k in row:
-            #    if row[k] == ' ': row[k] = ''
             for r in intfields:
                 if row[r] == '':
                     row[r] = 0
                 else:
                     row[r] = int(row[r])
                 if r == 'filesize': row[r] = int(row[r] / 1000)
-            #if r not in intfields:
-            #    row[r] = html.unescape(row[r])
             row['lastmodified'] = 0
             row['bitrate'] = 0
             row['id'] = i
             yield row
 
-    def __fetchoneez(self, idx):
-        record = self.rowtemplate()
-        offset = self.primaryindex[idx]
-        if idx == self.totalrecords-1:
-            self.dfile.seek(0,2)
-            nextoffset = self.dfile.tell()
-            self.dfile.seek(offset)
-        else:
-            nextoffset = self.primaryindex[idx+1]
-        datalen = nextoffset - offset
-        data = self.dfile.read(datalen)
-        rec = BeautifulSoup(data.decode(self.encoding))
-        for r in self.fieldmap:
-            val = rec.find(r)
-            if val is None:
-                continue
-            if r == 'bitrate':
-                fval = 0
-            elif (r == 'size'
-                or r == 'track'
-                or r == 'time'
-                and val.string is not None):
-                try:
-                    fval = int(val.string)
-                except:
-                    fval = 0
-            else:
-                if val.string is None:
-                    fval = None
+    def __fetchallplist(self):
+        fields = self.fieldmap
+        pmap = {'Track ID': 'integer',
+               'Name': 'string',
+               'Artist': 'string',
+               'Album': 'string',
+               'Size': 'integer',
+               'Total Time': 'integer',
+               'Disc Number': 'integer',
+               'Track Number': 'integer',
+               'Year': 'integer',
+               'Date Modified': 'date',
+               'Date Added': 'date',
+               'Bit Rate': 'integer',
+               'Location': 'string',
+               'Kind': 'string',
+               'Track Type': 'string',
+               'Persistent ID': 'string',
+              }
+
+        for trackdict in self.tracksdict.findall('dict'):
+            tinfo = {}
+            item = None
+            for x in trackdict.iter():
+                if x.tag == 'key':
+                    item = x.text
                 else:
-                    fval = self.unescape(val.string).encode('utf-8')
-            if r == 'size': fval /= 1000
-            record[self.fieldmap[r]] = fval
-        record['id'] = idx
-        return record
+                    if item in pmap:
+                        if pmap[item] != x.tag:
+                            print('ERROR:', pmap[item], x.tag)
+                        tinfo[item] = x.text
+                        if pmap[item] == 'integer':
+                            tinfo[item] = int(tinfo[item])
+                        elif pmap[item] == 'date':
+                            try:
+                                tinfo[item] = datetime.strptime(tinfo[item], "%Y-%m-%dT%H:%M:%S.%fZ")
+                            except ValueError:
+                                tinfo[item] = datetime.strptime(tinfo[item], "%Y-%m-%dT%H:%M:%SZ")
+                        elif pmap[item] == 'string':
+                            tinfo[item] = html.unescape(tinfo[item])
 
-    def __fetchoneapple(self, idx):
-      record = self.rowtemplate()
-      for l in self.dfile:
-            lbs = BeautifulSoup(l.decode(self.encoding))
-            key = lbs.find('key')
-            if key is not None:
-                k = key.string
-                if k == "Track ID":
-                    ival = lbs.find('integer')
-                    if ival is not None:
-                        if int(ival.string) != idx:
-                            break
+            if 'Kind' not in tinfo:
+                #print('Missing kind', tinfo)
+                continue
+            if 'audio' in tinfo['Kind'].lower():
+                if 'Location' not in tinfo:
+                    tinfo['Location'] = '{}::/{}'.format(tinfo['Track Type'], tinfo['Persistent ID'])
+            else:
+                continue # Skip non audio files
+            for f in ('Track Number', 'Year', 'Size'):
+                if f not in tinfo:
+                    tinfo[f] = None
+            for f in ('Album', 'Artist', 'Name'):
+                if f not in tinfo:
+                    tinfo[f] = 'Unknown {}'.format(f)
 
-                if k in self.fieldmap:
-                    ival = lbs.find('integer')
-                    sval = lbs.find('string')
-                    dval = lbs.find('date')
-                    if ival is not None:
-                        val = int(ival.string)
-                        if k == 'Total Time': val /= 1000
-                        record[self.fieldmap[k]] = val
-                    elif sval is not None:
-                        val = unicode(self.unescape(sval.string)).encode('utf-8')
-                        if k == 'Location':
-                            val = urllib.unquote(val.lstrip("file://localhost/"))
-                        record[self.fieldmap[k]] = val
-                    elif dval is not None:
-                        record[self.fieldmap[k]] = self.utcdate(dval.string)
-      record['id'] = idx
-      return record
+            row = {fields[k]:tinfo[k] for k in fields}
+            yield row
 
     def createfieldmap(self):
         """Map of xml to winamp fields"""
-        if self.xmlformat == 'apple':
+        if self.xmlformat == 'plist':
           self.fieldmap = { # Map of xml -> winamp fields
             'Track ID': 'id',
             'Name': 'title',
@@ -173,7 +189,7 @@ class MediaLibrary:
             'Total Time': 'length',
             'Date Added': 'lastmodified',
             'Size': 'filesize',
-            'Bitrate': 'bitrate',
+            'Bit Rate': 'bitrate',
             'Location': 'filename',
           }
         else:
@@ -189,22 +205,6 @@ class MediaLibrary:
              'TRACK': 'trackno',
              #'LASTMODIFIED': 'lastmodified',
             }
-    def utcdate(self, d):
-        """Changes the XML date to utc date"""
-        d1 = d.replace('T', ' ')
-        d1 = d1.replace('Z', '')
-        try:
-            date = datetime.strptime(d, '%Y-%m-%dT%H:%M:%SZ')
-        except:
-            date = None
-        if not date:
-          try:
-            date = datetime.strptime(d, '%a %b %d %H:%M:%S %Y')
-          except:
-            date = None
-        if not date:
-            print("Failed to convert date: ", d)
-        return date
 
     def rowtemplate(self):
         """Creates a blank row"""
