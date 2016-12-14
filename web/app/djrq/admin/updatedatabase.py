@@ -109,13 +109,15 @@ class UpdateDatabase:
             if avetime is not None:
                 d['avetime'] = '{:.5f}'.format(avetime)
             if field is not None:
-                d['difference'] = '<tr><td>{}</td><td>{}</td><td>{}</td><td>{}</td></tr>'.format(rc['filename'], field, s[fieldmap[field]], rc[field])
+                #d['difference'] = '<tr><td>{}</td><td>{}</td><td>{}</td><td>{}</td></tr>'.format(rc['filename'], field, s[fieldmap[field]], rc[field])
+                d['updatedcount'] = updatedcount
+            if updatedcount is not None:
                 d['updatedcount'] = updatedcount
             if stage is not None:
                 d['stage'] = stage
             if newcount is not None:
                 d['newcount'] = newcount
-                d['newtrack'] = '<tr><td>{}</td><td>{}</td><td>{}</td><td>{}</td></tr>'.format(rc['filename'], rc['artist'], rc['album'], rc['title'])
+                #d['newtrack'] = '<tr><td>{}</td><td>{}</td><td>{}</td><td>{}</td></tr>'.format(rc['filename'], rc['artist'], rc['album'], rc['title'])
             requests.post(ws, data=json.dumps(d))
 
         fieldmap = { # Map of winamp -> mysql fields
@@ -195,7 +197,7 @@ class UpdateDatabase:
                     finish = '{} minutes'.format(round(eta))
                 else:
                     finish = '{} seconds'.format(round(eta * 60))
-                send_update(self.ws, cp=cp, rc=rc, checkedtracks=i, avetime=avetime, stage='Updating Database: Estimated Time to Finish {}'.format(finish))
+                send_update(self.ws, cp=cp, rc=rc, checkedtracks=i+1, newcount=newcount, updatedcount=updatedcount, avetime=avetime, stage='Updating Database: Estimated Time to Finish {}'.format(finish))
                 lp = cp
                 la = rc['artist']
 
@@ -206,13 +208,13 @@ class UpdateDatabase:
                 new_track['_addition_time'] = datetime.utcnow()
                 new_track['path'] = up
                 new_track['filename'] = uf
-                print('Adding new track', new_track)
+                #print('Adding new track', new_track)
                 track = Song(**new_track)
                 self._ctx.db.add(track)
                 self._ctx.db.commit() # Must commit to get the id
                 currentids += [track.id]
                 newcount += 1
-                send_update(self.ws, cp=cp, rc=rc, avetime=avetime, newcount=newcount, stage='Updating Database: Estimated Time to Finish {}'.format(finish))
+                #send_update(self.ws, cp=cp, rc=rc, avetime=avetime, newcount=newcount, stage='Updating Database: Estimated Time to Finish {}'.format(finish))
             else:
                 diff = False
                 to_update = {}
@@ -222,7 +224,7 @@ class UpdateDatabase:
                         lp = cp
                         diff = True
                         to_update[fieldmap[field]] = rc[field]
-                        send_update(self.ws, cp=cp, rc=rc, avetime=avetime, field=field, filename=uf, updatedcount=updatedcount+1, stage='Updating Database: Estimated Time to Finish {}'.format(finish))
+                        #send_update(self.ws, cp=cp, rc=rc, avetime=avetime, field=field, filename=uf, updatedcount=updatedcount+1, stage='Updating Database: Estimated Time to Finish {}'.format(finish))
                 if diff:
                     updatedcount += 1
                     self._ctx.db.query(Song).filter(Song.id==s['id']).update(to_update)
@@ -235,7 +237,7 @@ class UpdateDatabase:
             avetime = float(sum(avelist)) / float(len(avelist))
             processed += 1
 
-        send_update(self.ws, cp=0, stage='Updating Database: Checking for deleted tracks')
+        send_update(self.ws, cp=0, checkedtracks=processed, newcount=newcount, updatedcount=updatedcount, stage='Updating Database: Checking for deleted tracks')
         drows = [x.id for x in self._ctx.db.query(Song.id).filter(~Song.id.in_(currentids)).distinct()]
         send_update(self.ws, deletedtracks=len(drows))
         if len(drows) > 0:
@@ -252,3 +254,4 @@ class UpdateDatabase:
         send_update(self.ws, cp=0, stage='Updating Database: Finalizing Changes')
         self._ctx.db.commit()
         send_update(self.ws, cp=100, stage='Database Updated', active=False)
+        print("Update complete")

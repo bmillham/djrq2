@@ -67,7 +67,7 @@ class MediaLibrary:
     def readindex(self):
         """Read the indexes from the xml"""
         if self.xmlformat == 'MEDIAFILE':
-            self.primaryindex = [i for i, r in enumerate(self.fetchall())]
+            self.primaryindex = [r['id'] for r in self.__fetchallez()]
             self.totalrecords = len(self.primaryindex)
         elif self.xmlformat == 'plist':
             self._readplistindex()
@@ -86,13 +86,14 @@ class MediaLibrary:
                 dictcount += 1
         self.tracksdict = self.maindict.findall('dict')[dictloc]
         keys = self.tracksdict.findall('key')
-        self.primaryindex = [int(k.text) for k in keys]
+        #self.primaryindex = [int(k.text) for k in keys]
+        self.primaryindex = [r['id'] for r in self.__fetchallplist()]
         self.totalrecords = len(self.primaryindex)
 
     def fetchall(self):
         """Read all the records from the xml"""
         if self.xmlformat == 'MEDIAFILE':
-            for i in self.__fetchallez():
+            for r in self.__fetchallez():
                 yield r
         elif self.xmlformat == 'plist':
             for r in self.__fetchallplist():
@@ -172,7 +173,7 @@ class MediaLibrary:
             for f in ('Album', 'Artist', 'Name'):
                 if f not in tinfo:
                     tinfo[f] = 'Unknown {}'.format(f)
-            tinfo['Total Time'] /= 1000
+            #tinfo['Total Time'] /= 1000
             row = {fields[k]:tinfo[k] for k in fields}
             yield row
 
@@ -205,11 +206,3 @@ class MediaLibrary:
              'TRACK': 'trackno',
              #'LASTMODIFIED': 'lastmodified',
             }
-
-    def rowtemplate(self):
-        """Creates a blank row"""
-        rowtemplate = {} # Create a blank row template, with all the keys
-        for f in self.fieldmap.values():
-            rowtemplate[f] = None
-
-        return rowtemplate

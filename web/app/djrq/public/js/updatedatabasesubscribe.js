@@ -53,6 +53,12 @@ sub.on("message", function(message, message_metadata) {
     $('.currentfile').text(m.currentfile);
     $('.currenttrack-table').show();
   }
+  if ('updatedcount' in m) {
+      $('#updatedtracks').text(m.updatedcount);
+  }
+  if ('newcount' in m) {
+      $('#addedtracks').text(m.newcount);
+  }
   if (m.difference != null) {
     $('.difftable').show();
     $('.difftable tr:first').after(m.difference);
