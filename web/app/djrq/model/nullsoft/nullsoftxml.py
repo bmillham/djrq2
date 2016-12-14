@@ -172,7 +172,7 @@ class MediaLibrary:
             for f in ('Album', 'Artist', 'Name'):
                 if f not in tinfo:
                     tinfo[f] = 'Unknown {}'.format(f)
-
+            tinfo['Total Time'] /= 1000
             row = {fields[k]:tinfo[k] for k in fields}
             yield row
 
