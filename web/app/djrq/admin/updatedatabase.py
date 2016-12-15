@@ -24,7 +24,14 @@ class UpdateDatabase:
         self._ctx = context
         ctx = context
         self.uploaddir = os.path.join('privatefilearea', context.djname)
-        self.ws = 'http://{}/pub?id={}-admin'.format(self._ctx.djhost.split(':')[0], self._ctx.djname.lower())
+        if self._ctx.djprefix is not '':
+            hn = '-'.join((self._ctx.djprefix, self._ctx.djhost))
+            dj = '-'.join((self._ctx.djprefix, self._ctx.djname.lower()))
+        else:
+            hn = self._ctx.djhost
+            dj = self._ctx.djname.lower()
+        self.ws = 'http://{}/pub?id={}-admin'.format(hn.split(':')[0], dj)
+        print(self.ws)
 
     def get(self, *arg, **args):
         files = []
