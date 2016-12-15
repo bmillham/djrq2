@@ -260,3 +260,7 @@ class Queries:
             s.append(dumps(self.db.query(t).all()))
 
         return s
+
+    def is_updating(self):
+        return False
+
