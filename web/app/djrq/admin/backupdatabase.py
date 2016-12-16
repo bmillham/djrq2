@@ -2,19 +2,16 @@ import sqlite3
 import os
 from time import sleep, time
 from datetime import datetime
-import requests
-import json
 
 from ..model.prokyon.requestlist import RequestList
 from ..model.prokyon.played import Played
 from ..model.prokyon.mistags import Mistags
 from ..model.prokyon.song import Song
+from .send_update import send_update
 
 def backupdatabase(self):
-    updata = {'progress': 0,
-             'spinner': True,
-             'stage': 'Backup: Creating backup database'}
-    requests.post(self.ws, data=json.dumps(updata))
+    send_update(self.ws, cp=0, spinner=True, stage='Backup Creating backup database')
+
     db = sqlite3.connect(os.path.join(self.uploaddir, 'dbbackup{}'.format(datetime.now().strftime('%Y%m%d-%H%M%S'))))
     cursor = db.cursor()
     tables = (Song, RequestList, Played, Mistags)
@@ -32,10 +29,7 @@ def backupdatabase(self):
     for t in tables:
         cursor.execute(tc[t])
         db.commit()
-        updata = {'progress': 0,
-             'spinner': True,
-             'stage': 'Backup: Getting Data To Backup for {}'.format(t.__name__)}
-        requests.post(self.ws, data=json.dumps(updata))
+        send_update(self.ws, cp=0, spinner=True, stage='Backup: Getting Data To Backup for {}'.format(t.__name__))
         d = self._ctx.db.query(t)
         count = d.count()
         lp = 0
@@ -44,8 +38,7 @@ def backupdatabase(self):
 
         for i, r in enumerate(d):
             if i == 0:
-                updata = {'spinner': False,}
-                requests.post(self.ws, data=json.dumps(updata))
+                send_update(self.ws, spinner=False)
 
             cursor.execute(ti[t], r.__dict__)
             cp = int(i/count * 100)
@@ -53,12 +46,9 @@ def backupdatabase(self):
                 lp = cp
                 lt = int(time())
                 percent = int(i/count * 100)
-                updata = {'stage': 'Backing up {}'.format(t.__name__),
-                     'progress': percent}
-                requests.post(self.ws, data=json.dumps(updata))
+                send_update(self.ws, cp=percent, stage='Backing up {}'.format(t.__name__))
         db.commit()
-    updata = {'spinner': False,}
-    requests.post(self.ws, data=json.dumps(updata))
+    send_update(self.ws, spinner=False, stage='Backup Completed')
     db.close()
     updatedone = int(time())
     return True

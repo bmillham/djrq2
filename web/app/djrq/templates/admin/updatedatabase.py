@@ -55,8 +55,8 @@
     : using page title, ctx, lang='en'
     <div class='container'>
     <div class='row'>
-        <div class='col-sm-11 col-lg-11'><h3 id='stage'>Preparing to backup database</h3></div>
-        <div class='col-sm-1 col-lg-1'><img src='/public/icons/horse_7.gif' id='spinner' alt='spinner' style='top: 20px; width:30px; height: 30px; position: relative' /></div>
+        <div class='col-sm-11 col-lg-11'><h3 id='stage'></h3></div>
+        <div class='col-sm-1 col-lg-1'><img src='/public/icons/horse_7.gif' id='spinner' alt='spinner' style='top: 20px; width:30px; height: 30px; position: relative; display: none;' /></div>
     </div>
     <div class='progress'>
      <div id='progress' class='progress-bar progress-bar-striped update-progress-bar' role='progressbar' aria-valuenow='0' aria-valuemin='0' aria-valuemax='100' style='min-width: 2em; width: 0%;'>

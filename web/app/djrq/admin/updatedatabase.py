@@ -1,7 +1,6 @@
 # encoding: utf-8
 
 import os
-import json
 from glob import glob
 import zipfile
 from rarfile import RarFile
@@ -10,11 +9,7 @@ from datetime import datetime
 from ..templates.admin.updatedatabase import selectfile, selectdatabasefile, updatecomplete, updateprogress
 from concurrent.futures import ThreadPoolExecutor
 from .backupdatabase import backupdatabase
-
-# To push status to database updates.
-import requests
-
-ctx = None
+from .send_update import send_update
 
 class UpdateDatabase:
     __dispatch__ = 'resource'
@@ -31,7 +26,6 @@ class UpdateDatabase:
             hn = self._ctx.djhost
             dj = self._ctx.djname.lower()
         self.ws = 'http://{}/pub?id={}-admin'.format(hn.split(':')[0], dj)
-        print(self.ws)
 
     def get(self, *arg, **args):
         files = []
@@ -61,6 +55,8 @@ class UpdateDatabase:
         return selectdatabasefile('Select Database File', self._ctx, files)
 
     def updatedatabase(self, *arg, **args):
+        self._ctx.queries.is_updating(status=True)
+        send_update(self.ws, spinner=True, stage='Preparing to backup database')
         self.fileselection = args['fileselection']
         #backupdatabase(self)
         #self._startupdate()
@@ -88,44 +84,16 @@ class UpdateDatabase:
         from ..model.prokyon.played import Played
         from ..model.prokyon.mistags import Mistags
         from ..model.prokyon.requestlist import RequestList
+        from .send_update import send_update
+
+        send_update(self.ws, cp=0, stage='Starting Database Update', active=True, spinner=True)
+
         ftype = self.fileselection.split('.')[-1]
 
         if ftype.lower() == 'xml':
             from ..model.nullsoft.nullsoftxml import MediaLibrary
         else:
             from ..model.nullsoft.nullsoftdb import MediaLibrary
-
-        def send_update(ws, cp=None, rc=None, deletedtracks=None, deletedrequests=None, deletedplayed=None, deletedmistags=None, totaltracks=None, checkedtracks=None, field=None, filename=None, updatedcount=None, newcount=None, stage=None, avetime=None, active=None):
-            d = {}
-            if active is not None:
-                d['active'] = active
-            if cp is not None:
-                d['progress'] = cp
-            if deletedtracks is not None:
-                d['deletedtracks'] = deletedtracks
-            if deletedrequests is not None:
-                d['deletedrequests'] = deletedrequests
-            if deletedplayed is not None:
-                d['deletedplayed'] = deletedplayed
-            if deletedmistags is not None:
-                d['deletedmistags'] = deletedmistags
-            if totaltracks is not None:
-                d['totaltracks'] = totaltracks
-            if checkedtracks is not None:
-                d['checkedtracks'] = checkedtracks
-            if avetime is not None:
-                d['avetime'] = '{:.5f}'.format(avetime)
-            if field is not None:
-                #d['difference'] = '<tr><td>{}</td><td>{}</td><td>{}</td><td>{}</td></tr>'.format(rc['filename'], field, s[fieldmap[field]], rc[field])
-                d['updatedcount'] = updatedcount
-            if updatedcount is not None:
-                d['updatedcount'] = updatedcount
-            if stage is not None:
-                d['stage'] = stage
-            if newcount is not None:
-                d['newcount'] = newcount
-                #d['newtrack'] = '<tr><td>{}</td><td>{}</td><td>{}</td><td>{}</td></tr>'.format(rc['filename'], rc['artist'], rc['album'], rc['title'])
-            requests.post(ws, data=json.dumps(d))
 
         fieldmap = { # Map of winamp -> mysql fields
                     'title': 'title',
@@ -139,12 +107,11 @@ class UpdateDatabase:
                     'bitrate': 'bit_rate',
                    }
 
-        send_update(self.ws, cp=0, stage='Starting Database Update', active=True)
         if ftype == 'xml':
             winampdb = MediaLibrary(db=os.path.join(self.uploaddir, self.fileselection))
         else:
             winampdb = MediaLibrary(self.uploaddir, verbose=False)
-        print("%d records in the winamp database" % winampdb.totalrecords)
+
         send_update(self.ws, totaltracks=winampdb.totalrecords)
         count = winampdb.totalrecords
 
