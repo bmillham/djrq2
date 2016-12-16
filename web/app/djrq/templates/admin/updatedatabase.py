@@ -33,7 +33,7 @@
 : def selectdatabasefile title, ctx, files=[]
     : using page title, ctx, lang='en'
     <div class='container'>
-     <form id='updatedatabase' action='/admin/updatedatabase/updatedatabase' method='post'>
+     <form id='updatedatabase-form' class='ajax' style='#{'display: none' if ctx.queries.is_updating() else ''}' action='/admin/updatedatabase/updatedatabase' method='post'>
       <fieldset>
        <legend>Update Database</legend>
        <div class='form-group'>
@@ -47,13 +47,15 @@
       </fieldset>
       <button type='submit' class='btn btn-primary'>Update Database</button>
      </form>
+     : use updateprogress title, ctx
     </div>
     : end
 : end
 
 : def updateprogress title, ctx
-    : using page title, ctx, lang='en'
-    <div class='container'>
+    #: using page title, ctx, lang='en'
+    #<div class='container'>
+    <div id='progress-div' style='#{'display: none' if not ctx.queries.is_updating() else ''}'>
     <div class='row'>
         <div class='col-sm-11 col-lg-11'><h3 id='stage'></h3></div>
         <div class='col-sm-1 col-lg-1'><img src='/public/icons/horse_7.gif' id='spinner' alt='spinner' style='top: 20px; width:30px; height: 30px; position: relative; display: none;' /></div>
@@ -95,7 +97,7 @@
     </table>
     </div>
     </div>
-    : end
+    #: end
 : end
 
 : def updatecomplete ctx

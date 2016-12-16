@@ -31,7 +31,7 @@ class UpdateDatabase:
         files = []
 
         if self._ctx.queries.is_updating():
-            return updateprogress('Updating Database', self._ctx)
+            return selectdatabasefile('Updating Database', self._ctx)
 
         for pattern in ('[Gg][Zz]', '[Gg][Zz][Ii][Pp]', '[Zz][Ii][Pp]', '[Rr][Aa][Rr]'):
             files += glob(os.path.join(self.uploaddir, '*.' + pattern))
@@ -56,7 +56,7 @@ class UpdateDatabase:
 
     def updatedatabase(self, *arg, **args):
         self._ctx.queries.is_updating(status=True)
-        send_update(self.ws, spinner=True, stage='Preparing to backup database')
+        send_update(self.ws, spinner=True, stage='Preparing to backup database', updaterunning=True)
         self.fileselection = args['fileselection']
         #backupdatabase(self)
         #self._startupdate()
@@ -66,7 +66,8 @@ class UpdateDatabase:
         future = self.executor.submit(backupdatabase, self)
         future.add_done_callback(self._backupcomplete)
         print('Update is running!')
-        return updateprogress('Updating Database', self._ctx)
+        #return updateprogress('Updating Database', self._ctx)
+        #return selectdatabasefile('Updating Database', self._ctx)
 
     def _backupcomplete(self, future):
         future = self.executor.submit(self._startupdate)
@@ -139,6 +140,8 @@ class UpdateDatabase:
         newcount = 0
 
         for i, rc in enumerate(winampdb.fetchall()):
+            if i == 0:
+                send_update(self.ws, spinner=False)
             up, uf = ntpath.split(rc['filename'])
             #print('up', up)
             #print('uf', uf)
@@ -211,9 +214,9 @@ class UpdateDatabase:
             avetime = float(sum(avelist)) / float(len(avelist))
             processed += 1
 
-        send_update(self.ws, cp=0, checkedtracks=processed, newcount=newcount, updatedcount=updatedcount, stage='Updating Database: Checking for deleted tracks')
+        send_update(self.ws, cp=0, checkedtracks=processed, newcount=newcount, updatedcount=updatedcount, stage='Updating Database: Checking for deleted tracks', spinner=True)
         drows = [x.id for x in self._ctx.db.query(Song.id).filter(~Song.id.in_(currentids)).distinct()]
-        send_update(self.ws, deletedtracks=len(drows))
+        send_update(self.ws, deletedtracks=len(drows),)
         if len(drows) > 0:
             send_update(self.ws, stage='Updating Database: Deleting Played', cp=20)
             playeddeleted = self._ctx.db.query(Played.track_id).filter(Played.track_id.in_(drows)).delete(synchronize_session=False)
@@ -227,5 +230,5 @@ class UpdateDatabase:
 
         send_update(self.ws, cp=0, stage='Updating Database: Finalizing Changes')
         self._ctx.db.commit()
-        send_update(self.ws, cp=100, stage='Database Updated', active=False)
+        send_update(self.ws, cp=100, stage='Database Updated', active=False, spinner=False)
         print("Update complete")

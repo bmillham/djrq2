@@ -7,6 +7,8 @@ $(document).on('eldarion-ajax:success', function(evt, $el, data, textStatus, jqX
 $(document).on('eldarion-ajax:begin', function(evt, $el, data, textStatus, jqXHR) {
     var results = $(document).find('.results');
     var dbupdate = $(document).find('.dbupdate');
+    $('#updatedatabase-form').hide();
+    $('#progress-div').show();
     //results.show();
     //dbupdate.show();
     //results.html('Update started');

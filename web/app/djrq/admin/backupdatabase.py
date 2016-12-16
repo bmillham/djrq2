@@ -10,7 +10,7 @@ from ..model.prokyon.song import Song
 from .send_update import send_update
 
 def backupdatabase(self):
-    send_update(self.ws, cp=0, spinner=True, stage='Backup Creating backup database')
+    send_update(self.ws, cp=0, spinner=True, stage='Backup Creating backup database', updaterunning=True)
 
     db = sqlite3.connect(os.path.join(self.uploaddir, 'dbbackup{}'.format(datetime.now().strftime('%Y%m%d-%H%M%S'))))
     cursor = db.cursor()

@@ -38,6 +38,8 @@
     : end
     : if ctx.queries.is_updating()
      : scripts.append('/public/js/updatedatabasesubscribe.js')
+    : else
+     : scripts.append('/public/js/updatedatabasesubscribe.js')
     : end
     : styles = [ctx.themes[ctx.usertheme], ctx.fixes] + default_styles
     : title = 'Admin: ' + title

@@ -1,7 +1,7 @@
 import requests
 import json
 
-def send_update(ws, cp=None, rc=None, deletedtracks=None, deletedrequests=None, deletedplayed=None, deletedmistags=None, totaltracks=None, checkedtracks=None, field=None, filename=None, updatedcount=None, newcount=None, stage=None, avetime=None, active=None, spinner=None):
+def send_update(ws, cp=None, rc=None, deletedtracks=None, deletedrequests=None, deletedplayed=None, deletedmistags=None, totaltracks=None, checkedtracks=None, field=None, filename=None, updatedcount=None, newcount=None, stage=None, avetime=None, active=None, spinner=None, updaterunning=None):
     d = {}
     if active is not None:
         d['active'] = active
@@ -33,4 +33,6 @@ def send_update(ws, cp=None, rc=None, deletedtracks=None, deletedrequests=None, 
         #d['newtrack'] = '<tr><td>{}</td><td>{}</td><td>{}</td><td>{}</td></tr>'.format(rc['filename'], rc['artist'], rc['album'], rc['title'])
     if spinner is not None:
         d['spinner'] = spinner
+    if updaterunning is not None:
+        d['updaterunning'] = updaterunning
     requests.post(ws, data=json.dumps(d))

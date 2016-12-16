@@ -22,6 +22,16 @@ sub.on("message", function(message, message_metadata) {
       }
   }
 
+  if ('updaterunning' in m) {
+      if (m.updaterunning) {
+          $('#updatedatabase-form').hide();
+          $('#progress-div').show();
+      } else {
+          $('#updatedatabase-form').show();
+          $('#progress-div').hide();
+      }
+  }
+
   if ('stage' in m) {
       $('#stage').text(m.stage);
   }
