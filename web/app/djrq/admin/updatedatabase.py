@@ -208,8 +208,11 @@ class UpdateDatabase:
                     if 'year' in to_update: print(s['year'], rc, to_update)
                 currentids += [s['id']]
             thistime = time()
+            if int(lasttime) != int(thistime):
+                send_update(self.ws, updatedcount=updatedcount, totaltracks=count, newcount=newcount)
             timeint = thistime - lasttime
             lasttime = thistime
+
             avelist.append(float(timeint))
             avetime = float(sum(avelist)) / float(len(avelist))
             processed += 1

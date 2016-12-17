@@ -4,11 +4,7 @@ var sub = new NchanSubscriber(url=url, opt={subscriber:'websocket'});
 
 sub.on("message", function(message, message_metadata) {
   var m = JSON.parse(message);
-  if (m.progress == 100) {
-      $('.dbupdate').text("Update Database");
-  } else {
-    $('.dbupdate').text('Update Progress: ' + m.progress + '%');
-  }
+
 
   if ("backupprogress" in m) {
       $('.backupprogress').text(m.backupprogress);
@@ -69,13 +65,13 @@ sub.on("message", function(message, message_metadata) {
   if ('newcount' in m) {
       $('#addedtracks').text(m.newcount);
   }
-  if (m.difference != null) {
+  if ('difference' in m) {
     $('.difftable').show();
     $('.difftable tr:first').after(m.difference);
     $('.updatedcount').text(m.updatedcount);
     $('#updatedtracks').text(m.updatedcount);
   }
-  if (m.newtrack != null) {
+  if ('newtrack' in m) {
       $('.newtrack-table').show();
       $('.newtrack-table tr:first').after(m.newtrack);
       $('.newcount').text(m.newcount);
@@ -89,7 +85,14 @@ sub.on("message", function(message, message_metadata) {
       }
   }
 
-  $('.update-progress-bar').css('width', m.progress+'%').attr('aria-valuenow', m.progress).text(m.progress+'%');
+  if ('progress' in m) {
+    $('.update-progress-bar').css('width', m.progress+'%').attr('aria-valuenow', m.progress).text(m.progress+'%');
+    if (m.progress == 100) {
+      $('.dbupdate').text("Update Database");
+    } else {
+      $('.dbupdate').text('Update Progress: ' + m.progress + '%');
+    }
+  }
 });
 
 sub.start();
