@@ -209,7 +209,7 @@ class UpdateDatabase:
                 currentids += [s['id']]
             thistime = time()
             if int(lasttime) != int(thistime):
-                send_update(self.ws, updatedcount=updatedcount, totaltracks=count, newcount=newcount)
+                send_update(self.ws, updatedcount=updatedcount, totaltracks=count, newcount=newcount, spinner=False)
             timeint = thistime - lasttime
             lasttime = thistime
 
