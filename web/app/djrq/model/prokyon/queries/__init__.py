@@ -194,12 +194,12 @@ class Queries:
             p = self.db.query(func.count(Played.date_played).label('played_count'),
                               func.max(Played.date_played).label('date_played'), Played).\
                               join(Song).\
-                              group_by(Played.track_id).order_by(func.count(Played.track_id).desc()).limit(limit)
+                              group_by(Song.title, Song.artist_fullname).order_by(func.count(Song.title).desc()).limit(limit)
         else:
             p = self.db.query(Played, func.count(Played.date_played).label('played_count'),
                             func.max(Played.date_played).label('date_played')).\
                             join(Song).filter(Played.played_by_me == played_by_me).\
-                            group_by(Played.track_id).order_by(func.count(Played.track_id).desc()).limit(limit)
+                            group_by(Song.title, Song.artist_fullname).order_by(func.count(Song.title).desc()).limit(limit)
         return p
 
     def get_last_played(self, count=50):
