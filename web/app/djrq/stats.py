@@ -13,5 +13,7 @@ class Stats:
         self.queries = self._ctx.queries
 
     def get(self, *arg, **args):
+        if 'topartists' in args:
+            return statstemplate("Top Artists", self._ctx, topartists=args['topartists'])
         """ To speed up page loading, do the DB access in the template """
         return statstemplate("Library Statistics", self._ctx)

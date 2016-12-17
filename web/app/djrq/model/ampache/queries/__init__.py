@@ -90,13 +90,13 @@ class Queries:
                                         join(Song).\
                                         filter(Song.catalog_id.in_(self.catalogs), Played.played_by_me == 1).one()
 
-    def get_top_10(self):
+    def get_top_10(self, limit=10):
         return self.db.query(func.count(Song.artist_id).label('artist_count'),
                         Song.artist_id.label('aid'),
                         Artist.fullname.label('fullname')).\
                         join(Artist).\
                         filter(Song.catalog_id.in_(self.catalogs)).\
-                        group_by(Song.artist_id).order_by(func.count(Song.artist_id).desc()).limit(10)
+                        group_by(Song.artist_id).order_by(func.count(Song.artist_id).desc()).limit(limit)
 
     def get_letters_counts(self):
         return self.db.query(func.left(self.model.name, 1).label('letter'),

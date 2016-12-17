@@ -16,7 +16,7 @@
                 <tr>
             : end
             <td>
-             <a href="/${resource}/?id=#{quote_plus(name.aid)}">${name.fullname}</a>&nbsp;<span class="badge pull-right">${name.songcount}</span>
+             <a href="/${resource}/?id=#{quote_plus(str(name.aid))}">${name.fullname}</a>&nbsp;<span class="badge pull-right">${name.songcount}</span>
             </td>
             : if i % columns == columns - 1
                 : row_ended = True
