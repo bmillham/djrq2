@@ -29,7 +29,6 @@ class DJDatabaseExtension(DatabaseExtension):
                 server = d.server
             url = "mysql://{}:{}@{}/{}?charset=utf8".format(d.user, d.password, server, d.db)
             engines[d.dj.lower()] = SQLAlchemyConnection(url)
-            print(d.user, d.db, server)
 
         engines['lastplay'].stop(context)
         if sessions:
