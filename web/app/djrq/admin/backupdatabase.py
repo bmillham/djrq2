@@ -7,7 +7,7 @@ from ..model.prokyon.requestlist import RequestList
 from ..model.prokyon.played import Played
 from ..model.prokyon.mistags import Mistags
 from ..model.prokyon.song import Song
-from .send_update import send_update
+from ..send_update import send_update
 
 def backupdatabase(self):
     send_update(self.ws, progress=0, spinner=True, stage='Backup Creating backup database', updaterunning=True)

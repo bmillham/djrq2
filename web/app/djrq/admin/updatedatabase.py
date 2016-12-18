@@ -9,7 +9,7 @@ from datetime import datetime
 from ..templates.admin.updatedatabase import selectfile, selectdatabasefile, updatecomplete, updateprogress
 from concurrent.futures import ThreadPoolExecutor
 from .backupdatabase import backupdatabase
-from .send_update import send_update
+from ..send_update import send_update
 
 class UpdateDatabase:
     __dispatch__ = 'resource'
@@ -25,7 +25,6 @@ class UpdateDatabase:
         else:
             hn = self._ctx.djhost
             dj = self._ctx.djname.lower()
-        #self.ws = 'http://{}/pub?id={}-admin'.format(hn.split(':')[0], dj)
         self.ws = context.websocket_admin
 
     def get(self, *arg, **args):
@@ -86,7 +85,6 @@ class UpdateDatabase:
         from ..model.prokyon.played import Played
         from ..model.prokyon.mistags import Mistags
         from ..model.prokyon.requestlist import RequestList
-        from .send_update import send_update
 
         send_update(self.ws, progress=0, stage='Starting Database Update', active=True, spinner=True)
 
