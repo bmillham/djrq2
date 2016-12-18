@@ -10,7 +10,7 @@ from ..model.prokyon.song import Song
 from .send_update import send_update
 
 def backupdatabase(self):
-    send_update(self.ws, cp=0, spinner=True, stage='Backup Creating backup database', updaterunning=True)
+    send_update(self.ws, progress=0, spinner=True, stage='Backup Creating backup database', updaterunning=True)
 
     db = sqlite3.connect(os.path.join(self.uploaddir, 'dbbackup{}'.format(datetime.now().strftime('%Y%m%d-%H%M%S'))))
     cursor = db.cursor()
@@ -29,7 +29,7 @@ def backupdatabase(self):
     for t in tables:
         cursor.execute(tc[t])
         db.commit()
-        send_update(self.ws, cp=0, spinner=True, stage='Backup: Getting Data To Backup for {}'.format(t.__name__))
+        send_update(self.ws, progress=0, spinner=True, stage='Backup: Getting Data To Backup for {}'.format(t.__name__))
         d = self._ctx.db.query(t)
         count = d.count()
         lp = 0
@@ -46,7 +46,7 @@ def backupdatabase(self):
                 lp = cp
                 lt = int(time())
                 percent = int(i/count * 100)
-                send_update(self.ws, cp=percent, stage='Backing up {}'.format(t.__name__))
+                send_update(self.ws, progress=percent, stage='Backing up {}'.format(t.__name__))
         db.commit()
     send_update(self.ws, spinner=False, stage='Backup Completed')
     db.close()

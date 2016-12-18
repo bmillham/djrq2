@@ -25,7 +25,8 @@ class UpdateDatabase:
         else:
             hn = self._ctx.djhost
             dj = self._ctx.djname.lower()
-        self.ws = 'http://{}/pub?id={}-admin'.format(hn.split(':')[0], dj)
+        #self.ws = 'http://{}/pub?id={}-admin'.format(hn.split(':')[0], dj)
+        self.ws = context.websocket_admin
 
     def get(self, *arg, **args):
         files = []
@@ -87,7 +88,7 @@ class UpdateDatabase:
         from ..model.prokyon.requestlist import RequestList
         from .send_update import send_update
 
-        send_update(self.ws, cp=0, stage='Starting Database Update', active=True, spinner=True)
+        send_update(self.ws, progress=0, stage='Starting Database Update', active=True, spinner=True)
 
         ftype = self.fileselection.split('.')[-1]
 
@@ -174,7 +175,7 @@ class UpdateDatabase:
                     finish = '{} minutes'.format(round(eta))
                 else:
                     finish = '{} seconds'.format(round(eta * 60))
-                send_update(self.ws, cp=cp, rc=rc, checkedtracks=i+1, newcount=newcount, updatedcount=updatedcount, avetime=avetime, stage='Updating Database: Estimated Time to Finish {}'.format(finish))
+                send_update(self.ws, progress=cp, checkedtracks=i+1, newcount=newcount, updatedcount=updatedcount, avetime=avetime, stage='Updating Database: Estimated Time to Finish {}'.format(finish))
                 lp = cp
                 la = rc['artist']
 
@@ -217,21 +218,21 @@ class UpdateDatabase:
             avetime = float(sum(avelist)) / float(len(avelist))
             processed += 1
 
-        send_update(self.ws, cp=0, checkedtracks=processed, newcount=newcount, updatedcount=updatedcount, stage='Updating Database: Checking for deleted tracks', spinner=True)
+        send_update(self.ws, progress=0, checkedtracks=processed, newcount=newcount, updatedcount=updatedcount, stage='Updating Database: Checking for deleted tracks', spinner=True)
         drows = [x.id for x in self._ctx.db.query(Song.id).filter(~Song.id.in_(currentids)).distinct()]
         send_update(self.ws, deletedtracks=len(drows),)
         if len(drows) > 0:
             send_update(self.ws, stage='Updating Database: Deleting Played', cp=20)
             playeddeleted = self._ctx.db.query(Played.track_id).filter(Played.track_id.in_(drows)).delete(synchronize_session=False)
-            send_update(self.ws, cp=40, deletedplayed=playeddeleted, stage='Updating Database: Deleting Requests')
+            send_update(self.ws, progress=40, deletedplayed=playeddeleted, stage='Updating Database: Deleting Requests')
             requestsdeleted = self._ctx.db.query(RequestList.song_id).filter(RequestList.song_id.in_(drows)).delete(synchronize_session=False)
-            send_update(self.ws, cp=60, deletedrequests=requestsdeleted, stage='Updating Database: Deleting Mistags')
+            send_update(self.ws, progress=60, deletedrequests=requestsdeleted, stage='Updating Database: Deleting Mistags')
             mistagsdeleted = self._ctx.db.query(Mistags.track_id).filter(Mistags.track_id.in_(drows)).delete(synchronize_session=False)
-            send_update(self.ws, cp=80, deletedmistags=mistagsdeleted, stage='Updating Database: Deleting Tracks')
+            send_update(self.ws, progress=80, deletedmistags=mistagsdeleted, stage='Updating Database: Deleting Tracks')
             songsdeleted = self._ctx.db.query(Song.id).filter(Song.id.in_(drows)).delete(synchronize_session=False)
-            send_update(self.ws, cp=100)
+            send_update(self.ws, progress=100)
 
-        send_update(self.ws, cp=0, stage='Updating Database: Finalizing Changes')
+        send_update(self.ws, progress=0, stage='Updating Database: Finalizing Changes')
         self._ctx.db.commit()
-        send_update(self.ws, cp=100, stage='Database Updated', active=False, spinner=False)
+        send_update(self.ws, progress=100, stage='Database Updated', active=False, spinner=False)
         print("Update complete")

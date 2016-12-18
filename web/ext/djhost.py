@@ -10,6 +10,7 @@ class DJHostExtension:
 
     def prepare(self, context):
         host, sep, host_domain = context.request.host.partition('.')
+        context.fulldj = host
         if '-' in host: # So we can handle dj-name and name
             prefix, host = host.split('-')
         else:
@@ -19,3 +20,5 @@ class DJHostExtension:
         context.djname = host
         context.djprefix = prefix
         context.djhost = sep.join((host, host_domain))
+        context.websocket_admin = 'http://{}/pub?id={}-admin'.format(context.request.host.split(':')[0], context.fulldj.lower())
+        context.websocket = 'http://{}/pub?id={}'.format(context.request.host.split(':')[0], context.fulldj.lower())
