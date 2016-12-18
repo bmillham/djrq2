@@ -7,7 +7,9 @@ sub.on("message", function(message, message_metadata) {
 
   $('#listeners').html( m.listeners);
   $('#maxlisteners').html(m.maxlisteners);
-  $('#requestbutton').html(m.requestcount);
+  if ('requestbutton' in m) {
+    $('#requestbutton').html(m.requestbutton);
+  }
 
 });
 
