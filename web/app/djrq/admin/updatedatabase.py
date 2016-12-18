@@ -19,12 +19,6 @@ class UpdateDatabase:
         self._ctx = context
         ctx = context
         self.uploaddir = os.path.join('privatefilearea', context.djname)
-        if self._ctx.djprefix is not '':
-            hn = '-'.join((self._ctx.djprefix, self._ctx.djhost))
-            dj = '-'.join((self._ctx.djprefix, self._ctx.djname.lower()))
-        else:
-            hn = self._ctx.djhost
-            dj = self._ctx.djname.lower()
         self.ws = context.websocket_admin
 
     def get(self, *arg, **args):
