@@ -26,7 +26,7 @@
                 <ul class="dropdown-menu">
                 : for status in ('Ignored', 'New', 'Pending', 'Played', 'Delete')
                  : if r.status.capitalize() != status
-                    <li><a href=#{"/admin/requests/?change_status&id={}&status={}".format(r.id, status.lower())}>${status.capitalize()}</a></li>
+                    <li><a href=#{"/admin/?change_status&id={}&status={}".format(r.id, status.lower())}>${status.capitalize()}</a></li>
                  : end
                 : end
                 </ul>
