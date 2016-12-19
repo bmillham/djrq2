@@ -2,7 +2,10 @@
 
 from web.ext.acl import when
 from ..templates.admin.admintemplate import page as _page
-from ..templates.admin.requests import requeststemplate
+from ..templates.admin.requests import requeststemplate, requestrow
+from ..templates.requests import requestrow as rr
+from ..send_update import send_update
+import cinje
 
 @when(when.matches(True, 'session.authenticated', True), when.never)
 class Admin:
@@ -28,6 +31,16 @@ class Admin:
         if len(arg) > 0 and arg[0] != 'requests':
             return "Page not found: {}".format(arg[0])
         if 'change_status' in args:
-            self.queries.change_request_status(args['id'], args['status'])
+            changed_row = self.queries.change_request_status(args['id'], args['status'])
+
+            try:
+                request_row = cinje.flatten(rr(changed_row))
+            except:
+                request_row = '' # Row was deleted
+
+            np_info = self.queries.get_new_pending_requests_info()
+            send_update(self._ctx.websocket, requestbutton=np_info.request_count, request_row=request_row, new_request_status=args['status'], request_id=args['id']) # Update the request count button
+            #send_update(self._ctx.websocket_admin, requestbutton=newcount, request_row=request_row) # Update the request count button
+
         requestlist = self.queries.get_new_pending_requests()
         return requeststemplate(_page, "Requests", self._ctx, requestlist)

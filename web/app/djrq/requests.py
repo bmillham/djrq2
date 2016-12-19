@@ -45,6 +45,7 @@ class Requests:
             for g in requestrow(new_row):
                 request_row += g
             send_update(self._ctx.websocket, requestbutton=newcount, request_row=request_row, request_id=args['tid']) # Update the request count button
+            send_update(self._ctx.websocket_admin, requestbutton=newcount, request_row=request_row) # Update the request count button
             return {'html': 'Thank you for your request {}'.format(sn),
                 'tid': args['tid'],
                 'sitenick': sn,

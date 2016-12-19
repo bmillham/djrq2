@@ -14,8 +14,7 @@
 :            '/public/bootstrap/js/bootstrap.min.js',
 :            '/public/js/eldarion-ajax.min.js',
 :            '/public/js/NchanSubscriber.js',
-:            '/public/js/request.js',
-:            '/public/js/subscribe.js',
+:            '/public/js/adminsubscribe.js',
 :            '/public/js/updatedatabase.js',
 :           ]
 : filescripts = ['/public/js/vendor/jquery.ui.widget.js',
@@ -35,11 +34,6 @@
 : def page title, ctx, header=default_header, footer=site_footer, metadata=[], styles=[], scripts=scripts, **attributes
     : if ctx.resource.__resource__ == 'uploadfiles'
      : scripts = scripts + filescripts
-    : end
-    : if ctx.queries.is_updating()
-     : scripts.append('/public/js/updatedatabasesubscribe.js')
-    : else
-     : scripts.append('/public/js/updatedatabasesubscribe.js')
     : end
     : styles = [ctx.themes[ctx.usertheme], ctx.fixes] + default_styles
     : title = 'Admin: ' + title

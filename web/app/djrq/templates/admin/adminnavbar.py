@@ -27,7 +27,7 @@
         <li #{" class='active'" if resource == None else ''}>
          <a href='/admin'>
           <span class='glyphicon glyphicon-cog'></span> ${ctx.djname}
-          <span class='badge'>${format_decimal(ctx.requests_info.request_count)}</span>
+          <span id='requestbutton' class='badge'>${format_decimal(ctx.requests_info.request_count)}</span>
          </a>
         </li>
         : try

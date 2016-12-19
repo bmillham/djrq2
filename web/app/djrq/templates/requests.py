@@ -22,7 +22,7 @@
 : end
 
 : def requestrow row
-    <tr>
+    <tr id='rr_${row.id}'>
         : use aa_link row.song.artist, 'artist', td=True
         : use aa_link row.song.album, 'album', td=True
         <td>${row.song.title}</td>

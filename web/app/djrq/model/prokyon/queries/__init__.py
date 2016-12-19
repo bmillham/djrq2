@@ -264,7 +264,8 @@ class Queries:
             self.db.delete(row)
         else:
             row.status = status
-        return self.db.commit()
+        self.db.commit()
+        return row
 
     def get_siteoptions(self):
         return self.db.query(SiteOptions).one()
