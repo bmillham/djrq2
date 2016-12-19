@@ -1,7 +1,7 @@
 # encoding: utf-8
 
 from .templates.template import page as _page
-from .templates.requests import requeststemplate
+from .templates.requests import requeststemplate, requestrow
 from .templates.requestwindow import requestwindowtemplate1
 from datetime import datetime
 from .send_update import send_update
@@ -41,7 +41,10 @@ class Requests:
             self._ctx.db.add(new_row)
             self._ctx.db.commit()
             newcount = self._ctx.queries.get_new_pending_requests_info().request_count
-            send_update(self._ctx.websocket, requestbutton=newcount) # Update the request count button
+            request_row = ""
+            for g in requestrow(new_row):
+                request_row += g
+            send_update(self._ctx.websocket, requestbutton=newcount, request_row=request_row, request_id=args['tid']) # Update the request count button
             return {'html': 'Thank you for your request {}'.format(sn),
                 'tid': args['tid'],
                 'sitenick': sn,
