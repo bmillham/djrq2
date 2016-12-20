@@ -46,7 +46,9 @@
             <li><a href='/admin/uploadfiles/shared'>DJ Shared Area</a></li>
            </ul>
           </li>
-          <li #{" class='active'" if resource == 'updatedatabase' else ""}><a class='dbupdate' href='/admin/updatedatabase'>Update Database</a></li>
+          : if ctx.databasetype != 'ampache'
+           <li #{" class='active'" if resource == 'updatedatabase' else ""}><a class='dbupdate' href='/admin/updatedatabase'>Update Database</a></li>
+          : end
          : end
         : except AttributeError
          : pass

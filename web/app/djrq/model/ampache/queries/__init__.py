@@ -178,13 +178,13 @@ class Queries:
         if played_by_me == 'all':
             p = self.db.query(func.count(Played.date_played).label('played_count'),
                             func.max(Played.date_played).label('date_played'), Played).\
-                            join(Song).filter(Song.catalog_id.in_(self.catalogs)).\
-                            group_by(Played.track_id).order_by(func.count(Played.track_id).desc()).limit(limit)
+                            join(Song).join(Artist).filter(Song.catalog_id.in_(self.catalogs)).\
+                            group_by(Song.title, Artist.fullname).order_by(func.count(Played.track_id).desc()).limit(limit)
         else:
             p = self.db.query(Played, func.count(Played.date_played).label('played_count'),
                             func.max(Played.date_played).label('date_played')).\
-                            join(Song).filter(Song.catalog_id.in_(self.catalogs), Played.played_by_me == played_by_me).\
-                            group_by(Played.track_id).order_by(func.count(Played.track_id).desc()).limit(limit)
+                            join(Song).join(Artist).filter(Song.catalog_id.in_(self.catalogs), Played.played_by_me == played_by_me).\
+                            group_by(Song.title, Artist.fullname).order_by(func.count(Played.track_id).desc()).limit(limit)
         return p
 
     def get_top_requested(self, limit=10):

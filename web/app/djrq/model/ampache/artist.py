@@ -8,7 +8,7 @@ class Artist(Base):
     prefix = Column(String(32))
     Index(name)
     Index(prefix)
-    
+
     __table_args__ = {'mysql_engine':'MyISAM'}
 
     def __str__(self):
