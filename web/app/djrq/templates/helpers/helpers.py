@@ -12,7 +12,7 @@
         : end
         : max_time = int(time()) - (int(ctx.siteoptions.limit_requests) * 60 * 60)
         ${row.title}
-        <div class="pull-right">
+        <div class="pull-right">&nbsp;
          <button class="btn btn-xs btn-primary r_${row.id}"
                  id='r_${row.id}'
                  data-toggle="modal"
