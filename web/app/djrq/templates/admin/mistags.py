@@ -8,7 +8,7 @@
         <div class='container'>
         <div class="row table-responsive">
          <div class="col-md-12">
-        <table #{table_args} class='vertical-table'>
+        <table #{table_args}>
          <caption #{caption_args}>Mistags</caption>
          <tr>
           <th>Action</th>
