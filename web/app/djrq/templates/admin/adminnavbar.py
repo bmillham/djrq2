@@ -13,7 +13,7 @@
     </li>
 : end
 
-: def adminnavbar ctx
+: def adminnavbar ctx -> strip
     : try
         : resource = ctx.resource.__resource__
     : except AttributeError
@@ -25,8 +25,8 @@
       <div class='collapse navbar-collapse' id='collapse-1'>
        <ul class='nav navbar-nav'>
         <li #{" class='active'" if resource == None else ''}>
-         <a href='/admin'>
-          <span class='glyphicon glyphicon-cog'></span> ${ctx.djname}
+         <a class='navbar-brand' href='/admin'>
+          <span class='glyphicon glyphicon-cog'></span>&nbsp;${ctx.djname}&nbsp;
           <span id='requestbutton' class='badge'>${format_decimal(ctx.requests_info.request_count)}</span>
          </a>
         </li>
@@ -39,26 +39,20 @@
           : if ctx.databasetype == 'ampache'
             <li #{" class='active'" if resource == 'catalogoptions' else ''}><a href='/admin/catalogoptions'>Catalog Selection</a></li>
           : end
-        <li class='dropdown'>
-         <a href='#' class='dropdown-toggle navbar-brand' data-toggle='dropdown' role='button' aria-haspopup='true' aria-expanded='false'>Upload Files<span class='caret'></span></a>
-         <ul class='dropdown-menu'>
-          <li><a href='/admin/uploadfiles/private'>Your Private Area</a></li>
-          <li><a href='/admin/uploadfiles/shared'>DJ Shared Area</a></li>
-         </ul>
-        </li>
-        <li #{" class='active'" if resource == 'updatedatabase' else ""}><a class='dbupdate' href='/admin/updatedatabase'>Update Database</a></li>
-       </ul>
-
-       <ul class='nav navbar-nav navbar-right'>
-        #<p class='navbar-text dbupdate' id='dbupdate' style='display: none;'>Update Progress</p>
-
+          <li class='dropdown'>
+           <a href='#' class='dropdown-toggle' data-toggle='dropdown' role='button' aria-haspopup='true' aria-expanded='false'>Upload Files<span class='caret'></span></a>
+           <ul class='dropdown-menu'>
+            <li><a href='/admin/uploadfiles/private'>Your Private Area</a></li>
+            <li><a href='/admin/uploadfiles/shared'>DJ Shared Area</a></li>
+           </ul>
+          </li>
+          <li #{" class='active'" if resource == 'updatedatabase' else ""}><a class='dbupdate' href='/admin/updatedatabase'>Update Database</a></li>
          : end
         : except AttributeError
          : pass
         : end
-        : if ctx.queries.is_updating()
-         : print("Is updating")
-        : end
+       </ul>
+       <ul class='nav navbar-nav navbar-right'>
         <li><a href="/lastplayed"><span class='glyphicon glyphicon-home'></span></a></li>
         <li><a href='/admin/auth/?logout'><span class='glyphicon glyphicon-off'></span></a></li>
         : if ctx.listeners is not None
