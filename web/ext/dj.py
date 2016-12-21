@@ -45,7 +45,7 @@ class DJExtension:
         if context.queries.db is None:
             raise HTTPError("Queries is None!")
         context.__dict__['dbstats'] = context.queries.get_song_stats()
-        context.__dict__['requests_info'] = context.queries.get_new_pending_requests_info()
+        context.__dict__['requests_info'] = context.queries.get_requests_info()
         context.__dict__['new_counts'] = context.queries.get_new_counts(days=context.whatsnewdays)
 
         try:

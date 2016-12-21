@@ -21,7 +21,7 @@ class Requests:
             s = self.queries.get_song_by_id(id=args['id'])
             return requestwindowtemplate1('New Request', self._ctx, s)
 
-        requestlist = self.queries.get_new_pending_requests()
+        requestlist = self.queries.get_requests()
         return requeststemplate(_page, "Current Requests", self._ctx, requestlist)
 
     def post(self, *arg, **args):
@@ -40,7 +40,7 @@ class Requests:
                                   status='new')
             self._ctx.db.add(new_row)
             self._ctx.db.commit()
-            newcount = self._ctx.queries.get_new_pending_requests_info().request_count
+            newcount = self._ctx.queries.get_requests_info().request_count
             request_row = ""
             for g in requestrow(new_row):
                 request_row += g

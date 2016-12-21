@@ -5,19 +5,40 @@
 : from ..helpers.funcs import time_ago, time_length, format_time
 : from ..helpers.helpers import aa_link
 
-: def requeststemplate page=_page, title=None, ctx=None, requestlist=[]
+: def requeststemplate page=_page, title=None, ctx=None, requestlist=[], view_status=None, requestinfo=None
     : using page title, ctx, lang="en"
         <table id='request-table' #{table_args}>
-         <caption #{caption_args}>${ctx.requests_info.request_count} Requests
+         <caption #{caption_args}>${requestlist.count()} Requests
          : try
-            (${time_length(int(ctx.requests_info.request_length))})
+            (${time_length(int(requestinfo.request_length))})
          : except TypeError
           : pass
          : end
+         &nbsp;
+         <div class='btn-group'>
+          <button type='button' class='btn btn-xs btn-primary dropdown-toggle' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false'>
+           Requests To View: ${view_status}<span class='caret'></span>
+          </button>
+          <ul class='dropdown-menu'>
+           : for rv in ('New/Pending', 'Ignored', 'New', 'Pending', 'Played')
+            : if rv != view_status
+             <li><a href='/admin/?view_status=${rv}'>${rv}</a></li>
+            : end
+           : end
+          </ul>
          </caption>
          <tr><th>Status</th><th>Artist</th><th>Album</th><th>Title</th><th>Length</th><th>Requested By</th><th>Last Requested</th></tr>
-         : for r in requestlist
-            : use requestrow r
+         : for i, r in enumerate(requestlist)
+            : try
+                : use requestrow r
+            : except AttributeError
+                # TODO: Ignore missing songs for now, but this should probably be an error!
+                : print('Missing song', r.song_id)
+                <td colspan=7>Came across a bad row in the requests list for song id ${r.song_id}</td></tr>
+            : end
+            : if i % 50
+             : flush
+            : end
          : end
         </table>
     : end

@@ -141,14 +141,13 @@ class Queries:
                                             group_by(Played.date_played).\
                                             order_by(Played.date_played.desc()).limit(count)
 
-    def get_new_pending_requests(self):
-        return self.db.query(RequestList).\
-                    filter((RequestList.status == 'new') | (RequestList.status == 'pending')).order_by(RequestList.id)
+    def get_requests(self, status='New/Pending'):
+        return self.db.query(RequestList).filter(or_(*[RequestList.status == s for s in status.split('/')])).order_by(RequestList.id)
 
-    def get_new_pending_requests_info(self):
+    def get_requests_info(self, status='New/Pending'):
         return self.db.query(func.count(RequestList.id).label('request_count'),
                   func.sum(Song.time).label('request_length')).\
-                  join(Song).filter(or_(RequestList.status=="new", RequestList.status=='pending')).one()
+                  join(Song).filter(or_(*[RequestList.status == s for s in status.split('/')])).one()
 
     def get_all_requests_info(self):
         return self.db.query(func.count(RequestList.status).label('request_count'),
