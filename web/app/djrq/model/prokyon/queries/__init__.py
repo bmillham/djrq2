@@ -250,6 +250,12 @@ class Queries:
         self.db.delete(row)
         return self.db.commit()
 
+    def get_suggestions_count(self):
+        return self.db.query(func.count(Suggestions.id).label('suggestions_count')).one()
+
+    def get_mistags_count(self):
+        return self.db.query(func.count(Mistags.id).label('mistags_count')).one()
+
     def get_mistags(self):
         return self.db.query(Mistags)
 

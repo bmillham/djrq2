@@ -32,8 +32,12 @@
         </li>
         : try
          : if ctx.session.authenticated
-          <li #{" class='active'" if resource == 'mistags' else ''}><a href="/admin/mistags">Mistags</a></li>
-          <li #{" class='active'" if resource == 'suggestions' else ''}><a href="/admin/suggestions">Suggestions</a></li>
+          <li #{" class='active'" if resource == 'mistags' else ''}>
+           <a href="/admin/mistags">Mistags&nbsp;<span id='mistagsbutton' class='badge'>${format_decimal(ctx.mistags_count)}</span></a>
+          </li>
+          <li #{" class='active'" if resource == 'suggestions' else ''}>
+           <a href="/admin/suggestions">Suggestions&nbsp;<span id='suggestionsbutton' class='badge'>${format_decimal(ctx.suggestions_count)}</span></a>
+          </li>
           <li #{" class='active'" if resource == 'showinfo' else ''}><a href='/admin/showinfo'>Show Info</a></li>
           <li #{" class='active'" if resource == 'requestoptions' else ''}><a href='/admin/requestoptions'>Request Options</a></li>
           : if ctx.databasetype == 'ampache'

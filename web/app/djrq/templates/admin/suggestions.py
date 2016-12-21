@@ -9,7 +9,7 @@
         <div class="row table-responsive">
          <div class="col-md-12">
         <table #{table_args}>
-         <caption #{caption_args}>Suggestions (${suggestionlist.count()})</caption>
+         <caption #{caption_args}>Suggestions</caption>
          <tr>
           <th>Action</th><th>Artist</th><th>Album</th><th>Title</th><th>Suggested By</th><th>Comments</th>
          </tr>
