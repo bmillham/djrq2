@@ -40,7 +40,6 @@ auth = Auth()
 
 app=Application(Root, extensions=[
         AnnotationExtension(),
-        DebugExtension(),
         SerializationExtension(),
         DJHostExtension(),
         DJDatabaseExtension(sessions=MongoDBConnection(config['session']['uri']), config=config),
