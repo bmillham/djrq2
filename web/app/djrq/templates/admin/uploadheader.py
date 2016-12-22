@@ -5,8 +5,18 @@
     <h1>Your Private Files</h1>
     <blockquote>
         Click on 'Add Files' to select the files you would like to upload, or drag & drop them.
-        If you use the winamp media library, send the contents of the ml directory (main.idx and main.dat). Otherwise, export to XML (either EZPLAYLIST or Apple format) and upload that. You may compress the files using zip, rar or gz.
-        When your ml or xml files are uploaded, click on 'Update Your Database' in the menu to start updating your database
+        <ul>
+         <li>For Winamp users</li>
+         <ul>
+          <li>If you use the media library, send the contents of the ml directory (main.idx and main.dat)
+          <li>If you do not use the media library, export to XML (EZPLAYLIST and Apple formats are accepted)
+         </ul>
+         <li>For iTunes users</li>
+         <ul>
+          <li>Send the iTunes XML file</li>
+         </ul>
+        </ul>
+        After your files are uploaded, click on <a href='/admin/updatedatabase'>Update Database</a> in the menu to start updating your database.
     </blockquote>
  : elif sharetype == 'shared'
     <h1>Your Files Shared With DJs</h1>

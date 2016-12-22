@@ -46,8 +46,7 @@
             </div>
         </div>
         <!-- The table listing the files available for upload/download -->
-            <div id="files" class="files"></div>
-        <!-- <table role="presentation" class="table table-striped"><tbody class="files"></tbody></table> -->
+            <table role="presentation" class="table table-striped"><tbody class="files"></tbody></table>
     </form>
     <br>
     <div class="panel panel-default">
@@ -56,7 +55,13 @@
         </div>
         <div class="panel-body">
             <ul>
-                <li>The update database page is not yet available</li>
+                : if sharetype == 'private'
+                 <li>It is recommended that you compress the files. ZIP and RAR files are accepted.</li>
+                 <li>After an update, you will see dbbackup* files. If the update was successful, you may delete them.</li>
+                 <li>Also after an update, you can delete the uploaded file, and any files created if it was uncompressed</li>
+                : else
+                 <li>Please keep the shared space clean. The server has limited space!</li>
+                : end
             </ul>
         </div>
     </div>
