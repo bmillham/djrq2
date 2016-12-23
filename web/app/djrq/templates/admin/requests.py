@@ -27,7 +27,7 @@
            : end
           </ul>
          </caption>
-         <tr><th>Status</th><th>Artist</th><th>Album</th><th>Title</th><th>Length</th><th>Requested By</th><th>Last Requested</th></tr>
+         <tr><th>Status</th><th>Artist</th><th>Album</th><th>Title</th><th>Length</th><th>Requested By</th><th>Comment</th><th>Last Requested</th></tr>
          : for i, r in enumerate(requestlist)
             : try
                 : use requestrow r
@@ -64,6 +64,7 @@
         : use aa_link row.song.album, 'album', td=True
         <td>${row.song.title}</td>
         <td>${format_time(row.song.time)}</td>
+        <td>${row.msg}</td>
         <td>${row.name}</td>
         : try
             <td>${row.song.played[0].played_by} ${time_ago(row.song.played[0].date_played)}</td>

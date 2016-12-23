@@ -2,9 +2,11 @@
 
 from .templates.template import page as _page
 from .templates.requests import requeststemplate, requestrow
+from .templates.admin.requests import requestrow as adminrequestrow
 from .templates.requestwindow import requestwindowtemplate1
 from datetime import datetime
 from .send_update import send_update
+import cinje
 
 class Requests:
     __dispatch__ = 'resource'
@@ -41,11 +43,10 @@ class Requests:
             self._ctx.db.add(new_row)
             self._ctx.db.commit()
             newcount = self._ctx.queries.get_requests_info().request_count
-            request_row = ""
-            for g in requestrow(new_row):
-                request_row += g
+            request_row = cinje.flatten(requestrow(new_row))
+            admin_request_row = cinje.flatten(adminrequestrow(new_row))
             send_update(self._ctx.websocket, requestbutton=newcount, request_row=request_row, request_id=args['tid']) # Update the request count button
-            send_update(self._ctx.websocket_admin, requestbutton=newcount, request_row=request_row) # Update the request count button
+            send_update(self._ctx.websocket_admin, requestbutton=newcount, request_row=admin_request_row) # Update the request count button
             return {'html': 'Thank you for your request {}'.format(sn),
                 'tid': args['tid'],
                 'sitenick': sn,
