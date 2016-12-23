@@ -64,8 +64,8 @@
         : use aa_link row.song.album, 'album', td=True
         <td>${row.song.title}</td>
         <td>${format_time(row.song.time)}</td>
-        <td>${row.msg}</td>
         <td>${row.name}</td>
+        <td>${row.msg}</td>
         : try
             <td>${row.song.played[0].played_by} ${time_ago(row.song.played[0].date_played)}</td>
         : except
