@@ -3,14 +3,23 @@
 : from urllib.parse import quote_plus
 : from time import mktime, time
 
-: def request_link ctx, row, td=False
+: def request_link ctx, row, td=False, played=False
     : using _td td
         : try
          : lp = mktime(row.played[0].date_played.timetuple())
         : except
          : lp = 0
         : end
-        : max_time = int(time()) - (int(ctx.siteoptions.limit_requests) * 60 * 60)
+        : try
+            : limit_requests = int(ctx.siteoptions.limit_requests)
+        : except
+            : limit_requests = -1
+        : end
+        : try
+            : max_time = int(time()) - (limit_requests * 60 * 60)
+        : except
+            : max_time = 0
+        : end
         ${row.title}
         <div class="pull-right">&nbsp;
          <button class="btn btn-xs btn-primary r_${row.id}"
@@ -20,11 +29,11 @@
                  data-title='${row.title}'
                  data-tid='${row.id}'
                  # Disable the button if there are requests
-                 ${"disabled='disabled'" if len(row.new_requests) > 0 or lp > max_time or ctx.siteoptions.limit_requests == -1 else ""}
+                 ${"disabled='disabled'" if len(row.new_requests) > 0 or lp > max_time or limit_requests == -1 or played else ""}
                  >
-                 : if ctx.siteoptions.limit_requests == -1
+                 : if limit_requests == -1 and not played
                   No Requests
-                : elif lp > max_time
+                : elif lp > max_time or played
                   Played
                 : else
                   Request
