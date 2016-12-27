@@ -44,8 +44,8 @@ if __name__ == '__main__':
         djs[djname] = {'databasetype': djrow.databasetype,
                     'package': 'web.app.djrq.model.'+djrow.databasetype,
                     'lp_id': None,
-                    'current_listeners': None,
-                    'current_max_listeners': None,
+                    'current_listeners': 0,
+                    'current_max_listeners': 0,
                     'queries': load(package + '.queries:Queries'),
                     'listeners': load(package + '.listeners:Listeners'),
                     'websocket': 'http://{}.rockitradio.info/pub?id={}'.format(djname, djname),
@@ -74,7 +74,7 @@ if __name__ == '__main__':
                 try:
                     r = lp[0]
                 except:
-                    print('Bad row', dj)
+                    #print('Bad row', dj)
                     continue
 
                 if r[0] == 0: continue
@@ -83,7 +83,7 @@ if __name__ == '__main__':
                     print("Must be first run, setting id", dj, r.Played.played_id, r.Played.song.title)
                     djs[dj]['lp_id'] = r.Played.played_id
                 elif r.Played.played_id == djs[dj]['lp_id']:
-                    print('Already reported')
+                    pass # Skip if no change
                 else:
                     new_row = cinje.flatten(lastplayed_row(None, r, ma=True, played=True))
                     print('Sending update', new_row)
@@ -92,17 +92,18 @@ if __name__ == '__main__':
             try:
                 listeners_row = db.Session.query(djs[dj]['listeners']).one()
             except:
-                print('No listeners for', dj)
+                pass # Skip because no listeners info
             else:
                 if listeners_row.current != djs[dj]['current_listeners']:
-                    print('Listener mismatch', djs[dj]['current_listeners'], listeners_row.current)
                     djs[dj]['current_listeners'] = listeners_row.current
                     elements_to_update['listeners'] = listeners_row.current
                 if listeners_row.max != djs[dj]['current_max_listeners']:
                     djs[dj]['current_max_listeners'] = listeners_row.max
                     elements_to_update['maxlisteners'] = listeners_row.max
 
-            send_update(djs[dj]['websocket'], **elements_to_update)
+            if elements_to_update != {}:
+                print('Sending update to', djs[dj]['websocket'], elements_to_update)
+                send_update(djs[dj]['websocket'], **elements_to_update)
             db.Session.close()
             db.stop(context)
         sleep(30)
