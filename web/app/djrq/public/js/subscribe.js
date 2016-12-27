@@ -19,8 +19,15 @@ sub.on("message", function(message, message_metadata) {
       }
   }
 
-  $('#listeners').html( m.listeners);
-  $('#maxlisteners').html(m.maxlisteners);
+  if ('listeners' in m) {
+    $('#listeners').html( m.listeners);
+    blink($('#listeners'));
+  }
+
+  if ('maxlisteners' in m) {
+    $('#maxlisteners').html(m.maxlisteners);
+    blink($('#maxlisteners'));
+  }
 
   if ('requestbutton' in m) {
     $('#requestbutton').html(m.requestbutton);

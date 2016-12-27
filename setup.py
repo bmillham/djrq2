@@ -61,6 +61,7 @@ setup(
                 'markupsafe',
                 'requests',
                 'rarfile',
+		'marrow.package',
             ],
 
         extras_require = dict(
