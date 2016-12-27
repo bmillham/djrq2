@@ -106,4 +106,4 @@ if __name__ == '__main__':
                 send_update(djs[dj]['websocket'], **elements_to_update)
             db.Session.close()
             db.stop(context)
-        sleep(30)
+        sleep(10)
