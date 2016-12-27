@@ -57,8 +57,8 @@ if __name__ == '__main__':
 
     while 1:
         # Get the latest played for each DJ
-        elements_to_update = {}
         for dj in databases.engines:
+            elements_to_update = {}
             if dj == 'lastplay': continue
 
             db = databases.engines[dj]
