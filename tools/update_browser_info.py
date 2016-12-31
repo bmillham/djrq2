@@ -78,7 +78,7 @@ if __name__ == '__main__':
                     continue
 
                 if r[0] == 0: continue
-
+                print('r', r[0], r)
                 if djs[dj]['lp_id'] is None:
                     #print("Must be first run, setting id", dj, r.Played.played_id, r.Played.song.title, r.Played.song.new_requests)
                     for rq in r.Played.song.new_requests:
