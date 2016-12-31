@@ -80,13 +80,20 @@ if __name__ == '__main__':
                 if r[0] == 0: continue
 
                 if djs[dj]['lp_id'] is None:
-                    print("Must be first run, setting id", dj, r.Played.played_id, r.Played.song.title)
+                    #print("Must be first run, setting id", dj, r.Played.played_id, r.Played.song.title, r.Played.song.new_requests)
+                    for rq in r.Played.song.new_requests:
+                        print(rq.id, rq.msg, rq.name)
+                        elements_to_update['request_id'] = rq.id
+                        elements_to_update['new_request_status'] = 'played'
                     djs[dj]['lp_id'] = r.Played.played_id
                 elif r.Played.played_id == djs[dj]['lp_id']:
                     pass # Skip if no change
                 else:
                     new_row = cinje.flatten(lastplayed_row(None, r, ma=True, played=True))
-                    print('Sending update', new_row)
+                    for rq in r.Played.song.new_requests:
+                        #print(rq.id, rq.msg, rq.name)
+                        elements_to_update['request_id'] = rq.id
+                        elements_to_update['new_request_status'] = 'played'
                     elements_to_update['lastplay'] = new_row
                     djs[dj]['lp_id'] = r.Played.played_id
             try:
