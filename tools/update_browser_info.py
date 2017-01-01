@@ -18,6 +18,7 @@ class FakeContext:
     """ A fake session, just used to query the database """
     def __init__(self, db={}):
         self.db = db
+        self.queries = None
 
     @property
     def db(self):
@@ -27,6 +28,13 @@ class FakeContext:
     def db(self, db):
         self.__db=db
 
+    @property
+    def queries(self):
+        return self.__queries
+
+    @queries.setter
+    def queries(self, queries):
+        self.__queries = queries
 
 with open('../web/app/djrq/config.yaml') as f:
     config= yaml.safe_load(f)
@@ -65,6 +73,7 @@ if __name__ == '__main__':
             context = FakeContext()
             db.start(context)
             queries = djs[dj]['queries'](db=db.Session)
+            context.queries = queries
 
             try:
                 lp = queries.get_last_played(count=1)
@@ -80,7 +89,6 @@ if __name__ == '__main__':
                 if r[0] == 0: continue
                 print('r', r[0], r)
                 if djs[dj]['lp_id'] is None:
-                    #print("Must be first run, setting id", dj, r.Played.played_id, r.Played.song.title, r.Played.song.new_requests)
                     for rq in r.Played.song.new_requests:
                         print(rq.id, rq.msg, rq.name)
                         elements_to_update['request_id'] = rq.id
@@ -89,7 +97,7 @@ if __name__ == '__main__':
                 elif r.Played.played_id == djs[dj]['lp_id']:
                     pass # Skip if no change
                 else:
-                    new_row = cinje.flatten(lastplayed_row(None, r, ma=True, played=True))
+                    new_row = cinje.flatten(lastplayed_row(context, r, ma=True, played=True))
                     for rq in r.Played.song.new_requests:
                         #print(rq.id, rq.msg, rq.name)
                         elements_to_update['request_id'] = rq.id
