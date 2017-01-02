@@ -9,6 +9,7 @@
 
 : default_styles = [
 :           '/public/vertical-navbar.css',
+:           '/public/css/bootstrap-sortable.css',
 :          ]
 : scripts = ['https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js',
 :            '/public/bootstrap/js/bootstrap.min.js',
@@ -17,6 +18,7 @@
 :            '/public/js/request.js',
 :            '/public/js/subscribe.js',
 :            '/public/js/enable_tooltips.js',
+:            '/public/js/bootstrap-sortable.js',
 :           ]
 
 : def page title, ctx, header=default_header, footer=site_footer, metadata=[], styles=[], scripts=scripts, **attributes

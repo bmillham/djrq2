@@ -3,17 +3,21 @@
 : from .template import page
 : from .helpers.helpers import request_link, aa_link
 : from .helpers.funcs import format_time, time_ago
-: from . import table_args, caption_args
+: from . import table_class, table_style, caption_args
 
 : def lastplayedtemplate title, ctx, lplist
     : using page title, ctx, lang="en"
        <div class='container'>
         <div class="row table-responsive">
          <div class="col-md-12">
-        <table #{table_args} id='lastplay'>
+         : table_class.append('sortable')
+        <table class="#{' '.join(table_class)}" style="#{' '.join(table_style)}" id='lastplay'>
          <caption #{caption_args}>${ctx.lastplay_count} Last Played</caption>
+         <thead>
+         <tr><th data-defaultsign='AZ'>Artist</th><th data-defaultsign='AZ'>Title</th><th data-defaultsign='AZ'>Album</th>
+             <th>Length</th><th>Last Played By</th></tr>
+         </thead>
          <tbody>
-         <tr><th>Artist</th><th>Title</th><th>Album</th><th>Length</th><th>Last Played By</th></tr>
          : for i, r in enumerate(lplist)
             : use lastplayed_row ctx, r
             : if not (i % 9) and i != 0
@@ -57,7 +61,7 @@
              </td>
              : pc = len(r.Played.song.played)
              : playlist = r.Played.song.played
-             <td>
+             <td data-value='${playlist[0].date_played}'>
                 ${playlist[0].played_by}
                 ${time_ago(playlist[0].date_played)}
              : if pc > 1

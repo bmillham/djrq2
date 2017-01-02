@@ -3,49 +3,53 @@
 : from .template import page
 : from .helpers.helpers import request_link, aa_link
 : from .helpers.funcs import format_time, time_ago, format_decimal
-: from . import table_args, caption_args
+: from . import table_class, table_style, caption_args
 
 : def _tracklist title, ctx, a, r, songs
     <div class='container'>
      <div class='table-responsive'>
-     <table #{table_args}>
+     : table_class.append('sortable')
+     <table class="#{' '.join(table_class)}" style="#{' '.join(table_style)}">
       <caption #{caption_args}>${title}</caption>
+      <thead>
       <tr>
-       : if r == 'Album'
-           <th>Track #</th>
-       : end
-       <th>Title</th><th>Artist</th><th>Album</th><th>Length</th><th>Last Played</th></tr>
-        <tbody>
-        : for i, row in enumerate(songs)
-            <tr>
-             : if r == 'Album'
-                 <td>${row.track}</td>
-             : end
-             : use request_link ctx, row, td=True
-             : use aa_link row.artist, 'artist', td=True
-             : use aa_link row.album, 'album', td=True
-             <td>${format_time(row.time)}</td>
-             <td>
-              : if len(row.played) > 0
-                ${time_ago(row.played[0].date_played)} by ${row.played[0].played_by}
-                : if len(row.played) > 1
-                 &nbsp;<span class="badge pull-right" title="Played ${len(row.played)} times" data-html='1' data-toggle='popover' data-placement='left auto' data-trigger='hover' data-content="
-                 : for p in row.played
-                  ${p.played_by} ${time_ago(p.date_played)}<br>
-                 : end
-                 ">${len(row.played)}</span>
-                : end
-              : else
-                &nbsp;
-              : end
-             </td>
-            </tr>
-            : if not (i % 49) and i != 0
-                </tbody>
-                : flush
-                <tbody>
-            : end
+      : if r == 'Album'
+       <th>Track #</th>
+      : end
+       <th data-defaultsign='AZ'>Title</th><th data-defaultsign='AZ'>Artist</th>
+       <th data-defaultsign='AZ'>Album</th><th>Length</th><th>Last Played</th>
+      </tr>
+      <tbody>
+      : for i, row in enumerate(songs)
+       <tr>
+        : if r == 'Album'
+         <td>${row.track}</td>
         : end
+        : use request_link ctx, row, td=True
+        : use aa_link row.artist, 'artist', td=True
+        : use aa_link row.album, 'album', td=True
+        <td>${format_time(row.time)}</td>
+        <td data-value='#{row.played[0].date_played if len(row.played) > 0 else ""}'>
+         : if len(row.played) > 0
+          ${time_ago(row.played[0].date_played)} by ${row.played[0].played_by}
+          : if len(row.played) > 1
+           &nbsp;<span class="badge pull-right" title="Played ${len(row.played)} times" data-html='1' data-toggle='popover' data-placement='left auto' data-trigger='hover' data-content="
+           : for p in row.played
+            ${p.played_by} ${time_ago(p.date_played)}<br>
+           : end
+           ">${len(row.played)}</span>
+          : end
+         : else
+          &nbsp;
+         : end
+         </td>
+        </tr>
+        : if not (i % 49) and i != 0
+         </tbody>
+        : flush
+        <tbody>
+        : end
+       : end
       </tbody>
      </table>
      </div>
