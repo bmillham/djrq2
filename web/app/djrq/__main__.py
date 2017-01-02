@@ -53,7 +53,7 @@ app=Application(Root, extensions=[
                          refresh=True,
                          default=MongoSession(Session, database=config['session']['database']),
                          ),
-        ] + ([DebugExtension(),] if __debug__ else []),
+        ] + [DebugExtension(),] if __debug__ else [],
 
         )
 

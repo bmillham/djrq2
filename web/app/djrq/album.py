@@ -4,7 +4,7 @@ class Album:
     __dispatch__ = 'resource'
     __resource__ = 'album'
 
-    from .common.get import get
+    from .common.get import get, id
 
     def __init__(self, context, name, *arg, **args):
         self._ctx = context
