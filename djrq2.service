@@ -8,7 +8,7 @@
 
 [Unit]
 Description = djrq2 daemon
-After network.target = auditd.service
+Wants = network.target
 
 [Service]
 User=brian
@@ -16,7 +16,6 @@ Group=brian
 Type = forking
 ExecStart = /sbin/start-stop-daemon -p /var/run/djrq2.pid -d /home/brian/djrq2-workingcopy/djrq2 -b -a /home/brian/djrq2-workingcopy/bin/python -S -- -O -m web.app.djrq
 ExecStop = /sbin/start-stop-daemon -p /var/run/djrq2.pid -K
-ExecStatus = /sbin/start-stop-daemon -p /var/run/djrq2.pid -T
 Restart=always
 
 [Install]
