@@ -1,13 +1,14 @@
 # encoding: cinje
 
 : from ..template import page as _page
-: from .. import table_args, caption_args
+: from .. import table_class, table_style, caption_args
 : from ..helpers.funcs import time_ago, time_length, format_time
 : from ..helpers.helpers import aa_link
 
 : def requeststemplate page=_page, title=None, ctx=None, requestlist=[], view_status=None, requestinfo=None
     : using page title, ctx, lang="en"
-        <table id='request-table' #{table_args}>
+        : table_class.append('sortable')
+        <table class="#{' '.join(table_class)}" style="#{' '.join(table_style)}" id='request-table'>
          <caption #{caption_args}>${requestlist.count()} Requests
          : try
             (${time_length(int(requestinfo.request_length))})
@@ -27,7 +28,14 @@
            : end
           </ul>
          </caption>
-         <tr><th>Status</th><th>Artist</th><th>Album</th><th>Title</th><th>Length</th><th>Requested By</th><th>Comment</th><th>Last Requested</th></tr>
+         <thead>
+         <tr>
+          <th>Status</th><th>Artist</th><th>Album</th>
+          <th>Title</th><th>Length</th><th>Requested By</th>
+          <th>Comment</th><th>Requested</th><th>Last Played</th>
+         </tr>
+         </thead>
+         <tbody>
          : for i, r in enumerate(requestlist)
             : try
                 : use requestrow r
@@ -40,13 +48,14 @@
              : flush
             : end
          : end
+         </tbody>
         </table>
     : end
 : end
 
 : def requestrow row
     <tr id='rr_${row.id}'>
-        <td>
+        <td data-value='${row.status}'>
             <div class="btn-group">
                 <button type="button" class="btn btn-xs btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                   ${row.status.capitalize()}<span class="caret"></span>
@@ -66,10 +75,11 @@
         <td>${format_time(row.song.time)}</td>
         <td>${row.name}</td>
         <td>${row.msg}</td>
+        <td data-value='${row.t_stamp}'>${time_ago(row.t_stamp)}</td>
         : try
-            <td>${row.song.played[0].played_by} ${time_ago(row.song.played[0].date_played)}</td>
+            <td data-value='${row.song.played[0].date_played}'>${row.song.played[0].played_by} ${time_ago(row.song.played[0].date_played)}</td>
         : except
-            <td>&nbsp;</td>
+            <td data-value=''>&nbsp;</td>
         : end
     </tr>
 : end

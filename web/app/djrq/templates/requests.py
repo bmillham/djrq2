@@ -3,7 +3,7 @@
 : from .template import page as _page
 : from . import table_class, table_style, caption_args
 : from .helpers.funcs import time_ago, format_time
-: from .helpers.helpers import aa_link
+: from .helpers.helpers import aa_link, request_link
 
 : def requeststemplate page=_page, title=None, ctx=None, requestlist=[]
     : using page title, ctx, lang="en"
@@ -21,7 +21,7 @@
          </thead>
          <tbody>
          : for r in requestlist
-            : use requestrow r
+            : use requestrow ctx, r
          : end
          </tbody>
         </table>
@@ -30,11 +30,13 @@
     : end
 : end
 
-: def requestrow row
+: def requestrow ctx, row
     <tr id='rr_${row.id}'>
         : use aa_link row.song.artist, 'artist', td=True
         : use aa_link row.song.album, 'album', td=True
-        <td>${row.song.title}</td>
+        <td>
+         : use request_link ctx, row.song, no_request_button=True
+        </td>
         <td>${format_time(row.song.time)}</td>
         <td>${row.name}</td>
         <td>${row.status.capitalize()}</td>

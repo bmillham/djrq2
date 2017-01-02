@@ -9,6 +9,7 @@
 :           '/public/css/jquery.fileupload.css',
 :           '/public/css/jquery.fileupload-ui.css',
 :           '/public/vertical-table.css',
+:           '/public/css/bootstrap-sortable.css',
 :          ]
 : scripts = ['https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js',
 :            '/public/bootstrap/js/bootstrap.min.js',
@@ -16,6 +17,7 @@
 :            '/public/js/NchanSubscriber.js',
 :            '/public/js/adminsubscribe.js',
 :            '/public/js/updatedatabase.js',
+:            '/public/js/bootstrap-sortable.js',
 :           ]
 : filescripts = ['/public/js/vendor/jquery.ui.widget.js',
 :                '/public/js/jquery.iframe-transport.js',

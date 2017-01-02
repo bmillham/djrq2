@@ -3,7 +3,7 @@
 : from urllib.parse import quote_plus
 : from time import mktime, time
 
-: def request_link ctx, row, td=False, played=False
+: def request_link ctx, row, td=False, played=False, no_request_button=False
     : using _td td
         : try
          : lp = mktime(row.played[0].date_played.timetuple())
@@ -22,7 +22,8 @@
         : end
         ${row.title}
         <div class="pull-right">&nbsp;
-         <button class="btn btn-xs btn-primary r_${row.id}"
+         : if not no_request_button
+          <button class="btn btn-xs btn-primary r_${row.id}"
                  id='r_${row.id}'
                  data-toggle="modal"
                  data-target="#requestModal"
@@ -38,7 +39,8 @@
                 : else
                   Request
                 : end
-         </button>
+          </button>
+         : end
          <button class="btn btn-xs btn-info m_${row.id}"
                  id='m_${row.id}'
                  data-toggle='modal'
