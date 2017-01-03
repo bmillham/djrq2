@@ -1,0 +1,11 @@
+body {
+    padding-bottom: 42px;
+}
+
+#stext {
+    line-height: 2;
+}
+
+.sidebar-nav .navbar li a {
+    padding-bottom: 54px;
+}

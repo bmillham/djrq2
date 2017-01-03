@@ -3,6 +3,7 @@
 : from cinje.std.html import page as _page, default_header
 : from .footer import site_footer
 : from .mainnavbar import mainnavbar
+: from .bottomnavbar import bottomnavbar
 : from .searchwindow import searchwindow
 : from .requestwindow import requestmodal, mistagmodal, suggestionmodal
 : import os
@@ -22,7 +23,12 @@
 :           ]
 
 : def page title, ctx, header=default_header, footer=site_footer, metadata=[], styles=[], scripts=scripts, **attributes
-    : styles = [ctx.themes[ctx.usertheme], ctx.fixes] + default_styles
+    : styles = [ctx.themes[ctx.usertheme], ctx.fixes]
+    : styles = styles + default_styles
+    : if ctx.siteoptions.show_title != '' and ctx.siteoptions.show_time != ''
+     : styles.append(ctx.bfixes) # Add styles needed for the bottom navbar
+    : end
+
     : using _page title, header=header, footer=footer, metadata=metadata, styles=styles, scripts=scripts, **attributes
         : use searchwindow ctx
         : use requestmodal ctx
@@ -32,5 +38,8 @@
         <div id='main-content'>
         : yield
         </div>
+        : if ctx.siteoptions.show_title != '' and ctx.siteoptions.show_time != ''
+         : use bottomnavbar ctx
+        : end
     : end
 : end

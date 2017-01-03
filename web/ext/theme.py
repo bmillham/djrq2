@@ -14,15 +14,18 @@ class ThemeExtension:
         fixdir = os.path.join(os.path.dirname(__file__), '..', 'app', 'djrq', 'public', 'themefixes')
         themes = {}
         fixes = {}
+        bfixes = {}
         for root, dirs, files in os.walk(themedir):
             for name in files:
                 if fnmatch.fnmatch(name, 'theme-*'):
                     tname = name.split('-')[1]
                     themes[tname.capitalize()] = os.path.join('/public', 'bootstrap', 'css', name)
                     fixes[tname.capitalize()] = os.path.join('/public', 'themefixes', "fix-{}.css".format(tname))
+                    bfixes[tname.capitalize()] = os.path.join('/public', 'themefixes', "fix-{}-bottom.css".format(tname))
 
         self.themes = themes
         self.fixes = fixes
+        self.bfixes = bfixes
         self.default_theme = args['default']
 
     def prepare(self, context):
@@ -43,6 +46,7 @@ class ThemeExtension:
 
     def after(self, context):
         context.__dict__['fixes'] = self.fixes[context.usertheme]
+        context.__dict__['bfixes'] = self.bfixes[context.usertheme]
 
         if context.response.status_int == 403:
             """ If a page is not authorized, redirect to the login page """
