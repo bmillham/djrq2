@@ -31,19 +31,16 @@ sub.on("message", function(message, message_metadata) {
 
   if ('requestbutton' in m) {
     $('#requestbutton').html(m.requestbutton);
-    for(i=0;i<5;i++) {
-        $('#requestbutton').fadeTo('slow', 0.1).fadeTo('slow', 1.0);
-    }
+    blink($('#requestbutton'));
   }
   if ('request_row' in m) {
       if (newstat == null) {
         $('#request-table tr:last').after(m.request_row);
+        blink($('#request-table tr:last'));
       } else {
         $('#rr_'+m.request_id).replaceWith(m.request_row);
+        blink($('#rr'+m.request_id));
       }
-      for(i=0;i<5;i++) {
-        $('#rr_'+m.request_id).fadeTo('slow', 0.1).fadeTo('slow', 1.0);
-    }
   }
   if ('lastplay' in m) {
       $('#lastplay tr:first').after(m.lastplay);
