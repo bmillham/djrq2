@@ -2,7 +2,6 @@
 
 : from ..template import page as _page
 : from .. import table_class, table_style, caption_args
-: from ..helpers.funcs import time_ago, time_length, format_time
 : from ..helpers.helpers import aa_link
 
 : def requeststemplate page=_page, title=None, ctx=None, requestlist=[], view_status=None, requestinfo=None
@@ -11,7 +10,7 @@
         <table class="#{' '.join(table_class)}" style="#{' '.join(table_style)}" id='request-table'>
          <caption #{caption_args}>${requestlist.count()} Requests
          : try
-            (${time_length(int(requestinfo.request_length))})
+            (${ctx.time_length(int(requestinfo.request_length))})
          : except TypeError
           : pass
          : end
@@ -38,7 +37,7 @@
          <tbody>
          : for i, r in enumerate(requestlist)
             : try
-                : use requestrow r
+                : use requestrow ctx, r
             : except AttributeError
                 # TODO: Ignore missing songs for now, but this should probably be an error!
                 : print('Missing song', r.song_id)
@@ -53,7 +52,7 @@
     : end
 : end
 
-: def requestrow row
+: def requestrow ctx, row
     <tr id='rr_${row.id}'>
         <td data-value='${row.status}'>
             <div class="btn-group">
@@ -72,12 +71,12 @@
         : use aa_link row.song.artist, 'artist', td=True
         : use aa_link row.song.album, 'album', td=True
         <td>${row.song.title}</td>
-        <td>${format_time(row.song.time)}</td>
+        <td>${ctx.format_time(row.song.time)}</td>
         <td>${row.name}</td>
         <td>${row.msg}</td>
-        <td data-value='${row.t_stamp}'>${time_ago(row.t_stamp)}</td>
+        <td data-value='${row.t_stamp}'>${ctx.time_ago(row.t_stamp)}</td>
         : try
-            <td data-value='${row.song.played[0].date_played}'>${row.song.played[0].played_by} ${time_ago(row.song.played[0].date_played)}</td>
+            <td data-value='${row.song.played[0].date_played}'>${row.song.played[0].played_by} ${ctx.time_ago(row.song.played[0].date_played)}</td>
         : except
             <td data-value=''>&nbsp;</td>
         : end

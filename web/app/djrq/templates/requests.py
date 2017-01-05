@@ -2,7 +2,6 @@
 
 : from .template import page as _page
 : from . import table_class, table_style, caption_args
-: from .helpers.funcs import time_ago, format_time
 : from .helpers.helpers import aa_link, request_link
 
 : def requeststemplate page=_page, title=None, ctx=None, requestlist=[]
@@ -37,9 +36,9 @@
         <td>
          : use request_link ctx, row.song, no_request_button=True
         </td>
-        <td>${format_time(row.song.time)}</td>
+        <td>${ctx.format_time(row.song.time)}</td>
         <td>${row.name}</td>
         <td>${row.status.capitalize()}</td>
-        <td data-value='${row.t_stamp}'>${time_ago(row.t_stamp)}</td>
+        <td data-value='${row.t_stamp}'>${ctx.time_ago(row.t_stamp)}</td>
     </tr>
 : end

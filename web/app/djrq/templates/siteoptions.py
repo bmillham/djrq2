@@ -1,10 +1,6 @@
 # encoding: cinje
 
 : from .template import page
-: from . import table_args, caption_args
-: from .helpers.funcs import time_ago, format_size, format_decimal, format_time, time_ago
-: from .helpers.helpers import aa_link
-: import datetime
 
 : def siteoptionstemplate title, ctx, updated=False
     : using page title, ctx, lang="en"

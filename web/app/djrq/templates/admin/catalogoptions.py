@@ -2,7 +2,6 @@
 
 : from .admintemplate import page
 : from .. import table_args, caption_args
-: from ..helpers.funcs import time_ago
 : from datetime import datetime
 
 : def catalogoptionstemplate title, ctx, cats=None, saved=False
@@ -25,7 +24,7 @@
                 <td><input ${'checked' if str(cat.id) in ctx.siteoptions.catalog.split(',') else ''}
                            class='form-control input-sm' type='checkbox' name='cat_group' value='${cat.id}'></td>
                 <td>${cat.name}</td>
-                <td>${time_ago(datetime.fromtimestamp(cat.last_add))}</td>
+                <td>${ctx.time_ago(datetime.fromtimestamp(cat.last_add))}</td>
                 </tr>
                : end
              </table>

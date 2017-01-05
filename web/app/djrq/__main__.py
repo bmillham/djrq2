@@ -15,6 +15,7 @@ from web.ext.djhost import DJHostExtension
 from web.ext.db import DatabaseExtension
 from web.ext.acl import ACLExtension, when
 from web.ext.auth import AuthExtension
+from web.ext.locale import LocaleExtension
 from web.db.mongo import MongoDBConnection
 from web.ext.session import SessionExtension
 from web.session.mongo import MongoSession
@@ -53,6 +54,7 @@ app=Application(Root, extensions=[
                          refresh=True,
                          default=MongoSession(Session, database=config['session']['database']),
                          ),
+        LocaleExtension(),
         ] + ([DebugExtension(),] if __debug__ else []),
 
         )

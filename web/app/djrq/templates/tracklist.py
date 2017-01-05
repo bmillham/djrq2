@@ -2,7 +2,6 @@
 
 : from .template import page
 : from .helpers.helpers import request_link, aa_link
-: from .helpers.funcs import format_time, time_ago, format_decimal
 : from . import table_class, table_style, caption_args
 
 : def _tracklist title, ctx, a, r, songs
@@ -28,14 +27,14 @@
         : use request_link ctx, row, td=True
         : use aa_link row.artist, 'artist', td=True
         : use aa_link row.album, 'album', td=True
-        <td>${format_time(row.time)}</td>
+        <td>${ctx.format_time(row.time)}</td>
         <td data-value='#{row.played[0].date_played if len(row.played) > 0 else ""}'>
          : if len(row.played) > 0
-          ${time_ago(row.played[0].date_played)} by ${row.played[0].played_by}
+          ${ctx.time_ago(row.played[0].date_played)} by ${row.played[0].played_by}
           : if len(row.played) > 1
            &nbsp;<span class="badge pull-right" title="Played ${len(row.played)} times" data-html='1' data-toggle='popover' data-placement='left auto' data-trigger='hover' data-content="
            : for p in row.played
-            ${p.played_by} ${time_ago(p.date_played)}<br>
+            ${p.played_by} ${ctx.time_ago(p.date_played)}<br>
            : end
            ">${len(row.played)}</span>
           : end
@@ -81,7 +80,7 @@
     : if phrase
         : title = "Found {} matches for {}".format(c, phrase)
     : else
-        : title = "{} tracks {} {}: {}".format(format_decimal(c), 'on' if r == 'Album' else 'for', r, n)
+        : title = "{} tracks {} {}: {}".format(ctx.format_decimal(c), 'on' if r == 'Album' else 'for', r, n)
     : end
     : if dataonly
         : flush

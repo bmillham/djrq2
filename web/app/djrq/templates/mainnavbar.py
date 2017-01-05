@@ -1,7 +1,6 @@
 # encoding: cinje
 
 : from . import table_args
-: from .helpers.funcs import format_decimal
 
 : def li_active resource, link
     <li
@@ -24,7 +23,7 @@
       <div class='collapse navbar-collapse' id='collapse-1'>
        <ul class='nav navbar-nav'>
         <li class='dropdown ${"active" if resource == "lastplayed" else ""}'>
-         <a href='/lastplayed' class='dropdown-toggle navbar-brand' data-toggle='dropdown' role='button' aria-haspopup='true' aria-expanded='false'>${ctx.djname} <span class='badge'>${format_decimal(ctx.dbstats.total_songs)}</span><span class='caret'></span></a>
+         <a href='/lastplayed' class='dropdown-toggle navbar-brand' data-toggle='dropdown' role='button' aria-haspopup='true' aria-expanded='false'>${ctx.djname} <span class='badge'>${ctx.format_decimal(ctx.dbstats.total_songs)}</span><span class='caret'></span></a>
          <ul class='dropdown-menu'>
           <li #{" class='active'" if resource == 'lastplayed' else ''}><a href='/lastplayed'>Last Played</a></li>
           <li role='separator' class='divider'></li>
@@ -60,11 +59,11 @@
          </ul>
         </li>
         : using li_active resource, 'requests'
-         <a href='/requests'>Requests <span class='badge'><span id="requestbutton">${format_decimal(ctx.requests_info.request_count)}</span></span></a>
+         <a href='/requests'>Requests <span class='badge'><span id="requestbutton">${ctx.format_decimal(ctx.requests_info.request_count)}</span></span></a>
         : end
         : if ctx.new_counts.new_count > 0
          <li #{" class='active'" if resource == 'whatsnew' else ''}>
-          <a href='/whatsnew'>New <span class='badge'>${format_decimal(ctx.new_counts.new_count)}</span></a>
+          <a href='/whatsnew'>New <span class='badge'>${ctx.format_decimal(ctx.new_counts.new_count)}</span></a>
          </li>
         : end
         <li #{" class='active'" if resource == 'stats' else ''}><a href="/stats">Stats</a></li>

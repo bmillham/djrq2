@@ -1,7 +1,6 @@
 #encoding: cinje
 
 : from ..helpers.helpers import request_link, aa_link
-: from ..helpers.funcs import format_decimal, format_size, format_percent, time_length, time_ago
 : from .. import table_args, caption_args
 
 : def top10 ctx, title, query
@@ -26,7 +25,7 @@
         : use aa_link played.Played.song.album, 'album'
      : end
      </td>
-     <td>${time_ago(played.date_played)}</td>
+     <td>${ctx.time_ago(played.date_played)}</td>
     </tr>
    : end
   </table>

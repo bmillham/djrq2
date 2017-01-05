@@ -1,7 +1,6 @@
 #encoding: cinje
 
 : from ..helpers.helpers import request_link, aa_link
-: from ..helpers.funcs import format_decimal, format_size, format_percent, time_length, time_ago
 : from .. import table_args, caption_args
 
 : def mostrequested ctx
@@ -17,7 +16,7 @@
      : use aa_link song.album, 'album', td=True
     <td>
     : try
-     ${song.played_requests[0].name} ${time_ago(song.played_requests[0].t_stamp)}</td>
+     ${song.played_requests[0].name} ${ctx.time_ago(song.played_requests[0].t_stamp)}</td>
     : except
      &nbsp;
     : end

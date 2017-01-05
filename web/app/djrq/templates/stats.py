@@ -1,9 +1,6 @@
 # encoding: cinje
 
 : from .template import page
-: from .helpers.helpers import request_link, aa_link
-: from .helpers.funcs import format_decimal, format_size, format_percent, time_length, time_ago
-: from . import table_args, caption_args
 : from .statstemplates.songstatistics import songstatistics
 : from .statstemplates.topx import topx
 : from .statstemplates.mostrequested import mostrequested

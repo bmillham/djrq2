@@ -1,7 +1,6 @@
 # encoding: cinje
 
 : from .. import table_args
-: from ..helpers.funcs import format_decimal
 
 : def li_active resource, link
     <li
@@ -27,16 +26,16 @@
         <li #{" class='active'" if resource == None else ''}>
          <a class='navbar-brand' href='/admin'>
           <span class='glyphicon glyphicon-cog'></span>&nbsp;${ctx.djname}&nbsp;
-          <span id='requestbutton' class='badge'>${format_decimal(ctx.requests_info.request_count)}</span>
+          <span id='requestbutton' class='badge'>${ctx.format_decimal(ctx.requests_info.request_count)}</span>
          </a>
         </li>
         : try
          : if ctx.session.authenticated
           <li #{" class='active'" if resource == 'mistags' else ''}>
-           <a href="/admin/mistags">Mistags&nbsp;<span id='mistagsbutton' class='badge'>${format_decimal(ctx.mistags_count)}</span></a>
+           <a href="/admin/mistags">Mistags&nbsp;<span id='mistagsbutton' class='badge'>${ctx.format_decimal(ctx.mistags_count)}</span></a>
           </li>
           <li #{" class='active'" if resource == 'suggestions' else ''}>
-           <a href="/admin/suggestions">Suggestions&nbsp;<span id='suggestionsbutton' class='badge'>${format_decimal(ctx.suggestions_count)}</span></a>
+           <a href="/admin/suggestions">Suggestions&nbsp;<span id='suggestionsbutton' class='badge'>${ctx.format_decimal(ctx.suggestions_count)}</span></a>
           </li>
           <li #{" class='active'" if resource == 'showinfo' else ''}><a href='/admin/showinfo'>Show Info</a></li>
           <li #{" class='active'" if resource == 'requestoptions' else ''}><a href='/admin/requestoptions'>Request Options</a></li>

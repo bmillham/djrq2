@@ -1,7 +1,6 @@
 #encoding: cinje
 
 : from ..helpers.helpers import request_link, aa_link
-: from ..helpers.funcs import format_decimal, format_size, format_percent, time_length, time_ago
 : from .. import table_args, caption_args
 
 : def topx ctx, limit=10
@@ -13,7 +12,7 @@
    <tr>
     <td>${c+1}</td>
     : use aa_link r, 'artist', td=True
-    <td>${format_decimal(r.artist_count)}</td>
+    <td>${ctx.format_decimal(r.artist_count)}</td>
    </tr>
   : end
   : if limit == 10

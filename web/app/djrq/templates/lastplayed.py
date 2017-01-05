@@ -2,7 +2,6 @@
 
 : from .template import page
 : from .helpers.helpers import request_link, aa_link
-: from .helpers.funcs import format_time, time_ago
 : from . import table_class, table_style, caption_args
 
 : def lastplayedtemplate title, ctx, lplist
@@ -54,21 +53,21 @@
              </td>
              <td>
              : if r.played_count > 1 and ma
-               ${format_time(r.avg_time, is_avg=True)}
+               ${ctx.format_time(r.avg_time, is_avg=True)}
              : else
-                ${format_time(r.Played.song.time)}
+                ${ctx.format_time(r.Played.song.time)}
              : end
              </td>
              : pc = len(r.Played.song.played)
              : playlist = r.Played.song.played
              <td data-value='${playlist[0].date_played}'>
                 ${playlist[0].played_by}
-                ${time_ago(playlist[0].date_played)}
+                ${ctx.time_ago(playlist[0].date_played)}
              : if pc > 1
               <span class='badge pull-right' title="Played ${pc} times" data-html='1' data-toggle='popover' data-placement='left auto' data-trigger='hover' data-content="
                : for p in playlist
                 ${p.played_by}
-                ${time_ago(p.date_played)}<br/>
+                ${ctx.time_ago(p.date_played)}<br/>
                : end
               ">
                 ${pc}</span>
