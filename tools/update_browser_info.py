@@ -6,6 +6,7 @@ import cinje
 from web.core import Application
 from marrow.package.loader import load
 from web.ext.djdb import DJDatabaseExtension
+from web.ext.locale import LocaleExtension
 from web.ext.dj import DJExtension
 from web.app.djrq.model.lastplay import DJs
 from web.app.djrq.send_update import send_update
@@ -36,6 +37,7 @@ class FakeContext:
     def queries(self, queries):
         self.__queries = queries
 
+
 with open('../web/app/djrq/config.yaml') as f:
     config= yaml.safe_load(f)
 
@@ -46,6 +48,7 @@ if __name__ == '__main__':
     lp.start(context)
     l = lp.Session.query(DJs).filter(DJs.hide_from_menu == 0)
     djs = {}
+    le = LocaleExtension() # For now, default to english
     for djrow in l:
         package = 'web.app.djrq.model.'+djrow.databasetype
         djname = djrow.dj.lower()
@@ -74,6 +77,7 @@ if __name__ == '__main__':
             db.start(context)
             queries = djs[dj]['queries'](db=db.Session)
             context.queries = queries
+            le.prepare(context) # Set the locale in the context
 
             try:
                 lp = queries.get_last_played(count=1)
@@ -94,12 +98,14 @@ if __name__ == '__main__':
                         elements_to_update['request_id'] = rq.id
                         elements_to_update['new_request_status'] = 'played'
                     djs[dj]['lp_id'] = r.Played.played_id
+                    # Next 2 lines are just to make testing easier. Will push the last played from the database on script startup
+                    #new_row = cinje.flatten(lastplayed_row(context, r, ma=True, played=True))
+                    #elements_to_update['lastplay'] = new_row
                 elif r.Played.played_id == djs[dj]['lp_id']:
                     pass # Skip if no change
                 else:
                     new_row = cinje.flatten(lastplayed_row(context, r, ma=True, played=True))
                     for rq in r.Played.song.new_requests:
-                        #print(rq.id, rq.msg, rq.name)
                         elements_to_update['request_id'] = rq.id
                         elements_to_update['new_request_status'] = 'played'
                     elements_to_update['lastplay'] = new_row
