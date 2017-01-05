@@ -67,8 +67,8 @@ class LocaleExtension:
             rv = '~' + rv
         return rv
 
-    def time_length(self, tlen):
-        return dates.format_timedelta(timedelta(seconds=int(tlen)), locale=self.userlocale)
+    def time_length(self, tlen, threshold=0.85, granularity='second'):
+        return dates.format_timedelta(timedelta(seconds=int(tlen)), threshold=threshold, granularity=granularity, locale=self.userlocale)
 
     def format_percent(self, number):
         return numbers.format_percent(number, format="#.#%", locale=self.userlocale)

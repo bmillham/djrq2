@@ -67,7 +67,7 @@
          </li>
         : end
         <li #{" class='active'" if resource == 'stats' else ''}><a href="/stats">Stats</a></li>
-        <li><a href="#" data-toggle='modal' data-target='#suggestionModal'>Suggestion</a></li>
+        <li><a href="#" data-toggle='modal' data-target='#suggestionModal'>Suggestions</a></li>
        </ul>
        <form class='navbar-form navbar-left hidden-xs hidden-sm' action='/search' method='post' role='search'>
         <div class='form-group'>

@@ -1,6 +1,7 @@
 # encoding: cinje
 
 : from .. import table_args, caption_args
+: from datetime import timedelta
 
 : def songstatistics ctx
     : total_played_by_me = ctx.queries.get_total_played_by_me()
@@ -19,7 +20,7 @@
          <tr><td>Total Albums</td><td>${ctx.format_decimal(total_albums.total)}</td></tr>
          <tr><td>Library Size</td><td>${ctx.format_size(ctx.dbstats.song_size)}</td></tr>
          <tr><td>Average Song Size</td><td>${ctx.format_size(ctx.dbstats.avg_song_size)}</td></tr>
-         <tr><td>Total Song Playtime</td><td>${ctx.time_length(ctx.dbstats.song_time)}</td></tr>
+         <tr><td>Total Song Playtime</td><td>${ctx.time_length(ctx.dbstats.song_time, threshold=365, granularity='day')}</td></tr>
          <tr><td>Average Song Length</td><td>${ctx.time_length(ctx.dbstats.avg_song_time)}</td></tr>
          </tbody>
         </table>
