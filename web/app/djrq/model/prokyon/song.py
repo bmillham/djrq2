@@ -45,11 +45,11 @@ class Name(object):
 class Song(Base):
     __tablename__ = "tracks"
     id = Column(Integer, primary_key=True)
-    title = Column("title", String(255))
-    artist_fullname = Column("artist", String(255))
-    album_fullname = Column("album", String(255))
-    path = Column(String(255))
-    filename = Column(String(255))
+    title = Column("title", String(255), index=True)
+    artist_fullname = Column("artist", String(255), index=True)
+    album_fullname = Column("album", String(255), index=True)
+    path = Column(String(255), index=True)
+    filename = Column(String(255), index=True)
     year = Column(String(255))
     bit_rate = Column("bitrate", Integer)
     sample_rate = Column("samplerate", Integer)
@@ -57,6 +57,7 @@ class Song(Base):
     track = Column('tracknumber', Integer)
     _addition_time = Column('lastModified', DateTime)
     size = Column(Integer)
+    jingle = Column('jingle', Integer, index=True)
 
     played = relationship("Played", backref="song", order_by="Played.date_played.desc()")
     requests = relationship("RequestList", backref='song', order_by='RequestList.t_stamp.desc()')
