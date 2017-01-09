@@ -3,9 +3,9 @@ from . import *
 class RequestList(Base):
     __tablename__= 'requestlist'
     __table_args__ = {'mysql_engine':'MyISAM'}
-    id = Column(Integer, primary_key=True)
-    song_id = Column('songID', Integer, ForeignKey('song.id'))
-    t_stamp = Column(DateTime)
+    id = Column('ID', Integer, primary_key=True)
+    song_id = Column('songID', Integer, ForeignKey('song.id'), index=True)
+    t_stamp = Column(DateTime, index=True)
     host = Column(String(255))
     msg = Column(String(255))
     name = Column(String(255))
