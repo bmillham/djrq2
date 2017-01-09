@@ -11,4 +11,4 @@ class RequestList(Base):
     name = Column(String(255))
     code = Column(Integer)
     eta = Column('ETA', DateTime)
-    status = Column(Enum('played', 'ignored', 'pending', 'new'))
+    status = Column(Enum('played', 'ignored', 'pending', 'new'), index=True)
