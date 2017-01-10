@@ -21,23 +21,12 @@ from web.ext.session import SessionExtension
 from web.session.mongo import MongoSession
 from web.ext.theme import ThemeExtension
 from web.app.djrq.model.session import Session
-#from web.app.djrq.admin.auth import Auth
+from web.app.djrq.admin.auth import Auth
 from datetime import timedelta
 from .root import Root
 
 with open(os.path.join(os.path.dirname(__file__), 'config.yaml')) as f:
     config = yaml.safe_load(f)
-
-class Auth:
-    def lookup(self):
-        print('lookup called')
-        return True
-
-    def authenticate(self, context, identifier=None, credential=None):
-        result = context.queries.verify_user(identifier, credential)
-        return [result, identifier]
-
-auth = Auth()
 
 app=Application(Root, extensions=[
         AnnotationExtension(),
@@ -48,7 +37,7 @@ app=Application(Root, extensions=[
         DJExtension(config=config['site']),
         ThemeExtension(default=config['site']['default_theme']),
         ACLExtension(default=when.always),
-        AuthExtension(intercept=None, name=None, session='authenticated', lookup=auth.lookup, authenticate=auth.authenticate),
+        AuthExtension(intercept=None, name=None, session='authenticated', lookup=Auth.lookup, authenticate=Auth.authenticate),
         SessionExtension(secret=config['session']['secret'],
                          expires=timedelta(days=config['session']['expires']),
                          refresh=True,
