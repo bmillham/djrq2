@@ -37,6 +37,9 @@
     : if ctx.resource.__resource__ == 'uploadfiles'
      : scripts = scripts + filescripts
     : end
+    : if ctx.resource.__resource__ == 'changepw'
+     : scripts.append('/public/js/verifypw.js')
+    : end
     : styles = [ctx.themes[ctx.usertheme], ctx.fixes] + default_styles
     : title = 'Admin: ' + title
     : try

@@ -27,6 +27,7 @@ class DJExtension:
         context.__dict__['databasetype'] = djrow.databasetype
         context.__dict__['queries'] = load(package+'.queries:Queries')(db=context.db.default)
         Listeners = load(package + '.listeners:Listeners')
+        context.__dict__['Users'] = load(package+'.users:Users')
 
         try:
             album = load(package + '.album:Album', default='Album')

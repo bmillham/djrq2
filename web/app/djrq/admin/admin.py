@@ -21,6 +21,7 @@ class Admin:
     from .catalogoptions import CatalogOptions as catalogoptions
     from .uploadfiles import UploadFiles as uploadfiles
     from .updatedatabase import UpdateDatabase as updatedatabase
+    from .changepw import ChangePassword as changepw
 
     def __init__(self, context, name, *arg, **args):
         self._name = name
