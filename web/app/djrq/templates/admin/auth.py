@@ -57,7 +57,7 @@
              <div class='control-group'>
               <label class='control-label' for='newpw'>New Password <span id='np-label' style='color:red'></span></label>
               <div class='controls'>
-                <input type='password' maxlength='50' class='form-control' id='newpw' name='newpw' required placeholder='New Password'>
+                <input pattern='.{8,}' title='Password must be at least 8 characters' type='password' maxlength='50' class='form-control' id='newpw' name='newpw' required placeholder='New Password'>
               </div>
              </div>
              <div class='control-group'>
