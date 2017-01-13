@@ -52,7 +52,7 @@ class Auth:
         else:
             print('Using scrypt password')
             try:
-                y = scrypt.decrypt(res.spword, credential, maxtime=0.5)
+                y = scrypt.decrypt(res.spword, credential, maxtime=1.0)
                 result = True
             except scrypt.error:
                 result = False

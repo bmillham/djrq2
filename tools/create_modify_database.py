@@ -50,12 +50,13 @@ s = select([DJs]).where((DJs.hide_from_menu == 0) & (DJs.databasetype == args.db
 results = lpconn.execute(s)
 
 for row in results:
-    print('Checking if {db} exists on {server}'.format(**row))
+
     db_created = False
     if row.server in config['database']['server_map']:
         dbserver = config['database']['server_map'][row.server]
     else:
         dbserver = row.server
+    print('Checking if {} exists on {} ({})'.format(row.db, row.server, dbserver))
     engine = create_engine("mysql://{}:{}@{}/{}?charset=utf8".format(row.user, row.password, dbserver, row.db), echo=False)
 
     if not database_exists(engine.url):
@@ -67,13 +68,6 @@ for row in results:
 
     spw = scrypt.encrypt(str(urandom(64)), args.admin_passwd, maxtime=0.5)
     #spw = scrypt.encrypt(urandom(64), args.admin_passwd, maxtime=0.5)
-
-    if db_created:
-        admin_user = Users.__table__.insert().values(uname=args.admin_user,
-                                                     pword=hashlib.md5(args.admin_passwd.encode()).hexdigest(),
-                                                     spword=spw,
-                                                     administrator=True)
-        engine.execute(admin_user)
 
     if args.add_missing_columns:
         print('Checking for missing columns')
@@ -93,6 +87,15 @@ for row in results:
     us = select([Users.spword, Users.administrator]).where(Users.uname == args.admin_user)
     conn = engine.connect()
     res = conn.execute(us).fetchone()
+    if res is None or db_created:
+        print('Creating admin user')
+        admin_user = Users.__table__.insert().values(uname=args.admin_user,
+                                                     pword=hashlib.md5(args.admin_passwd.encode()).hexdigest(),
+                                                     spword=spw,
+                                                     administrator=True)
+        engine.execute(admin_user)
+        res = conn.execute(us).fetchone()
+
     if res.spword is None and args.add_missing_spw:
         add_spw = Users.__table__.update().where(Users.uname == args.admin_user).values(spword=spw)
         conn.execute(add_spw)
@@ -102,7 +105,7 @@ for row in results:
         add_admin = Users.__table__.update().where(Users.uname == args.admin_user).values(administrator=True)
         conn.execute(add_admin)
     try:
-        y = scrypt.decrypt(res.spword, args.admin_passwd, maxtime=0.5)
+        y = scrypt.decrypt(res.spword, args.admin_passwd, maxtime=1)
     except scrypt.error:
         print('The password set in the database does not match the given password.')
     except TypeError:
