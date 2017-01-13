@@ -52,7 +52,11 @@ results = lpconn.execute(s)
 for row in results:
     print('Checking if {db} exists on {server}'.format(**row))
     db_created = False
-    engine = create_engine("mysql://{user}:{password}@{server}/{db}?charset=utf8".format(**row), echo=False)
+    if row.server in config['database']['server_map']:
+        dbserver = config['database']['server_map'][row.server]
+    else:
+        dbserver = row.server
+    engine = create_engine("mysql://{}:{}@{}/{}?charset=utf8".format(row.user, row.password, dbserver, row.db), echo=False)
 
     if not database_exists(engine.url):
         print('Creating {}'.format(engine.url))
