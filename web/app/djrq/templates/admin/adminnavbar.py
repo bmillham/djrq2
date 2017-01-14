@@ -54,6 +54,7 @@
           : end
          : end
           <li #{" class='active'" if resource == 'changepw' else ""}><a href='/admin/changepw'>Change Password</a></li>
+          <li #{" class='active'" if resource == 'showhistory' else ""}><a href='/admin/showhistory'>View History</a></li>
         : except AttributeError
          : pass
         : end

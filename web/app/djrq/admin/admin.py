@@ -22,6 +22,7 @@ class Admin:
     from .uploadfiles import UploadFiles as uploadfiles
     from .updatedatabase import UpdateDatabase as updatedatabase
     from .changepw import ChangePassword as changepw
+    from .showhistory import ShowHistory as showhistory
 
     def __init__(self, context, name, *arg, **args):
         self._name = name

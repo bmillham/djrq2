@@ -12,8 +12,10 @@ class GitExtension:
         pass
 
     def start(self, context):
-        grepo = git.Repo(os.path.join(os.path.dirname(__file__), '..', '..'))
-        context.git_hexsha = grepo.head.commit.hexsha
-        context.git_date = time.strftime("%Y-%m-%d %H:%M:%S %z", time.gmtime(grepo.head.commit.committed_date))
-        context.git_message = grepo.head.commit.message
-        context.git_name = grepo.head.commit.committer.name
+        context.repo = git.Repo(os.path.join(os.path.dirname(__file__), '..', '..'))
+        context.git_hexsha = context.repo.head.commit.hexsha
+        context.git_date = time.strftime("%Y-%m-%d %H:%M:%S %z", time.gmtime(context.repo.head.commit.committed_date))
+        context.git_message = context.repo.head.commit.message
+        context.git_name = context.repo.head.commit.committer.name
+
+

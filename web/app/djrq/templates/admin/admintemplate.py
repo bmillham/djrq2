@@ -18,6 +18,7 @@
 :            '/public/js/NchanSubscriber.js',
 :            '/public/js/adminsubscribe.js',
 :            '/public/js/updatedatabase.js',
+:            '/public/js/enable_tooltips.js',
 :            '/public/js/bootstrap-sortable.js',
 :           ]
 : filescripts = ['/public/js/vendor/jquery.ui.widget.js',
