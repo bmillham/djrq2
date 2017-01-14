@@ -145,6 +145,10 @@
        <div class="modal-body">
         #{colophon}
         <h6><b>Glyphicons:</b> <a href='http://glyphicons.com'>glyphicons.com</a></h6>
+        <h6><b>Nginx:</b> <a href='http://nginx.com'>nginx.com</a></h6>
+        <h6><b>SQLAlchemy:</b> <a href='http://sqlalchemy.org'>sqlalchemy.org</a></h6>
+        <h6><b>MariaDB:</b> <a href='http://mariadb.com'>mariadb.com</a></h6>
+        <h6><b>MongoDB:</b> <a href='http://mongodb.com'>mongodb.com</a></h6>
         <h6><b>HTML/css/js Famework:</b> <a href='http://getbootstrap.com'>Bootstrap</a></h6>
         <h6><b>Bootstrap Themes:</b> <a href='http://bootswatch.com'>Bootswatch</a></h6>
         <h3>Version Information</h3>

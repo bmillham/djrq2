@@ -53,7 +53,7 @@
         <div class="row table-responsive">
          <div class="col-md-12">
           <table #{table_args}>
-           <caption #{caption_args}>Details for commit ${commit.hexsha}</caption>
+           <caption #{caption_args}>Details for commit <a href='https://github.com/bmillham/djrq2/commit/${commit.hexsha}'>${commit.hexsha}</a></caption>
            <tr>
             <th rowspan=2>Committer</th>
             <th rowspan=2>Date</th>
