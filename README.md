@@ -9,5 +9,6 @@ SQLAlchemy
 Nginx
 scrypt (if scrypt will not install, apt install libssl-dev may be needed)
 SQLAlchemy-utils
+gitpython
 
 DJRQ2 should also works with the older Prokyon database also used by IDJC, and with my djdb tool can be used with a Winamp database.

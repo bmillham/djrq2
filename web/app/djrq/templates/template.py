@@ -5,7 +5,7 @@
 : from .mainnavbar import mainnavbar
 : from .bottomnavbar import bottomnavbar
 : from .searchwindow import searchwindow
-: from .requestwindow import requestmodal, mistagmodal, suggestionmodal
+: from .requestwindow import requestmodal, mistagmodal, suggestionmodal, infomodal
 : import os
 
 : default_styles = [
@@ -34,6 +34,7 @@
         : use requestmodal ctx
         : use mistagmodal ctx
         : use suggestionmodal ctx
+        : use infomodal ctx
         : use mainnavbar ctx
         <div id='main-content'>
         : yield

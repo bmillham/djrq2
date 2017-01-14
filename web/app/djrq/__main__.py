@@ -16,6 +16,7 @@ from web.ext.db import DatabaseExtension
 from web.ext.acl import ACLExtension, when
 from web.ext.auth import AuthExtension
 from web.ext.locale import LocaleExtension
+from web.ext.git import GitExtension
 from web.db.mongo import MongoDBConnection
 from web.ext.session import SessionExtension
 from web.session.mongo import MongoSession
@@ -23,14 +24,19 @@ from web.ext.theme import ThemeExtension
 from web.app.djrq.model.session import Session
 from web.app.djrq.admin.auth import Auth
 from datetime import timedelta
+import time
 from .root import Root
+import git
 
 with open(os.path.join(os.path.dirname(__file__), 'config.yaml')) as f:
     config = yaml.safe_load(f)
 
+
+
 app=Application(Root, extensions=[
         AnnotationExtension(),
         SerializationExtension(),
+        GitExtension(),
         DJHostExtension(),
         DJDatabaseExtension(sessions=MongoDBConnection(config['session']['uri']), config=config),
         SelectiveDefaultDatabase(),

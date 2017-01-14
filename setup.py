@@ -61,7 +61,8 @@ setup(
                 'markupsafe',
                 'requests',
                 'rarfile',
-		'marrow.package',
+                'gitpython', # For getting commit info
+                'marrow.package',
             ],
 
         extras_require = dict(

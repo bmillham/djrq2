@@ -101,6 +101,11 @@
             </li>
 
         : end
+        <li name='infoicon'>
+         <a href='#' data-toggle='modal' data-target='#infoModal'>
+          <span class='glyphicon glyphicon-info-sign' aria-hidden='true'></span>
+         </a>
+        </li>
        </ul>
        <ul class='nav navbar-nav navbar-right hidden-md hidden-lg'>
         <li class='dropdown'>

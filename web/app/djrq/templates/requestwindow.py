@@ -1,6 +1,8 @@
 # encoding: cinje
 
 : from . import table_args
+: from web.core.release import colophon
+: from datetime import datetime
 
 : def requestwindowtemplate1 title, ctx, requestinfo
     <table #{table_args}>
@@ -129,3 +131,27 @@
      </div>
     </div>
 : end
+
+: def infomodal ctx
+    <div class="modal fade" id="infoModal" tabindex="-1" role="dialog" aria-labelledby="infoModalLabel">
+     <div class="modal-dialog" role="document">
+      <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+         <span aria-hidden="true">&times;</span>
+        </button>
+        <h3><span class='glyphicon glyphicon-copyright-mark' aria-hidden='true'></span>&nbsp;2010-${datetime.now().year} Brian Millham</h3>
+       </div>
+       <div class="modal-body">
+        #{colophon}
+        <h6><b>Glyphicons:</b> <a href='http://glyphicons.com'>glyphicons.com</a></h6>
+        <h6><b>HTML/css/js Famework:</b> <a href='http://getbootstrap.com'>Bootstrap</a></h6>
+        <h6><b>Bootstrap Themes:</b> <a href='http://bootswatch.com'>Bootswatch</a></h6>
+        <h3>Version Information</h3>
+        <h6><b>Commit:</b> <a href='https://github.com/bmillham/djrq2/commit/${ctx.git_hexsha}'>${ctx.git_hexsha}</a> @ ${ctx.git_date}</h6>
+        <h6><b>Committed by:</b> ${ctx.git_name}</h6>
+        <h6><b>Commit Message:</b> ${ctx.git_message}</h6>
+       </div>
+      </div>
+     </div>
+    </div>
