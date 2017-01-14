@@ -3,6 +3,7 @@
 : from cinje.std.html import page as _page, default_header
 : from ..footer import site_footer
 : from .adminnavbar import adminnavbar
+: from ..requestwindow import infomodal
 
 : default_styles = [
 :           '/public/css/style.css',
@@ -48,6 +49,7 @@
      : title = title + ' Please Login'
     : end
     : using _page title, header=header, footer=footer, metadata=metadata, styles=styles, scripts=scripts, **attributes
+        : use infomodal ctx
         : use adminnavbar ctx
         <div id='main-content'>
         : yield
