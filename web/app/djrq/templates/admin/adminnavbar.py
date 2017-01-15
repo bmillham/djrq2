@@ -47,7 +47,7 @@
              <li #{" class='active'" if resource == 'catalogoptions' else ''}><a href='/admin/catalogoptions'>Catalog Selection</a></li>
             : end
             <li #{" class='active'" if resource == 'showhistory' else ""}>
-             <a href='/admin/showhistory'>View History&nbsp;<span class='badge'>${ctx.git_total_commits}</span></a>
+             <a href='/admin/showhistory'>View History&nbsp;<span class='label label-success'>${ctx.git_total_commits}</span></a>
             </li>
             <li #{" class='active'" if resource == 'changepw' else ""}><a href='/admin/changepw'>Change Password</a></li>
            </ul>
