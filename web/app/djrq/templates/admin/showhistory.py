@@ -10,7 +10,7 @@
         <div class="row table-responsive">
          <div class="col-md-12">
         <table #{table_args}>
-         <caption #{caption_args}>Site Change History</caption>
+         <caption #{caption_args}>Site Change History <span class='badge'>${ctx.git_total_commits}</span></caption>
          <tr>
           <th rowspan=2>Commit ID</th>
           <th rowspan=2>Committer</th>

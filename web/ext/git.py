@@ -17,5 +17,5 @@ class GitExtension:
         context.git_date = time.strftime("%Y-%m-%d %H:%M:%S %z", time.gmtime(context.repo.head.commit.committed_date))
         context.git_message = context.repo.head.commit.message
         context.git_name = context.repo.head.commit.committer.name
-
+        context.git_total_commits = len(list(context.repo.iter_commits()))
 
