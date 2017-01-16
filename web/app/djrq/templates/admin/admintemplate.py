@@ -42,6 +42,10 @@
     : if ctx.resource.__resource__ == 'changepw'
      : scripts.append('/public/js/verifypw.js')
     : end
+    : if ctx.resource.__resource__ == 'showinfo'
+     : scripts += ['/public/js/bootstrap-datetimepicker.min.js', '/public/js/datetimepicker-enable.js']
+     : default_styles.append('/public/css/datetimepicker.css')
+    : end
     : styles = [ctx.themes[ctx.usertheme], ctx.fixes] + default_styles
     : title = 'Admin: ' + title
     : try
