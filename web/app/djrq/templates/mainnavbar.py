@@ -93,6 +93,7 @@
          <ul class='dropdown-menu'>
           <li><a href="/admin">Admin</a></li>
           <li><a href='/siteoptions'>Site Options</a></li>
+          <li><a href='https://github.com/bmillham/djrq2/issues' target='_blank' rel='noopener noreferrer'>Report A Bug/Enhancement</a></li>
          </ul>
         </li>
         : if ctx.listeners is not None
