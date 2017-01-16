@@ -25,10 +25,16 @@
          :           'lines': 0,
          :           'insertions': 0,
          :           'deletions': 0,}
-         : for c in commitlist
+         <tbody>
+         : for i, c in enumerate(commitlist)
           : use gitline c
           : for s in ('files', 'lines', 'insertions', 'deletions')
            : totals[s] += c.stats.total[s]
+          : end
+          : if not (i % 24) and i != 0
+           </tbody>
+           : flush
+           <tbody>
           : end
          : end
          <tr><th colspan=4>Totals</th>
@@ -37,6 +43,7 @@
              <th>${totals['insertions']}</th>
              <th>${totals['deletions']}</th>
          </tr>
+         </tbody>
          </table>
          </div>
          </div>
@@ -44,7 +51,7 @@
     : end
 : end
 
-: def gitline commit, details=False
+: def gitline commit, details=False -> strip
     <tr>
      : if not details
       <td><a href='/admin/showhistory/?commit=${commit.hexsha}'>${commit.hexsha[:7]}</a></td>
