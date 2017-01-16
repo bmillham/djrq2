@@ -21,9 +21,22 @@
          <tr>
           <th>Files</th><th>Lines</th><th>Insertions</th><th>Deletions</th>
          </tr>
+         : totals = {'files': 0,
+         :           'lines': 0,
+         :           'insertions': 0,
+         :           'deletions': 0,}
          : for c in commitlist
           : use gitline c
+          : for s in ('files', 'lines', 'insertions', 'deletions')
+           : totals[s] += c.stats.total[s]
+          : end
          : end
+         <tr><th colspan=4>Totals</th>
+             <th>${totals['files']}</th>
+             <th>${totals['lines']}</th>
+             <th>${totals['insertions']}</th>
+             <th>${totals['deletions']}</th>
+         </tr>
          </table>
          </div>
          </div>
