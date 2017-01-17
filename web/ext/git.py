@@ -13,17 +13,23 @@ class GitExtension:
 
     def start(self, context):
         format_string = "%Y-%m-%d %H:%M:%S %z"
+
         context.repo = git.Repo(os.path.join(os.path.dirname(__file__), '..', '..'))
         context.git_hexsha = context.repo.head.commit.hexsha
-        context.git_date = time.strftime(format_string, time.gmtime(context.repo.head.commit.committed_date))
+        committed_date = context.repo.head.commit.committed_date
+        context.git_date = time.strftime(format_string, time.gmtime(committed_date))
         context.git_message = context.repo.head.commit.message
         context.git_name = context.repo.head.commit.committer.name
         context.git_total_commits = len(list(context.repo.iter_commits()))
+
         context.git_release = None
 
         for t in context.repo.tags:
             print(t.commit, t.name, time.strftime(format_string, time.gmtime(t.tag.tagged_date)))
-            if context.git_hexsha == t.commit.hexsha:
+            tagged_date = t.tag.tagged_date
+            if context.git_hexsha == t.commit.hexsha or tagged_date < committed_date:
                 context.git_release = t.name
-                context.git_release_date = time.strftime(format_string, time.gmtime(t.tag.tagged_date))
+                if tagged_date != committed_date and context.git_hexsha != t.commit.hexsha:
+                    context.git_release += ' +' + context.git_hexsha[:7]
+                context.git_release_date = time.strftime(format_string, time.gmtime(tagged_date))
 
