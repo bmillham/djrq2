@@ -1,6 +1,6 @@
 # encoding: cinje
 
-: from cinje.std.html import page as _page, default_header
+: from cinje.std.html import page as _page, default_header, default_footer
 : from .footer import site_footer
 : from .mainnavbar import mainnavbar
 : from .bottomnavbar import bottomnavbar
@@ -27,6 +27,7 @@
     : styles = styles + default_styles
     : if ctx.siteoptions.show_title != '' and ctx.siteoptions.show_time != ''
      : styles.append(ctx.bfixes) # Add styles needed for the bottom navbar
+     : footer = default_footer # Change empty footer
     : end
 
     : using _page title, header=header, footer=footer, metadata=metadata, styles=styles, scripts=scripts, **attributes

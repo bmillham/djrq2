@@ -141,6 +141,7 @@
          <span aria-hidden="true">&times;</span>
         </button>
         <h3><span class='glyphicon glyphicon-copyright-mark' aria-hidden='true'></span>&nbsp;2010-${datetime.now().year} Brian Millham</h3>
+        <h4><i>This site is for informational purposes only. No music files are hosted or shared on this site</i></h4>
        </div>
        <div class="modal-body">
         #{colophon}
