@@ -152,7 +152,13 @@
         <h6><b>MongoDB:</b> <a href='http://mongodb.com'>mongodb.com</a></h6>
         <h6><b>HTML/css/js Famework:</b> <a href='http://getbootstrap.com'>Bootstrap</a></h6>
         <h6><b>Bootstrap Themes:</b> <a href='http://bootswatch.com'>Bootswatch</a></h6>
-        <h3>Version Information</h3>
+        <h4>Version
+        : if ctx.git_release is not None
+         ${ctx.git_release} [${ctx.git_release_date}]
+        : else
+         Information
+        : end
+        </h4>
         <h6><b>Commit:</b> <a href='https://github.com/bmillham/djrq2/commit/${ctx.git_hexsha}'>${ctx.git_hexsha}</a> @ ${ctx.git_date}</h6>
         <h6><b>Committed by:</b> ${ctx.git_name}</h6>
         <h6><b>Commit Message:</b> ${ctx.git_message}</h6>
