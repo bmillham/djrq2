@@ -23,9 +23,10 @@ class GitExtension:
         context.git_total_commits = len(list(context.repo.iter_commits()))
 
         context.git_release = None
+        context.git_tags = {}
 
         for t in context.repo.tags:
-            print(t.commit, t.name, time.strftime(format_string, time.gmtime(t.tag.tagged_date)))
+            context.git_tags[t.commit.hexsha] = t.name
             tagged_date = t.tag.tagged_date
             if context.git_hexsha == t.commit.hexsha or tagged_date < committed_date:
                 context.git_release = t.name

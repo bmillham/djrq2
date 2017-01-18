@@ -27,7 +27,7 @@
          :           'deletions': 0,}
          <tbody>
          : for i, c in enumerate(commitlist)
-          : use gitline c
+          : use gitline ctx, c
           : for s in ('files', 'lines', 'insertions', 'deletions')
            : totals[s] += c.stats.total[s]
           : end
@@ -51,10 +51,17 @@
     : end
 : end
 
-: def gitline commit, details=False -> strip
+: def gitline ctx, commit, details=False -> strip
     <tr>
      : if not details
-      <td><a href='/admin/showhistory/?commit=${commit.hexsha}'>${commit.hexsha[:7]}</a></td>
+      <td><a href='/admin/showhistory/?commit=${commit.hexsha}'>
+           : if commit.hexsha in ctx.git_tags
+            <b>${ctx.git_tags[commit.hexsha]}</b>
+           : else
+            ${commit.hexsha[:7]}
+           : end
+          </a>
+      </td>
      : end
      <td>${commit.committer.name}</td>
      <td>${time.strftime("%Y-%m-%d %H:%M:%S %z", time.gmtime(commit.committed_date))}</td>
@@ -73,7 +80,17 @@
         <div class="row table-responsive">
          <div class="col-md-12">
           <table #{table_args}>
-           <caption #{caption_args}>Details for commit <a href='https://github.com/bmillham/djrq2/commit/${commit.hexsha}' target='_blank' rel='noopener noreferrer'>${commit.hexsha}</a></caption>
+           <caption #{caption_args}>
+            Details for
+             : args = {'href': 'https://github.com/bmillham/djrq2/commit/' + commit.hexsha,
+             :         'target': '_blank',
+             :         'rel': 'noopener noreferrer'}
+             : if commit.hexsha in ctx.git_tags
+              release <a &{args}>${ctx.git_tags[commit.hexsha]}</a>
+             : else
+              commit <a &{args}>${commit.hexsha}</a>
+             : end
+           </caption>
            <tr>
             <th rowspan=2>Committer</th>
             <th rowspan=2>Date</th>
@@ -83,7 +100,7 @@
            <tr>
             <th>Files</th><th>Lines</th><th>Insertions</th><th>Deletions</th>
            </tr>
-          : use gitline commit, details=True
+          : use gitline ctx, commit, details=True
           </table>
           <table #{table_args}>
            <caption #{caption_args}>Files Changed</caption>
