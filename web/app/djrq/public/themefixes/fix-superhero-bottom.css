@@ -9,3 +9,7 @@ body {
 .sidebar-nav .navbar li a {
     padding-bottom: 52px;
 }
+
+.list-group {
+    height: 87vh;
+}
