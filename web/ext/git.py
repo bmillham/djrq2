@@ -25,6 +25,10 @@ class GitExtension:
         context.git_release = None
         context.git_tags = {}
 
+        print('start', time.time())
+        for i, c in enumerate(context.repo.iter_commits('master')):
+            print(i)
+        print('end', time.time())
         for t in context.repo.tags:
             context.git_tags[t.commit.hexsha] = t.name
             tagged_date = t.tag.tagged_date
