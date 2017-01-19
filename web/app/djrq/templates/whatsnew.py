@@ -14,7 +14,7 @@
          <tr><th>Artist</th><th>New Tracks</th><th>Size</th><th>Total Play Time</th><th>Date Added</th></tr>
          : for count, total_time, song_size, song in newlist
             <tr>
-             : use aa_link song.artist, 'artist', td=True
+             : use aa_link song.artist, 'artist', td=True, new_only=True
              <td>${ctx.format_decimal(count)}</td>
              <td>${ctx.format_size(song_size)}</td>
              <td>${ctx.format_time(total_time)}</td>

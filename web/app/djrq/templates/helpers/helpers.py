@@ -56,7 +56,7 @@
     : end
 : end
 
-: def aa_link row, model, td=False -> strip
+: def aa_link row, model, td=False, new_only=False -> strip
     : using _td td
         # Because 2 different database models are used, sometimes we get an
         # id back, sometimes an aid. And sometimes that id/aid is an int
@@ -66,7 +66,7 @@
         : except
             : aid = str(row.aid)
         : end
-        <a href='/${model}/?id=#{quote_plus(aid)}'>${row.fullname}</a>
+        <a href='/${model}/?id=#{quote_plus(aid)}#{"&new_only" if new_only else ""}'>${row.fullname}</a>
     : end
 : end
 

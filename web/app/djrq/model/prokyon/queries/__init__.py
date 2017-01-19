@@ -132,13 +132,18 @@ class Queries:
                          filter(Song.artist_name.like(letter+'%')).\
                          order_by(Song.artist_name).group_by(Song.artist_name)
 
-    def get_artist_album_by_id(self, id):
+    def get_artist_album_by_id(self, id, days=None):
         if self.model == 'Album':
             f = Song.album_fullname
         elif self.model == 'Artist':
             f = Song.artist_fullname
         a = self.db.query(f.label('fullname'), Song).filter(f == id).first()
-        s = self.db.query(Song).filter(f == id)
+
+        if days is not None:
+            start_time = time() - 60*60*24*days
+            s = self.db.query(Song).filter(f == id, Song.addition_time >= start_time).order_by(Song.title)
+        else:
+            s = self.db.query(Song).filter(f == id).order_by(Song.title)
         return [a.fullname, s]
 
     def get_song_by_id(self, id):

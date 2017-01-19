@@ -127,8 +127,12 @@ class Queries:
                         group_by(self.model.id)
         return names
 
-    def get_artist_album_by_id(self, id):
-        return self.db.query(self.model).filter(self.model.id == id).one()
+    def get_artist_album_by_id(self, id, days=None):
+        if days is not None:
+            start_time = time() - 60*60*24*days
+            return self.db.query(Song).join(self.model).filter(self.model.id == id, Song.addition_time >= start_time).order_by(Song.title)
+        else:
+            return self.db.query(self.model).filter(self.model.id == id).one()
 
     def get_song_by_id(self, id):
         return self.db.query(Song).filter(Song.id == id).one()

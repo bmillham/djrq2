@@ -55,12 +55,16 @@
      </div>
 : end
 
-: def tracklist ctx, a, dataonly=False, phrase=None
+: def tracklist ctx, a, dataonly=False, phrase=None, new_only=False
     : if 'Query' in str(type(a))
         : print("Its a query")
         : c = a.count()
         : songs = a
-        : n = 'Search'
+        : if new_only
+         : n = a[0].artist.fullname
+        : else
+         : n = 'Search'
+        : end
     : else
      : try
         : c = len(a.songs)
@@ -80,7 +84,7 @@
     : if phrase
         : title = "Found {} matches for {}".format(c, phrase)
     : else
-        : title = "{} tracks {} {}: {}".format(ctx.format_decimal(c), 'on' if r == 'Album' else 'for', r, n)
+        : title = "{} {} tracks {} {}: {}".format(ctx.format_decimal(c), 'new' if new_only else '', 'on' if r == 'Album' else 'for', r, n)
     : end
     : if dataonly
         : flush
