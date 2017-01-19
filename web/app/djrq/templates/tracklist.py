@@ -61,7 +61,11 @@
         : c = a.count()
         : songs = a
         : if new_only
-         : n = a[0].artist.fullname
+         : if c == 0
+          : n = '__nonewtracks__'
+         : else
+          : n = a[0].artist.fullname
+         : end
         : else
          : n = 'Search'
         : end
@@ -84,7 +88,11 @@
     : if phrase
         : title = "Found {} matches for {}".format(c, phrase)
     : else
-        : title = "{} {} tracks {} {}: {}".format(ctx.format_decimal(c), 'new' if new_only else '', 'on' if r == 'Album' else 'for', r, n)
+        : title = "{} {} tracks {} {}: {}".format(ctx.format_decimal(c),
+        :                                         'new' if new_only else '',
+        :                                         'on' if r == 'Album' else 'for',
+        :                                         r,
+        :                                         'No New Tracks' if n == '__nonewtracks__' else n)
     : end
     : if dataonly
         : flush
@@ -92,7 +100,11 @@
     : else
         : using page title, ctx, lang="en"
             : flush
-            : yield from _tracklist(title, ctx, a, r, songs)
+            : if n == '__nonewtracks__'
+             <center><h3>No new tracks.</h3></center>
+            : else
+             : yield from _tracklist(title, ctx, a, r, songs)
+            : end
         : end
     : end
 : end
