@@ -27,23 +27,27 @@
          :           'deletions': 0,}
          <tbody>
          : flush
+         : starttime = time.time()
          : for i, c in enumerate(commitlist)
-          #: use gitline ctx, c
-          : yield from gitline(ctx, c)
-          : for s in ('files', 'lines', 'insertions', 'deletions')
-           : totals[s] += c.stats.total[s]
-          : end
+          : use gitline ctx, c
+          #: yield from gitline(ctx, c)
+          #: for s in ('files', 'lines', 'insertions', 'deletions')
+          # : totals[s] += c.stats.total[s]
+          #: end
+          #: totals['files'] += c.stats.total['files']
           : if not (i % 24) and i != 0
            </tbody>
            : flush
            <tbody>
           : end
          : end
+         : totaltime = time.time() - starttime
+         : print('Time generating list', totaltime)
          <tr><th colspan=4>Totals</th>
-             <th>${totals['files']}</th>
-             <th>${totals['lines']}</th>
-             <th>${totals['insertions']}</th>
-             <th>${totals['deletions']}</th>
+             <th>${ctx.git_totals['files']}</th>
+             <th>${ctx.git_totals['lines']}</th>
+             <th>${ctx.git_totals['insertions']}</th>
+             <th>${ctx.git_totals['deletions']}</th>
          </tr>
          </tbody>
          </table>

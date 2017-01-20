@@ -25,10 +25,16 @@ class GitExtension:
         context.git_release = None
         context.git_tags = {}
 
-        print('start', time.time())
+        starttime = time.time()
+        context.git_totals = {'files': 0,
+                      'lines': 0,
+                      'insertions': 0,
+                      'deletions': 0,}
         for i, c in enumerate(context.repo.iter_commits('master')):
-            print(i)
-        print('end', time.time())
+            for s in ('files', 'lines', 'insertions', 'deletions'):
+                context.git_totals[s] += c.stats.total[s]
+
+        print('end', time.time() - starttime)
         for t in context.repo.tags:
             context.git_tags[t.commit.hexsha] = t.name
             tagged_date = t.tag.tagged_date
