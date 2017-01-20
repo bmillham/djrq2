@@ -27,7 +27,6 @@
          :           'deletions': 0,}
          <tbody>
          : flush
-         : starttime = time.time()
          : for i, c in enumerate(ctx.git_commits)
           : yield from gitline(ctx, c)
           : if not (i % 24) and i != 0
@@ -36,8 +35,6 @@
            <tbody>
           : end
          : end
-         : totaltime = time.time() - starttime
-         : print('Time generating list', totaltime)
          <tr><th colspan=4>Totals</th>
              <th>${ctx.git_totals['files']}</th>
              <th>${ctx.git_totals['lines']}</th>
