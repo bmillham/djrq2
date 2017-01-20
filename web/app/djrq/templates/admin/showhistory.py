@@ -28,7 +28,10 @@
          <tbody>
          : flush
          : starttime = time.time()
-         : for i, c in enumerate(commitlist)
+         #: for i, c in enumerate(commitlist)
+         #: print('clist', ctx.git_commits)
+         : for i, c in enumerate(ctx.git_commits)
+          #: print(c[0])
           #: use gitline ctx, c
           : yield from gitline(ctx, c)
           #: for s in ('files', 'lines', 'insertions', 'deletions')
@@ -57,7 +60,9 @@
     : end
 : end
 
-: def gitline ctx, commit, details=False -> strip
+: def gitline ctx, c, details=False -> strip
+    #: print(c)
+    : commit, stats = c
     <tr>
      : if not details
       <td><a href='/admin/showhistory/?commit=${commit.hexsha}'>
@@ -74,7 +79,8 @@
      <td>${commit.message}</td>
      : for s in ('files', 'lines', 'insertions', 'deletions')
       <td>
-       ${commit.stats.total[s]}
+       #${commit.stats.total[s]}
+       ${stats.total[s]}
       </td>
      : end
     </tr>

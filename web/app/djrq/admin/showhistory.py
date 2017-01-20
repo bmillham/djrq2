@@ -14,4 +14,5 @@ class ShowHistory:
         if 'commit' in args:
             commit = self._ctx.repo.commit(args['commit'])
             return showdetails('Commit Details', self._ctx, commit)
-        return showhistorytemplate("Show Site History", self._ctx, self._ctx.repo.iter_commits('master'))
+        #return showhistorytemplate("Show Site History", self._ctx, self._ctx.repo.iter_commits('master'))
+        return showhistorytemplate("Show Site History", self._ctx, self._ctx.git_commits)
