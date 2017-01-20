@@ -29,8 +29,8 @@
          : flush
          : starttime = time.time()
          : for i, c in enumerate(commitlist)
-          : use gitline ctx, c
-          #: yield from gitline(ctx, c)
+          #: use gitline ctx, c
+          : yield from gitline(ctx, c)
           #: for s in ('files', 'lines', 'insertions', 'deletions')
           # : totals[s] += c.stats.total[s]
           #: end
