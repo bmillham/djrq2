@@ -1,5 +1,6 @@
 from babel import dates, numbers, units
 from datetime import datetime, timedelta
+from pytz import timezone
 from time import time
 
 #l = 'he_il' # Hebrew
@@ -25,13 +26,11 @@ class LocaleExtension:
             langs = context.request.accept_language.header_value.split(',')
         except:
             langs = []
-        print('Langs', langs)
+
         try:
             lang = langs[0]
         except:
             lang = self.userlang
-        #if '-' not in lang:
-        #    lang += '_' + lang.upper()
 
         self.userlocale = lang.replace('-', '_')
         context.userlocale = self.userlocale
@@ -42,12 +41,19 @@ class LocaleExtension:
         context.time_length = self.time_length
         context.format_percent = self.format_percent
         context.format_size = self.format_size
-        print('Locale prepared:', self.userlocale)
 
-    def time_ago(self, dtime, add_direction=True):
+    def time_ago(self, dtime, threshold=2, add_direction=True, return_diff=False):
+        if type(dtime) == str:
+            dtime = datetime.strptime(dtime, '%Y-%m-%d %H:%M %z').replace(tzinfo=None)
         if type(dtime) != datetime:
             dtime = datetime.fromtimestamp(time() - (60*60*24*dtime))
-        return dates.format_timedelta(dtime - datetime.utcnow(), threshold=2, add_direction=add_direction, locale=self.userlocale)
+        tdiff = dtime - datetime.utcnow()
+        ret_diff = dates.format_timedelta(tdiff, threshold=threshold, add_direction=add_direction, locale=self.userlocale)
+        ret_secs = tdiff.total_seconds()
+        if return_diff:
+            return [ret_diff, ret_secs]
+        else:
+            return ret_diff
 
     def format_decimal(self, number):
         return numbers.format_decimal(number, locale=self.userlocale)

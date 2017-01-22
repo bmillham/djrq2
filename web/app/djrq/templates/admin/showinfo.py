@@ -19,7 +19,7 @@
               </div>
              </div>
              <div class='form-group'>
-              <label class='control-label' for='show_time'>Show Time</label>
+              <label class='control-label' for='show_time'>Show Time (Select your local time. Once you save, the time will be displayed in UTC)</label>
               <div class='input-group date form_datetime' data-date-format="yyyy-mm-dd hh:ii z">
                <input type="text" class="form-control" readonly value='${showinfo.show_time}' name='show_time'>
                <span class="input-group-addon"><span class="glyphicon glyphicon-remove"></span></span>
