@@ -20,7 +20,13 @@
         <a href="/${ctx.resource.__resource__}/?letter=${l}"
            tip='${row.count}'
            class='list-group-item #{"active" if selected_letter == row.letter else ""}'>
-           ${row.letter} <span class='badge'>${row.count}</span>
+           : if row.letter == ' '
+            &nbsp;
+           : else
+            ${row.letter}
+           : end
+           </span>
+           <span class='badge'>${row.count}</span>
         </a>
      : end
     </div>
