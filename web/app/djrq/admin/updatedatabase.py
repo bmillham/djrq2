@@ -180,11 +180,15 @@ class UpdateDatabase:
                 new_track['filename'] = uf
                 new_track['jingle'] = 0
                 #print('Adding new track', new_track)
-                track = Song(**new_track)
-                self._ctx.db.add(track)
-                self._ctx.db.commit() # Must commit to get the id
-                currentids += [track.id]
-                newcount += 1
+                try:
+                    track = Song(**new_track)
+                except:
+                    print("Something went wrong trying to add", new_track)
+                else:
+                    self._ctx.db.add(track)
+                    self._ctx.db.commit() # Must commit to get the id
+                    currentids += [track.id]
+                    newcount += 1
                 #send_update(self.ws, cp=cp, rc=rc, avetime=avetime, newcount=newcount, stage='Updating Database: Estimated Time to Finish {}'.format(finish))
             else:
                 diff = False
