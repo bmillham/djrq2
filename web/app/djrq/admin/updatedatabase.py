@@ -178,6 +178,7 @@ class UpdateDatabase:
                 new_track['_addition_time'] = datetime.utcnow()
                 new_track['path'] = up
                 new_track['filename'] = uf
+                new_track['jingle'] = 0
                 #print('Adding new track', new_track)
                 track = Song(**new_track)
                 self._ctx.db.add(track)
