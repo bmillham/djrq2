@@ -246,7 +246,7 @@ class UpdateDatabase:
                 else:
                     self._ctx.db.add(track)
                     self._ctx.db.commit() # Must commit to get the id
-                    currentids += [track.id]
+                    currentids += [int(track.id)]
                     newcount += 1
             else:
                 diff = False
@@ -262,7 +262,7 @@ class UpdateDatabase:
                     updatedcount += 1
                     self._ctx.db.query(Song).filter(Song.id==s['id']).update(to_update)
                     if 'year' in to_update: print(s['year'], rc, to_update)
-                currentids += [s['id']]
+                currentids += [int(s['id'])]
             thistime = time()
             if int(lasttime) != int(thistime):
                 send_update(self.ws, updatedcount=updatedcount, totaltracks=count, newcount=newcount, spinner=False)
@@ -273,6 +273,9 @@ class UpdateDatabase:
             avetime = float(sum(avelist)) / float(len(avelist))
             processed += 1
 
+        print('Final commit')
+        self._ctx.db.commit()
+        print('Total currentids', len(currentids))
         send_update(self.ws, progress=0, checkedtracks=processed, newcount=newcount, updatedcount=updatedcount, stage='Updating Database: Checking for deleted tracks', spinner=True)
         drows = [x.id for x in self._ctx.db.query(Song.id).filter(~Song.id.in_(currentids)).distinct()]
         send_update(self.ws, deletedtracks=len(drows),)
