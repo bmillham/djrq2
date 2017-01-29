@@ -12,7 +12,7 @@
 
     <div class="col-sm-1 list-group">
      : for row in letterscountslist
-        : if row.letter == ''
+        : if row.letter == '' or row.letter is None
             : print("Skip Letter: |{}|".format(row.letter), dir(row.letter))
             : continue
         :end

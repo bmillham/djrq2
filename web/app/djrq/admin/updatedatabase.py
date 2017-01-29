@@ -49,9 +49,19 @@ class UpdateDatabase:
         return selectdatabasefile('Select Database File', self._ctx, files)
 
     def updatedatabase(self, *arg, **args):
+        self.fileselection = args['fileselection']
+        if 'stripspaces' in args:
+            self.stripspaces = True
+        else:
+            self.stripspaces = False
+        self.fixdash = False
+        if 'emptytagfix' in args:
+            self.emptytagfix = True
+        else:
+            self.emptytagfix = False
         self._ctx.queries.is_updating(status=True)
         send_update(self.ws, spinner=True, stage='Preparing to backup database', updaterunning=True)
-        self.fileselection = args['fileselection']
+
         #backupdatabase(self)
         #self._startupdate()
 
@@ -79,6 +89,9 @@ class UpdateDatabase:
         from ..model.prokyon.played import Played
         from ..model.prokyon.mistags import Mistags
         from ..model.prokyon.requestlist import RequestList
+        import re
+
+        dashre = re.compile('\s+-\s+') # To remove spaces around - in fields
 
         send_update(self.ws, progress=0, stage='Starting Database Update', active=True, spinner=True)
 
@@ -132,12 +145,17 @@ class UpdateDatabase:
         processed = 0
         newcount = 0
 
+        badtags = []
+        dashtags = []
+        spacetags = []
+        diffs = []
+
         for i, rc in enumerate(winampdb.fetchall()):
             if i == 0:
                 send_update(self.ws, spinner=False)
+
             up, uf = ntpath.split(rc['filename'])
-            #print('up', up)
-            #print('uf', uf)
+
             if 'year' in rc.keys():
                 rc['year'] = str(rc['year'])
             if 'filesize' in rc.keys():
@@ -150,18 +168,59 @@ class UpdateDatabase:
             if 'bitrate' in rc.keys():
                 if rc['bitrate'] is None or rc['bitrate'] == '':
                     rc['bitrate'] = 0
-            if 'artist' in rc.keys():
-                if rc['artist'] is None or rc['artist'] == '':
-                    rc['artist'] = 'Unknown Artist'
-            if 'album' in rc.keys():
-                if rc['album'] is None or rc['album'] == '':
-                    rc['album'] = 'Unknown Album'
+
+            fieldstofix = ('artist', 'album', 'title')
+
+            sadded = False
+            dadded = False
+            eadded = False
+            for f in fieldstofix:
+                # Fix or report field with leading/trailing/extra spaces
+                try:
+                    #sf = rc[f].strip()
+                    sf = ' '.join(rc[f].split())
+                except:
+                    sf = rc[f]
+
+                if sf != rc[f]:
+                    if not sadded:
+                        spacetags.append(rc.copy())
+                        sadded = True
+                    if self.stripspaces:
+                        rc[f] = sf
+
+                # Fix or report fields with <space>-<space>
+                try:
+                    df = dashre.sub('-', rc[f])
+                except:
+                    df = rc[f]
+                if df != rc[f]:
+                    if not dadded:
+                        dashtags.append(rc.copy())
+                        dadded = True
+                    if self.fixdash:
+                        rc[f] = df
+
+                # Fix or report empty fields (use the above corrected stripped field to catch field like '  ' also
+                if sf is None or sf == '':
+                    ef = 'Unknown {}'.format(f.capitalize())
+                else:
+                    ef = rc[f]
+                if ef != rc[f]:
+                    if not eadded:
+                        badtags.append(rc.copy())
+                        eadded = True
+                    if self.emptytagfix:
+                        rc[f] = ef
+
+            if rc in badtags and not self.emptytagfix: # Skip bad rows
+                continue
+
             rc['path'] = up
             rc['filename'] = uf
 
             cp = '{0:.1f}'.format(i/count*100)
             if lp != cp:
-                #(avetime*(frecords - fprog))/60
                 eta = (avetime * (count - processed)) / 60
                 if eta > 1:
                     finish = '{} minutes'.format(round(eta))
@@ -179,7 +238,7 @@ class UpdateDatabase:
                 new_track['path'] = up
                 new_track['filename'] = uf
                 new_track['jingle'] = 0
-                #print('Adding new track', new_track)
+
                 try:
                     track = Song(**new_track)
                 except:
@@ -189,7 +248,6 @@ class UpdateDatabase:
                     self._ctx.db.commit() # Must commit to get the id
                     currentids += [track.id]
                     newcount += 1
-                #send_update(self.ws, cp=cp, rc=rc, avetime=avetime, newcount=newcount, stage='Updating Database: Estimated Time to Finish {}'.format(finish))
             else:
                 diff = False
                 to_update = {}
@@ -199,7 +257,7 @@ class UpdateDatabase:
                         lp = cp
                         diff = True
                         to_update[fieldmap[field]] = rc[field]
-                        #send_update(self.ws, cp=cp, rc=rc, avetime=avetime, field=field, filename=uf, updatedcount=updatedcount+1, stage='Updating Database: Estimated Time to Finish {}'.format(finish))
+                        diffs.append('DIFF {} was "{}" now "{}"'.format(field, s[fieldmap[field]], rc[field]))
                 if diff:
                     updatedcount += 1
                     self._ctx.db.query(Song).filter(Song.id==s['id']).update(to_update)
@@ -233,3 +291,21 @@ class UpdateDatabase:
         self._ctx.db.commit()
         send_update(self.ws, progress=100, stage='Database Updated', active=False, spinner=False)
         print("Update complete")
+
+        # Save update problems. TODO: use a sqlite database possibly???
+        with open(os.path.join(self.uploaddir, 'badtags.txt'), mode='w') as badtagfile:
+            for r in badtags:
+                print(r, file=badtagfile)
+        with open(os.path.join(self.uploaddir, 'dashtags.txt'), mode='w') as dashtagfile:
+            for r in dashtags:
+                print(r, file=dashtagfile)
+        with open(os.path.join(self.uploaddir, 'spacetags.txt'), mode='w') as spacetagfile:
+            for r in spacetags:
+                print(r, file=spacetagfile)
+        with open(os.path.join(self.uploaddir, 'diffs.txt'), mode='w') as diffsfile:
+            for r in diffs:
+                print(r, file=diffsfile)
+        print('Bad tags', len(badtags))
+        print('Dash tags', len(dashtags))
+        print('Space tags', len(spacetags))
+        print('Diffs', len(diffs))

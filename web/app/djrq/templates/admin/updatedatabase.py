@@ -44,7 +44,17 @@
         : end
         </select>
        </div>
+       <div>
+        <label for='stripspaces'>Remove Extra Spaces From Artist/Album/Title?</label>
+        <input type='checkbox' id='stripspaces' name='stripspaces' value='1' checked>
+       </div>
+       <div>
+        <label for='emptytagfix'>If Artist/Album/Title Is Empty, Replace With Unknown<br>
+         (if not selected, tracks with missing tags will not be added to the database)?</label>
+        <input type='checkbox' id='emptytagfix' name='emptytagfix' value='1' checked>
+       </div>
       </fieldset>
+
       <button type='submit' class='btn btn-primary'>Update Database</button>
      </form>
      : use updateprogress title, ctx
