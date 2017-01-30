@@ -26,6 +26,7 @@
             : end
            : end
           </ul>
+         </div>
          </caption>
          <thead>
          <tr>

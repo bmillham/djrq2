@@ -23,20 +23,46 @@
      <div class='container-fluid'>
       <div class='collapse navbar-collapse' id='collapse-1'>
        <ul class='nav navbar-nav'>
-        <li #{" class='active'" if resource == None else ''}>
-         <a class='navbar-brand' href='/admin'>
-          <span class='glyphicon glyphicon-cog' aria-hidden='true'></span>&nbsp;${ctx.djname}&nbsp;
-          <span id='requestbutton' class='badge'>${ctx.format_decimal(ctx.requests_info.request_count)}</span>
-         </a>
-        </li>
-        : try
-         : if ctx.session.authenticated
+        <ul class='nav navbar-nav hidden-xs hidden-sm'>
+         <li #{" class='active'" if resource == 'admin' else ''}>
+          <a class='navbar-brand' href='/admin'>
+           <span class='glyphicon glyphicon-cog' aria-hidden='true'></span>&nbsp;${ctx.djname}&nbsp;
+           <span id='requestbutton' class='badge'>${ctx.format_decimal(ctx.requests_info.request_count)}</span>
+          </a>
+         </li>
+        </ul>
+        <ul class='nav navbar-nav hidden-md hidden-lg'>
+         <li class='dropdown #{" active" if resource in ("admin", "mistags", "suggestions") else ""}'>
+          <a class='dropdown-toggle navbar-brand' href='/admin' data-toggle='dropdown' role='button' aria-haspopup='true' aria-expanded='false'>
+           <span class='glyphicon glyphicon-cog' aria-hidden='true'></span>&nbsp;${ctx.djname}&nbsp;
+           <span id='requestbutton' class='badge'>${ctx.format_decimal(ctx.requests_info.request_count)}</span>
+           <span class='caret'></span>
+          </a>
+          <ul class='dropdown-menu'>
+          <li #{" class='active'" if resource == 'admin' else ''}>
+           <a href="/admin">Requests&nbsp;
+            <span id='requestbutton' class='badge'>${ctx.format_decimal(ctx.requests_info.request_count)}</span>
+           </a>
+          </li>
           <li #{" class='active'" if resource == 'mistags' else ''}>
            <a href="/admin/mistags">Mistags&nbsp;<span id='mistagsbutton' class='badge'>${ctx.format_decimal(ctx.mistags_count)}</span></a>
           </li>
           <li #{" class='active'" if resource == 'suggestions' else ''}>
            <a href="/admin/suggestions">Suggestions&nbsp;<span id='suggestionsbutton' class='badge'>${ctx.format_decimal(ctx.suggestions_count)}</span></a>
           </li>
+          </ul>
+         </li>
+        </ul>
+        : try
+         : if ctx.session.authenticated
+         <ul class="nav navbar-nav hidden-xs hidden-sm">
+          <li #{" class='active'" if resource == 'mistags' else ''}>
+           <a href="/admin/mistags">Mistags&nbsp;<span id='mistagsbutton' class='badge'>${ctx.format_decimal(ctx.mistags_count)}</span></a>
+          </li>
+          <li #{" class='active'" if resource == 'suggestions' else ''}>
+           <a href="/admin/suggestions">Suggestions&nbsp;<span id='suggestionsbutton' class='badge'>${ctx.format_decimal(ctx.suggestions_count)}</span></a>
+          </li>
+         </ul>
           <li class='dropdown #{" active" if resource in ("showinfo", "requestoptions", "catalogoptions", "showhistory", "changepw") else ""}'>
            <a href='#' class='dropdown-toggle' data-toggle='dropdown' role='button' aria-haspopup='true' aria-expanded='false'>
             <span class='glyphicon glyphicon-wrench' aria-hidden='true' aria-label='Site Options'></span><span class='caret'></span></a>
