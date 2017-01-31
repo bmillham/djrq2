@@ -218,6 +218,8 @@ class UpdateDatabase:
             try:
                 s = self._ctx.db.query(Song).filter(Song.path==rc['path'], Song.filename==rc['filename']).one().__dict__
             except:
+                print('Got exception looking for {} {}'.format(rc['path'], rc['filename'])
+                print(sys.exc_info()[0])
                 new_track = {fieldmap[field]: rc[field] for field in fieldmap}
                 new_track['_addition_time'] = datetime.utcnow()
                 new_track['path'] = rc['path']
@@ -228,6 +230,7 @@ class UpdateDatabase:
                     track = Song(**new_track)
                 except:
                     print("Something went wrong trying to add", new_track)
+                    print(sys.exc_info()[0])
                 else:
                     self._ctx.db.add(track)
                     self._ctx.db.commit() # Must commit to get the id
