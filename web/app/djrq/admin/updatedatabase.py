@@ -12,6 +12,7 @@ from .backupdatabase import backupdatabase
 from ..send_update import send_update
 from collections import deque
 from statistics import mean
+import sys
 
 class UpdateDatabase:
     __dispatch__ = 'resource'
@@ -87,10 +88,10 @@ class UpdateDatabase:
 
     def _startupdate(self):
         import ntpath # Used because the winamp files have windows type paths
-        from ..model.prokyon.song import Song
-        from ..model.prokyon.played import Played
-        from ..model.prokyon.mistags import Mistags
-        from ..model.prokyon.requestlist import RequestList
+        from ..model.prokyon.song import pSong
+        from ..model.prokyon.played import pPlayed
+        from ..model.prokyon.mistags import pMistags
+        from ..model.prokyon.requestlist import pRequestList
         import re
 
         dashre = re.compile('\s+-\s+') # To remove spaces around - in fields
@@ -125,7 +126,7 @@ class UpdateDatabase:
         count = winampdb.totalrecords
 
         send_update(self.ws, stage='Finding AutoAdded Tracks')
-        aa = self._ctx.db.query(Song).filter(Song.path == 'AutoAdded', Song.filename=='AutoAdded')
+        aa = self._ctx.db.query(pSong).filter(pSong.path == 'AutoAdded', pSong.filename=='AutoAdded')
         autoadded = []
         for arow in aa:
             autoadded.append(arow)
@@ -216,7 +217,7 @@ class UpdateDatabase:
                 continue
 
             try:
-                s = self._ctx.db.query(Song).filter(Song.path==rc['path'], Song.filename==rc['filename']).one().__dict__
+                s = self._ctx.db.query(pSong).filter(pSong.path==rc['path'], pSong.filename==rc['filename']).one().__dict__
             except:
                 print('Got exception looking for {} {}'.format(rc['path'], rc['filename']))
                 print(sys.exc_info()[0])
@@ -227,7 +228,7 @@ class UpdateDatabase:
                 new_track['jingle'] = 0
 
                 try:
-                    track = Song(**new_track)
+                    track = pSong(**new_track)
                 except:
                     print("Something went wrong trying to add", new_track)
                     print(sys.exc_info()[0])
@@ -248,7 +249,7 @@ class UpdateDatabase:
                         diffs.append('DIFF {} was "{}" now "{}"'.format(field, s[fieldmap[field]], rc[field]))
                 if diff:
                     updatedcount += 1
-                    self._ctx.db.query(Song).filter(Song.id==s['id']).update(to_update)
+                    self._ctx.db.query(pSong).filter(pSong.id==s['id']).update(to_update)
                 rc['id'] = s['id']
             currentids.append(rc['id'])
             thistime = time()
@@ -275,13 +276,13 @@ class UpdateDatabase:
         send_update(self.ws, deletedtracks=len(drows))
         if len(drows) > 0:
             send_update(self.ws, stage='Updating Database: Deleting Played', cp=20)
-            playeddeleted = self._ctx.db.query(Played.track_id).filter(Played.track_id.in_(drows)).delete(synchronize_session=False)
+            playeddeleted = self._ctx.db.query(pPlayed.track_id).filter(pPlayed.track_id.in_(drows)).delete(synchronize_session=False)
             send_update(self.ws, progress=40, deletedplayed=playeddeleted, stage='Updating Database: Deleting Requests')
-            requestsdeleted = self._ctx.db.query(RequestList.song_id).filter(RequestList.song_id.in_(drows)).delete(synchronize_session=False)
+            requestsdeleted = self._ctx.db.query(pRequestList.song_id).filter(pRequestList.song_id.in_(drows)).delete(synchronize_session=False)
             send_update(self.ws, progress=60, deletedrequests=requestsdeleted, stage='Updating Database: Deleting Mistags')
-            mistagsdeleted = self._ctx.db.query(Mistags.track_id).filter(Mistags.track_id.in_(drows)).delete(synchronize_session=False)
+            mistagsdeleted = self._ctx.db.query(pMistags.track_id).filter(pMistags.track_id.in_(drows)).delete(synchronize_session=False)
             send_update(self.ws, progress=80, deletedmistags=mistagsdeleted, stage='Updating Database: Deleting Tracks')
-            songsdeleted = self._ctx.db.query(Song.id).filter(Song.id.in_(drows)).delete(synchronize_session=False)
+            songsdeleted = self._ctx.db.query(pSong.id).filter(pSong.id.in_(drows)).delete(synchronize_session=False)
             send_update(self.ws, progress=100)
 
         send_update(self.ws, progress=0, stage='Updating Database: Finalizing Changes')
