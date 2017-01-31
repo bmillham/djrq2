@@ -218,7 +218,7 @@ class UpdateDatabase:
             try:
                 s = self._ctx.db.query(Song).filter(Song.path==rc['path'], Song.filename==rc['filename']).one().__dict__
             except:
-                print('Got exception looking for {} {}'.format(rc['path'], rc['filename'])
+                print('Got exception looking for {} {}'.format(rc['path'], rc['filename']))
                 print(sys.exc_info()[0])
                 new_track = {fieldmap[field]: rc[field] for field in fieldmap}
                 new_track['_addition_time'] = datetime.utcnow()
