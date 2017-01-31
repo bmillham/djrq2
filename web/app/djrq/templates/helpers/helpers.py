@@ -20,7 +20,8 @@
         : except
             : max_time = 0
         : end
-        ${row.title}
+        #${row.title}
+        : use truncate_title row.title
         <div class="pull-right">&nbsp;
          : if not no_request_button
           <button class="btn btn-xs btn-primary r_${row.id}"
@@ -67,6 +68,14 @@
             : aid = str(row.aid)
         : end
         <a href='/${model}/?id=#{quote_plus(aid)}#{"&new_only" if new_only else ""}'>${row.fullname}</a>
+    : end
+: end
+
+: def truncate_title title -> strip
+    : if len(title) > 100
+        #{title[:50]}...#{title[-50:]}
+    : else
+        ${title}
     : end
 : end
 
