@@ -10,6 +10,8 @@ from ..templates.admin.updatedatabase import selectfile, selectdatabasefile, upd
 from concurrent.futures import ThreadPoolExecutor
 from .backupdatabase import backupdatabase
 from ..send_update import send_update
+from collections import deque
+from statistics import mean
 
 class UpdateDatabase:
     __dispatch__ = 'resource'
@@ -139,7 +141,7 @@ class UpdateDatabase:
 
         starttime = time()
         avetime = 0.0
-        avelist = []
+        avelist = deque([], maxlen=500)
         lasttime = starttime
 
         processed = 0
@@ -149,12 +151,10 @@ class UpdateDatabase:
         dashtags = []
         spacetags = []
         diffs = []
-
+        timestart = time()
+        send_update(self.ws, totaltracks=count, spinner=False)
         for i, rc in enumerate(winampdb.fetchall()):
-            if i == 0:
-                send_update(self.ws, spinner=False)
-
-            up, uf = ntpath.split(rc['filename'])
+            rc['path'], rc['filename'] = ntpath.split(rc['filename'])
 
             if 'year' in rc.keys():
                 rc['year'] = str(rc['year'])
@@ -177,7 +177,6 @@ class UpdateDatabase:
             for f in fieldstofix:
                 # Fix or report field with leading/trailing/extra spaces
                 try:
-                    #sf = rc[f].strip()
                     sf = ' '.join(rc[f].split())
                 except:
                     sf = rc[f]
@@ -216,27 +215,13 @@ class UpdateDatabase:
             if rc in badtags and not self.emptytagfix: # Skip bad rows
                 continue
 
-            rc['path'] = up
-            rc['filename'] = uf
-
-            cp = '{0:.1f}'.format(i/count*100)
-            if lp != cp:
-                eta = (avetime * (count - processed)) / 60
-                if eta > 1:
-                    finish = '{} minutes'.format(round(eta))
-                else:
-                    finish = '{} seconds'.format(round(eta * 60))
-                send_update(self.ws, progress=cp, checkedtracks=i+1, newcount=newcount, updatedcount=updatedcount, avetime=avetime, stage='Updating Database: Estimated Time to Finish {}'.format(finish))
-                lp = cp
-                la = rc['artist']
-
             try:
-                s = self._ctx.db.query(Song).filter(Song.path==up, Song.filename==uf).one().__dict__
+                s = self._ctx.db.query(Song).filter(Song.path==rc['path'], Song.filename==rc['filename']).one().__dict__
             except:
                 new_track = {fieldmap[field]: rc[field] for field in fieldmap}
                 new_track['_addition_time'] = datetime.utcnow()
-                new_track['path'] = up
-                new_track['filename'] = uf
+                new_track['path'] = rc['path']
+                new_track['filename'] = rc['filename']
                 new_track['jingle'] = 0
 
                 try:
@@ -246,7 +231,6 @@ class UpdateDatabase:
                 else:
                     self._ctx.db.add(track)
                     self._ctx.db.commit() # Must commit to get the id
-                    #currentids += [track.id]
                     rc['id'] = track.id
                     newcount += 1
             else:
@@ -262,18 +246,22 @@ class UpdateDatabase:
                 if diff:
                     updatedcount += 1
                     self._ctx.db.query(Song).filter(Song.id==s['id']).update(to_update)
-                    if 'year' in to_update: print(s['year'], rc, to_update)
-                #currentids += [s['id']]
                 rc['id'] = s['id']
             currentids.append(rc['id'])
             thistime = time()
             if int(lasttime) != int(thistime):
-                send_update(self.ws, updatedcount=updatedcount, totaltracks=count, newcount=newcount, spinner=False)
+                cp = '{0:.1f}'.format(i/count*100)
+                eta = (avetime * (count - processed)) / 60
+                if eta > 1:
+                    finish = '{} minutes'.format(round(eta))
+                else:
+                    finish = '{} seconds'.format(round(eta * 60))
+                send_update(self.ws, totaltracks=count, progress=cp, checkedtracks=i+1, newcount=newcount, updatedcount=updatedcount, avetime=avetime, stage='Updating Database: Estimated Time to Finish {}'.format(finish), spinner=False)
             timeint = thistime - lasttime
             lasttime = thistime
 
-            avelist.append(float(timeint))
-            avetime = float(sum(avelist)) / float(len(avelist))
+            avelist.append(timeint)
+            avetime = mean(avelist)
             processed += 1
 
         print('Final commit')
@@ -281,7 +269,7 @@ class UpdateDatabase:
         print('Total currentids', len(currentids))
         send_update(self.ws, progress=0, checkedtracks=processed, newcount=newcount, updatedcount=updatedcount, stage='Updating Database: Checking for deleted tracks', spinner=True)
         drows = [x.id for x in self._ctx.db.query(Song.id).filter(~Song.id.in_(currentids))]
-        send_update(self.ws, deletedtracks=len(drows),)
+        send_update(self.ws, deletedtracks=len(drows))
         if len(drows) > 0:
             send_update(self.ws, stage='Updating Database: Deleting Played', cp=20)
             playeddeleted = self._ctx.db.query(Played.track_id).filter(Played.track_id.in_(drows)).delete(synchronize_session=False)
