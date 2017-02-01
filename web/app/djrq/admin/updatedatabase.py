@@ -13,6 +13,7 @@ from ..send_update import send_update
 from collections import deque
 from statistics import mean
 import sys
+from copy import copy
 
 class UpdateDatabase:
     __dispatch__ = 'resource'
@@ -88,11 +89,13 @@ class UpdateDatabase:
 
     def _startupdate(self):
         import ntpath # Used because the winamp files have windows type paths
-        from ..model.prokyon.song import pSong
-        from ..model.prokyon.played import pPlayed
-        from ..model.prokyon.mistags import pMistags
-        from ..model.prokyon.requestlist import pRequestList
+        from ..model.prokyon.song import Song as pSong
+        from ..model.prokyon.played import Played as pPlayed
+        from ..model.prokyon.mistags import Mistags as pMistags
+        from ..model.prokyon.requestlist import RequestList as pRequestList
         import re
+
+        db = copy(self._ctx.db[self._ctx.djname.lower()])
 
         dashre = re.compile('\s+-\s+') # To remove spaces around - in fields
 
@@ -126,7 +129,7 @@ class UpdateDatabase:
         count = winampdb.totalrecords
 
         send_update(self.ws, stage='Finding AutoAdded Tracks')
-        aa = self._ctx.db.query(pSong).filter(pSong.path == 'AutoAdded', pSong.filename=='AutoAdded')
+        aa = db.query(pSong).filter(pSong.path == 'AutoAdded', pSong.filename=='AutoAdded')
         autoadded = []
         for arow in aa:
             autoadded.append(arow)
@@ -217,7 +220,7 @@ class UpdateDatabase:
                 continue
 
             try:
-                s = self._ctx.db.query(pSong).filter(pSong.path==rc['path'], pSong.filename==rc['filename']).one().__dict__
+                s = db.query(pSong).filter(pSong.path==rc['path'], pSong.filename==rc['filename']).one().__dict__
             except:
                 print('Got exception looking for {} {}'.format(rc['path'], rc['filename']))
                 print(sys.exc_info()[0])
@@ -233,8 +236,8 @@ class UpdateDatabase:
                     print("Something went wrong trying to add", new_track)
                     print(sys.exc_info()[0])
                 else:
-                    self._ctx.db.add(track)
-                    self._ctx.db.commit() # Must commit to get the id
+                    db.add(track)
+                    db.commit() # Must commit to get the id
                     rc['id'] = track.id
                     newcount += 1
             else:
@@ -249,7 +252,7 @@ class UpdateDatabase:
                         diffs.append('DIFF {} was "{}" now "{}"'.format(field, s[fieldmap[field]], rc[field]))
                 if diff:
                     updatedcount += 1
-                    self._ctx.db.query(pSong).filter(pSong.id==s['id']).update(to_update)
+                    db.query(pSong).filter(pSong.id==s['id']).update(to_update)
                 rc['id'] = s['id']
             currentids.append(rc['id'])
             thistime = time()
@@ -269,24 +272,24 @@ class UpdateDatabase:
             processed += 1
 
         print('Final commit')
-        self._ctx.db.commit()
+        db.commit()
         print('Total currentids', len(currentids))
         send_update(self.ws, progress=0, checkedtracks=processed, newcount=newcount, updatedcount=updatedcount, stage='Updating Database: Checking for deleted tracks', spinner=True)
-        drows = [x.id for x in self._ctx.db.query(Song.id).filter(~Song.id.in_(currentids))]
+        drows = [x.id for x in db.query(pSong.id).filter(~pSong.id.in_(currentids))]
         send_update(self.ws, deletedtracks=len(drows))
         if len(drows) > 0:
             send_update(self.ws, stage='Updating Database: Deleting Played', cp=20)
-            playeddeleted = self._ctx.db.query(pPlayed.track_id).filter(pPlayed.track_id.in_(drows)).delete(synchronize_session=False)
+            playeddeleted = db.query(pPlayed.track_id).filter(pPlayed.track_id.in_(drows)).delete(synchronize_session=False)
             send_update(self.ws, progress=40, deletedplayed=playeddeleted, stage='Updating Database: Deleting Requests')
-            requestsdeleted = self._ctx.db.query(pRequestList.song_id).filter(pRequestList.song_id.in_(drows)).delete(synchronize_session=False)
+            requestsdeleted = db.query(pRequestList.song_id).filter(pRequestList.song_id.in_(drows)).delete(synchronize_session=False)
             send_update(self.ws, progress=60, deletedrequests=requestsdeleted, stage='Updating Database: Deleting Mistags')
-            mistagsdeleted = self._ctx.db.query(pMistags.track_id).filter(pMistags.track_id.in_(drows)).delete(synchronize_session=False)
+            mistagsdeleted = db.query(pMistags.track_id).filter(pMistags.track_id.in_(drows)).delete(synchronize_session=False)
             send_update(self.ws, progress=80, deletedmistags=mistagsdeleted, stage='Updating Database: Deleting Tracks')
-            songsdeleted = self._ctx.db.query(pSong.id).filter(pSong.id.in_(drows)).delete(synchronize_session=False)
+            songsdeleted = db.query(pSong.id).filter(pSong.id.in_(drows)).delete(synchronize_session=False)
             send_update(self.ws, progress=100)
 
         send_update(self.ws, progress=0, stage='Updating Database: Finalizing Changes')
-        self._ctx.db.commit()
+        db.commit()
         send_update(self.ws, progress=100, stage='Database Updated', active=False, spinner=False)
         print("Update complete")
 
