@@ -13,7 +13,6 @@ from ..send_update import send_update
 from collections import deque
 from statistics import mean
 import sys
-from copy import copy
 
 class UpdateDatabase:
     __dispatch__ = 'resource'
@@ -63,19 +62,17 @@ class UpdateDatabase:
             self.emptytagfix = True
         else:
             self.emptytagfix = False
-        self._ctx.queries.is_updating(status=True)
+
         send_update(self.ws, spinner=True, stage='Preparing to backup database', updaterunning=True)
 
-        #backupdatabase(self)
-        #self._startupdate()
+        url = self._ctx.db[self._ctx.djname.lower()].session_factory.__dict__['kw']['bind'].url
 
         self._ctx.queries.is_updating(status=True)
         self.executor = ThreadPoolExecutor(max_workers=1)
-        future = self.executor.submit(backupdatabase, self)
-        future.add_done_callback(self._backupcomplete)
+        future = self.executor.submit(backupdatabase, self, url=url)
+        future1 = self.executor.submit(self._startupdate, url=url)
+        future1.add_done_callback(self._updatecomplete)
         print('Update is running!')
-        #return updateprogress('Updating Database', self._ctx)
-        #return selectdatabasefile('Updating Database', self._ctx)
 
     def _backupcomplete(self, future):
         future = self.executor.submit(self._startupdate)
@@ -87,7 +84,10 @@ class UpdateDatabase:
         self.executor.shutdown(wait=False)
         return True
 
-    def _startupdate(self):
+    def _startupdate(self, db=None, url=None):
+        from sqlalchemy import create_engine
+        from sqlalchemy.sql import select
+
         import ntpath # Used because the winamp files have windows type paths
         from ..model.prokyon.song import Song as pSong
         from ..model.prokyon.played import Played as pPlayed
@@ -95,7 +95,8 @@ class UpdateDatabase:
         from ..model.prokyon.requestlist import RequestList as pRequestList
         import re
 
-        db = copy(self._ctx.db[self._ctx.djname.lower()])
+        engine = create_engine(url)
+        conn = engine.connect()
 
         dashre = re.compile('\s+-\s+') # To remove spaces around - in fields
 
@@ -110,14 +111,14 @@ class UpdateDatabase:
 
         fieldmap = { # Map of winamp -> mysql fields
                     'title': 'title',
-                    'artist': 'artist_fullname',
-                    'album': 'album_fullname',
+                    'artist': 'artist',
+                    'album': 'album',
                     'year': 'year',
-                    'trackno': 'track',
-                    'length': 'time',
-                    'lastmodified': '_addition_time',
+                    'trackno': 'tracknumber',
+                    'length': 'length',
+                    'lastmodified': 'lastModified',
                     'filesize': 'size',
-                    'bitrate': 'bit_rate',
+                    'bitrate': 'bitrate',
                    }
 
         if ftype == 'xml':
@@ -129,7 +130,10 @@ class UpdateDatabase:
         count = winampdb.totalrecords
 
         send_update(self.ws, stage='Finding AutoAdded Tracks')
-        aa = db.query(pSong).filter(pSong.path == 'AutoAdded', pSong.filename=='AutoAdded')
+
+        aasel = select([pSong]).where(pSong.filename=='AutoAdded').where(pSong.path=='AutoAdded')
+        aa = conn.execute(aasel)
+
         autoadded = []
         for arow in aa:
             autoadded.append(arow)
@@ -143,9 +147,8 @@ class UpdateDatabase:
         updatedcount = 0
         currentids = []
 
-        starttime = time()
+        realstarttime = starttime = time()
         avetime = 0.0
-        avelist = deque([], maxlen=500)
         lasttime = starttime
 
         processed = 0
@@ -157,6 +160,7 @@ class UpdateDatabase:
         diffs = []
         timestart = time()
         send_update(self.ws, totaltracks=count, spinner=False)
+
         for i, rc in enumerate(winampdb.fetchall()):
             rc['path'], rc['filename'] = ntpath.split(rc['filename'])
 
@@ -219,26 +223,24 @@ class UpdateDatabase:
             if rc in badtags and not self.emptytagfix: # Skip bad rows
                 continue
 
-            try:
-                s = db.query(pSong).filter(pSong.path==rc['path'], pSong.filename==rc['filename']).one().__dict__
-            except:
-                print('Got exception looking for {} {}'.format(rc['path'], rc['filename']))
-                print(sys.exc_info()[0])
+            sel = select([pSong]).where(pSong.filename==rc['filename']).where(pSong.path==rc['path'])
+            s = conn.execute(sel).fetchone()
+
+            if s is None:
                 new_track = {fieldmap[field]: rc[field] for field in fieldmap}
-                new_track['_addition_time'] = datetime.utcnow()
+                new_track['lastModified'] = datetime.utcnow()
                 new_track['path'] = rc['path']
                 new_track['filename'] = rc['filename']
                 new_track['jingle'] = 0
 
                 try:
-                    track = pSong(**new_track)
+                    track = pSong.__table__.insert().values(**new_track)
                 except:
                     print("Something went wrong trying to add", new_track)
                     print(sys.exc_info()[0])
                 else:
-                    db.add(track)
-                    db.commit() # Must commit to get the id
-                    rc['id'] = track.id
+                    res = conn.execute(track)
+                    rc['id'] = res.inserted_primary_key[0]
                     newcount += 1
             else:
                 diff = False
@@ -252,46 +254,43 @@ class UpdateDatabase:
                         diffs.append('DIFF {} was "{}" now "{}"'.format(field, s[fieldmap[field]], rc[field]))
                 if diff:
                     updatedcount += 1
-                    db.query(pSong).filter(pSong.id==s['id']).update(to_update)
+                    upd = pSong.__table__.update().where(pSong.id==s['id']).values(**to_update)
+                    print('upd', str(upd), upd.compile().params)
+                    res = conn.execute(upd)
                 rc['id'] = s['id']
             currentids.append(rc['id'])
             thistime = time()
             if int(lasttime) != int(thistime):
                 cp = '{0:.1f}'.format(i/count*100)
+                avetime = (thistime - realstarttime) / (i + 1)
                 eta = (avetime * (count - processed)) / 60
                 if eta > 1:
                     finish = '{} minutes'.format(round(eta))
                 else:
                     finish = '{} seconds'.format(round(eta * 60))
                 send_update(self.ws, totaltracks=count, progress=cp, checkedtracks=i+1, newcount=newcount, updatedcount=updatedcount, avetime=avetime, stage='Updating Database: Estimated Time to Finish {}'.format(finish), spinner=False)
-            timeint = thistime - lasttime
-            lasttime = thistime
 
-            avelist.append(timeint)
-            avetime = mean(avelist)
+            lasttime = thistime
             processed += 1
 
-        print('Final commit')
-        db.commit()
-        print('Total currentids', len(currentids))
         send_update(self.ws, progress=0, checkedtracks=processed, newcount=newcount, updatedcount=updatedcount, stage='Updating Database: Checking for deleted tracks', spinner=True)
-        drows = [x.id for x in db.query(pSong.id).filter(~pSong.id.in_(currentids))]
+        del_sel = select([pSong.id]).where(~pSong.id.in_(currentids))
+        drows = [x.id for x in conn.execute(del_sel)]
         send_update(self.ws, deletedtracks=len(drows))
         if len(drows) > 0:
             send_update(self.ws, stage='Updating Database: Deleting Played', cp=20)
-            playeddeleted = db.query(pPlayed.track_id).filter(pPlayed.track_id.in_(drows)).delete(synchronize_session=False)
+            playeddeleted = conn.execute(pPlayed.__table__.delete().where(pPlayed.track_id.in_(drows))).rowcount
             send_update(self.ws, progress=40, deletedplayed=playeddeleted, stage='Updating Database: Deleting Requests')
-            requestsdeleted = db.query(pRequestList.song_id).filter(pRequestList.song_id.in_(drows)).delete(synchronize_session=False)
+            requestsdeleted = conn.execute(pRequestList.__table__.delete().where(pRequestList.song_id.in_(drows))).rowcount
             send_update(self.ws, progress=60, deletedrequests=requestsdeleted, stage='Updating Database: Deleting Mistags')
-            mistagsdeleted = db.query(pMistags.track_id).filter(pMistags.track_id.in_(drows)).delete(synchronize_session=False)
+            mistagsdeleted = conn.execute(pMistags.__table__.delete().where(pMistags.track_id.in_(drows))).rowcount
             send_update(self.ws, progress=80, deletedmistags=mistagsdeleted, stage='Updating Database: Deleting Tracks')
-            songsdeleted = db.query(pSong.id).filter(pSong.id.in_(drows)).delete(synchronize_session=False)
+            songsdeleted = conn.execute(pSong.__table__.delete().where(pSong.id.in_(drows))).rowcount
             send_update(self.ws, progress=100)
 
-        send_update(self.ws, progress=0, stage='Updating Database: Finalizing Changes')
-        db.commit()
         send_update(self.ws, progress=100, stage='Database Updated', active=False, spinner=False)
         print("Update complete")
+        conn.close()
 
         # Save update problems. TODO: use a sqlite database possibly???
         with open(os.path.join(self.uploaddir, 'badtags.txt'), mode='w') as badtagfile:
