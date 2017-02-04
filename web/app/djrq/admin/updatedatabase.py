@@ -57,11 +57,23 @@ class UpdateDatabase:
             self.stripspaces = True
         else:
             self.stripspaces = False
+
         self.fixdash = False
-        if 'emptytagfix' in args:
-            self.emptytagfix = True
+
+        if 'artisttagfix' in args:
+            self.artisttagfix = True
         else:
-            self.emptytagfix = False
+            self.artisttagfix = False
+
+        if 'albumtagfix' in args:
+            self.albumtagfix = True
+        else:
+            self.albumtagfix = False
+
+        if 'titletagfix' in args:
+            self.titletagfix = True
+        else:
+            self.titletagfix = False
 
         send_update(self.ws, spinner=True, stage='Preparing to backup database', updaterunning=True)
 
@@ -151,7 +163,6 @@ class UpdateDatabase:
         avetime = 0.0
         lasttime = starttime
 
-        processed = 0
         newcount = 0
 
         badtags = []
@@ -209,19 +220,25 @@ class UpdateDatabase:
                         rc[f] = df
 
                 # Fix or report empty fields (use the above corrected stripped field to catch field like '  ' also
-                if sf is None or sf == '':
+                if sf is None or sf == '' or rc[f] is None:
                     ef = 'Unknown {}'.format(f.capitalize())
                 else:
                     ef = rc[f]
                 if ef != rc[f]:
                     if not eadded:
-                        badtags.append(rc.copy())
+                        badtags.append(rc)
                         eadded = True
-                    if self.emptytagfix:
+                    if (self.artisttagfix and f == 'artist') or (self.albumtagfix and f == 'album') or (self.titletagfix and f == 'title'):
                         rc[f] = ef
 
-            if rc in badtags and not self.emptytagfix: # Skip bad rows
-                continue
+            if rc in badtags:
+                etagfound = False
+                for f in fieldstofix:
+                    if rc[f] == '' or rc[f] is None:
+                        etagfound = True
+                if etagfound:
+                    #print('empty tags in', rc['artist'], rc['album'], rc['title'])
+                    continue
 
             sel = select([pSong]).where(pSong.filename==rc['filename']).where(pSong.path==rc['path'])
             s = conn.execute(sel).fetchone()
@@ -255,7 +272,7 @@ class UpdateDatabase:
                 if diff:
                     updatedcount += 1
                     upd = pSong.__table__.update().where(pSong.id==s['id']).values(**to_update)
-                    print('upd', str(upd), upd.compile().params)
+                    #print('upd', str(upd), upd.compile().params)
                     res = conn.execute(upd)
                 rc['id'] = s['id']
             currentids.append(rc['id'])
@@ -263,7 +280,7 @@ class UpdateDatabase:
             if int(lasttime) != int(thistime):
                 cp = '{0:.1f}'.format(i/count*100)
                 avetime = (thistime - realstarttime) / (i + 1)
-                eta = (avetime * (count - processed)) / 60
+                eta = (avetime * (count - (i+1))) / 60
                 if eta > 1:
                     finish = '{} minutes'.format(round(eta))
                 else:
@@ -271,13 +288,13 @@ class UpdateDatabase:
                 send_update(self.ws, totaltracks=count, progress=cp, checkedtracks=i+1, newcount=newcount, updatedcount=updatedcount, avetime=avetime, stage='Updating Database: Estimated Time to Finish {}'.format(finish), spinner=False)
 
             lasttime = thistime
-            processed += 1
 
-        send_update(self.ws, progress=0, checkedtracks=processed, newcount=newcount, updatedcount=updatedcount, stage='Updating Database: Checking for deleted tracks', spinner=True)
+        send_update(self.ws, progress=0, checkedtracks=i+1, newcount=newcount, updatedcount=updatedcount, stage='Updating Database: Checking for deleted tracks', spinner=True)
         del_sel = select([pSong.id]).where(~pSong.id.in_(currentids))
         drows = [x.id for x in conn.execute(del_sel)]
         send_update(self.ws, deletedtracks=len(drows))
         if len(drows) > 0:
+            print('Deleted tracks', len(drows))
             send_update(self.ws, stage='Updating Database: Deleting Played', cp=20)
             playeddeleted = conn.execute(pPlayed.__table__.delete().where(pPlayed.track_id.in_(drows))).rowcount
             send_update(self.ws, progress=40, deletedplayed=playeddeleted, stage='Updating Database: Deleting Requests')

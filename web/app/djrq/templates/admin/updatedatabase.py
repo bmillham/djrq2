@@ -49,9 +49,13 @@
         <input type='checkbox' id='stripspaces' name='stripspaces' value='1' checked>
        </div>
        <div>
-        <label for='emptytagfix'>If Artist/Album/Title Is Empty, Replace With Unknown<br>
-         (if not selected, tracks with missing tags will not be added to the database)?</label>
-        <input type='checkbox' id='emptytagfix' name='emptytagfix' value='1' checked>
+        <label>Replace Empty Tags With Unknown? (if not selected, tracks with empty tags will <i>not</i> be added to the database)</label>
+        <label for='artisttagfix'>Artist</label>
+        <input type='checkbox' id='artisttagfix' name='artisttagfix' value='1'>
+        <label for='albumtagfix'>Album</label>
+        <input type='checkbox' id='albumtagfix' name='albumtagfix' value='1' checked>
+        <label for='titletagfix'>Title</label>
+        <input type='checkbox' id='titletagfix' name='titletagfix' value='1' checked>
        </div>
       </fieldset>
 
