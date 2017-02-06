@@ -105,8 +105,9 @@ class MediaLibrary:
         intfields = ('filesize', 'trackno', 'length')
         for i, r in enumerate(self.root.findall(self.xmlformat)):
             row = {fields[k]:html.unescape(r.findtext(k).strip()) for k in fields}
-            if row['artist'] == '' or row['album'] == '' or row['title'] == '':
-                continue
+            unk_fields = ('artist', 'album', 'title')
+            for f in unk_fields:
+                if row[f] == '': row[f] = None
             for r in intfields:
                 if row[r] == '':
                     row[r] = 0
@@ -172,7 +173,8 @@ class MediaLibrary:
                     tinfo[f] = None
             for f in ('Album', 'Artist', 'Name'):
                 if f not in tinfo:
-                    tinfo[f] = 'Unknown {}'.format(f)
+                    #tinfo[f] = 'Unknown {}'.format(f)
+                    tinfo[f] = None
             tinfo['Total Time'] /= 1000
             row = {fields[k]:tinfo[k] for k in fields}
             yield row
