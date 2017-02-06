@@ -13,6 +13,7 @@ from ..send_update import send_update
 from collections import deque
 from statistics import mean
 import sys
+import sqlite3
 
 class UpdateDatabase:
     __dispatch__ = 'resource'
@@ -240,8 +241,14 @@ class UpdateDatabase:
                     #print('empty tags in', rc['artist'], rc['album'], rc['title'])
                     continue
 
-            sel = select([pSong]).where(pSong.filename==rc['filename']).where(pSong.path==rc['path'])
-            s = conn.execute(sel).fetchone()
+            try:
+                sel = select([pSong]).where(pSong.filename==rc['filename']).where(pSong.path==rc['path'])
+            except:
+                print('SQL failed', sys.exc_info())
+            try:
+                s = conn.execute(sel).fetchone()
+            except:
+                print('Execute failed', sys.exc_info())
 
             if s is None:
                 new_track = {fieldmap[field]: rc[field] for field in fieldmap}
@@ -265,15 +272,19 @@ class UpdateDatabase:
                 for field in fieldmap:
                     if field == 'lastmodified': continue
                     if rc[field] != s[fieldmap[field]]:
-                        lp = cp
                         diff = True
                         to_update[fieldmap[field]] = rc[field]
                         diffs.append('DIFF {} was "{}" now "{}"'.format(field, s[fieldmap[field]], rc[field]))
                 if diff:
                     updatedcount += 1
-                    upd = pSong.__table__.update().where(pSong.id==s['id']).values(**to_update)
-                    #print('upd', str(upd), upd.compile().params)
-                    res = conn.execute(upd)
+                    try:
+                        upd = pSong.__table__.update().where(pSong.id==s['id']).values(**to_update)
+                    except:
+                        print('Create failed', sys.exc_info())
+                    try:
+                        res = conn.execute(upd)
+                    except:
+                        print('Execute failed', sys.exc_info())
                 rc['id'] = s['id']
             currentids.append(rc['id'])
             thistime = time()
@@ -309,20 +320,41 @@ class UpdateDatabase:
         print("Update complete")
         conn.close()
 
+        songtable = 'CREATE TABLE tracks(rowid INTEGER PRIMARY KEY AUTOINCREMENT, id INTEGER, title TEXT, artist TEXT, album TEXT, path TEXT, filename TEXT,  recordtype TEXT)'
+        insrow = 'INSERT INTO tracks(id, title, artist, album, path, filename, recordtype) values(:id, :title, :artist, :album, :path, :filename, :recordtype)'
+        sqdb = sqlite3.connect(os.path.join(self.uploaddir, 'history-{}.sqlite'.format(datetime.now().strftime('%Y%m%d-%H%M%S'))))
+        cursor = sqdb.cursor()
+        try:
+            cursor.execute(songtable)
+        except:
+            print('Failed to create table', sys.exc_info())
+        sqdb.commit()
+
         # Save update problems. TODO: use a sqlite database possibly???
         with open(os.path.join(self.uploaddir, 'badtags.txt'), mode='w') as badtagfile:
             for r in badtags:
                 print(r, file=badtagfile)
+                try:
+                    cursor.execute(insrow, {**r, 'recordtype': 'empty'})
+                except:
+                    print('Failed to create table', sys.exc_info())
+            sqdb.commit()
         with open(os.path.join(self.uploaddir, 'dashtags.txt'), mode='w') as dashtagfile:
             for r in dashtags:
                 print(r, file=dashtagfile)
+                cursor.execute(insrow, {**r, 'recordtype': 'dash'})
+            sqdb.commit()
         with open(os.path.join(self.uploaddir, 'spacetags.txt'), mode='w') as spacetagfile:
             for r in spacetags:
                 print(r, file=spacetagfile)
+                cursor.execute(insrow, {**r, 'recordtype': 'space'})
+            sqdb.commit()
         with open(os.path.join(self.uploaddir, 'diffs.txt'), mode='w') as diffsfile:
             for r in diffs:
                 print(r, file=diffsfile)
+
         print('Bad tags', len(badtags))
         print('Dash tags', len(dashtags))
         print('Space tags', len(spacetags))
         print('Diffs', len(diffs))
+        sqdb.close()
