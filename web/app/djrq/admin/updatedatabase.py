@@ -108,6 +108,34 @@ class UpdateDatabase:
         from ..model.prokyon.requestlist import RequestList as pRequestList
         import re
 
+        # Create a sqlite database to save update history info
+        songtable = """CREATE TABLE tracks
+                                        (rowid INTEGER PRIMARY KEY AUTOINCREMENT,
+                                         id INTEGER,
+                                         title TEXT,
+                                         artist TEXT,
+                                         album TEXT,
+                                         path TEXT,
+                                         filename TEXT,
+                                         recordtype TEXT)"""
+        insrow = """INSERT INTO tracks
+                                (id, title, artist, album, path, filename, recordtype)
+                                VALUES
+                                (:id, :title, :artist, :album, :path, :filename, :recordtype)"""
+        fixedtable = """CREATE TABLE fixedtable (rowid INTEGER PRIMARY KEY AUTOINCREMENT, id INTEGER, field TEXT, val TEXT, oval TEXT, path TEXT, filename TEXT, recordtype TEXT)"""
+        insfixed = """INSERT INTO fixedtable (id, field, val, oval, path, filename, recordtype) VALUES (:id, :field, :val, :oval, :path, :filename, :recordtype)"""
+        sqdb = sqlite3.connect(os.path.join(self.uploaddir, 'history-{}.sqlite'.format(datetime.now().strftime('%Y%m%d-%H%M%S'))))
+        cursor = sqdb.cursor()
+        try:
+            cursor.execute(songtable)
+        except:
+            print('Failed to create table', sys.exc_info())
+        try:
+            cursor.execute(fixedtable)
+        except:
+            print('Failed to create fixedtable', sys.exc_info())
+        sqdb.commit()
+
         engine = create_engine(url)
         conn = engine.connect()
 
@@ -202,6 +230,11 @@ class UpdateDatabase:
                     sf = rc[f]
 
                 if sf != rc[f]:
+                    try:
+                        cursor.execute(insfixed, {'id':rc['id'], 'field':f, 'val':sf, 'oval':rc[f], 'path': rc['path'], 'filename': rc['filename'], 'recordtype':'space'})
+                    except:
+                        print('Error inserting', sys.exc_info())
+                    sqdb.commit()
                     if not sadded:
                         spacetags.append(rc.copy())
                         sadded = True
@@ -214,6 +247,7 @@ class UpdateDatabase:
                 except:
                     df = rc[f]
                 if df != rc[f]:
+                    cursor.execute(insfixed, {'id':rc['id'], 'field':f, 'val':df, 'oval':rc[f], 'path': rc['path'], 'filename': rc['filename'], 'recordtype':'dash'})
                     if not dadded:
                         dashtags.append(rc.copy())
                         dadded = True
@@ -223,6 +257,7 @@ class UpdateDatabase:
                 # Fix or report empty fields (use the above corrected stripped field to catch field like '  ' also
                 if sf is None or sf == '' or rc[f] is None:
                     ef = 'Unknown {}'.format(f.capitalize())
+
                 else:
                     ef = rc[f]
                 if ef != rc[f]:
@@ -236,6 +271,7 @@ class UpdateDatabase:
                 etagfound = False
                 for f in fieldstofix:
                     if rc[f] == '' or rc[f] is None:
+                        cursor.execute(insfixed, {'id':rc['id'], 'field':f, 'val':None, 'oval':None, 'path': rc['path'], 'filename': rc['filename'], 'recordtype':'empty'})
                         etagfound = True
                 if etagfound:
                     #print('empty tags in', rc['artist'], rc['album'], rc['title'])
@@ -320,15 +356,7 @@ class UpdateDatabase:
         print("Update complete")
         conn.close()
 
-        songtable = 'CREATE TABLE tracks(rowid INTEGER PRIMARY KEY AUTOINCREMENT, id INTEGER, title TEXT, artist TEXT, album TEXT, path TEXT, filename TEXT,  recordtype TEXT)'
-        insrow = 'INSERT INTO tracks(id, title, artist, album, path, filename, recordtype) values(:id, :title, :artist, :album, :path, :filename, :recordtype)'
-        sqdb = sqlite3.connect(os.path.join(self.uploaddir, 'history-{}.sqlite'.format(datetime.now().strftime('%Y%m%d-%H%M%S'))))
-        cursor = sqdb.cursor()
-        try:
-            cursor.execute(songtable)
-        except:
-            print('Failed to create table', sys.exc_info())
-        sqdb.commit()
+
 
         # Save update problems. TODO: use a sqlite database possibly???
         with open(os.path.join(self.uploaddir, 'badtags.txt'), mode='w') as badtagfile:
