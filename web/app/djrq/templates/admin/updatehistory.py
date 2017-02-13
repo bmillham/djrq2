@@ -3,6 +3,11 @@
 : from .admintemplate import page
 : from .. import table_args, caption_args
 : import os
+: from datetime import datetime
+
+: def showdate fn
+    : return datetime.strptime('-'.join(fn.split('-')[1:]).split('.')[0], '%Y%m%d-%H%M%S').strftime('%c')
+: end
 
 : def selectfile title, ctx, files=[]
     : using page title, ctx, lang="en"
@@ -14,7 +19,10 @@
            <label for='fileselection'>Select database update to view</label>
            <select class="form-control" id="fileselection" name="fileselection">
            : for f in files
-            <option value='${os.path.split(f)[-1]}'>${os.path.split(f)[-1]}</option>
+            : fn = os.path.split(f)[-1]
+            <option value='${fn}'>
+            : use showdate fn
+            </option>
            : end
            </select>
           </div>
@@ -28,14 +36,31 @@
 : def updatehistorysummary title, ctx, summary, fn
     : using page title, ctx, lang='en'
     <div class='container'>
+    <div class='stats'>
      <table class='table table-bordered table-striped vertical-table stats-table' style='margin-left: auto; margin-right: auto; width: 100%;'>
-      <caption #{caption_args}>Update Summary For ${fn}</caption>
+      <caption #{caption_args}>Update Statistics For
+      : use showdate fn
+      </caption>
+      <tbody>
+       <tr><th colspan=2>Update Time</th><th colspan=3>Tracks</th><th colspan=4>Deleted</th></tr>
+       <tr><th>Total</th><th>Average</th><th>Checked</th><th>Added</th><th>Updated</th><th>Tracks</th><th>Played</th><th>Requests</th><th>Mistags</th></tr>
+       <tr><td>#{'{:.2f}'.format(summary['stats']['totaltime']/60)} Minutes</td><td>#{'{0:.6f}'.format(summary['stats']['avetime'])}</td><td>${summary['stats']['checked']}</td><td>${summary['stats']['added']}</td><td>${summary['stats']['updated']}</td>
+           <td>${summary['stats']['deleted']}</td><td>${summary['stats']['pdeleted']}</td><td>${summary['stats']['rdeleted']}</td><td>${summary['stats']['mdeleted']}</td></tr>
+      </tbody>
+     </table>
+     </div>
+     <table class='table table-bordered table-striped vertical-table stats-table' style='margin-left: auto; margin-right: auto; width: 100%;'>
+      <caption #{caption_args}>Update Problems</caption>
       <tr><th>Type</th><th>Count</th></tr>
      : details = {'empty': 'Tracks that are missing artist/album or title tags',
      :            'space': 'Tracks that have extra spaces in the artist/album or title tags',
-     :            'dash': 'Tracks that have dash (surrounded by spaces) in artist/album or title tags'}
+     :            'dash': 'Tracks that have dash (surrounded by spaces) in artist/album or title tags',
+     :            }
      : for r in summary
       <tr>
+       : if r not in details
+        : continue
+       : end
        <td>${details[r]}</td>
        <td><a href='/admin/updatehistory/view?fileselection=${fn}&details=${r}'>${summary[r]}</a></td>
       </tr>

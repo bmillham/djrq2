@@ -124,6 +124,18 @@ class UpdateDatabase:
                                 (:id, :title, :artist, :album, :path, :filename, :recordtype)"""
         fixedtable = """CREATE TABLE fixedtable (rowid INTEGER PRIMARY KEY AUTOINCREMENT, id INTEGER, field TEXT, val TEXT, oval TEXT, path TEXT, filename TEXT, recordtype TEXT)"""
         insfixed = """INSERT INTO fixedtable (id, field, val, oval, path, filename, recordtype) VALUES (:id, :field, :val, :oval, :path, :filename, :recordtype)"""
+        statstable = """CREATE TABLE stats (
+                                            rowid INTEGER PRIMARY KEY AUTOINCREMENT,
+                                            totaltime FLOAT,
+                                            avetime FLOAT,
+                                            checked INTEGER,
+                                            added INTEGER,
+                                            updated INTEGER,
+                                            deleted INTEGER,
+                                            pdeleted INTEGER,
+                                            rdeleted INTEGER,
+                                            mdeleted INTEGER)"""
+        insstats = "INSERT INTO stats (totaltime, avetime, checked, added, updated, deleted, pdeleted, rdeleted, mdeleted) VALUES (:totaltime, :avetime, :checked, :added, :updated, :deleted, :pdeleted, :rdeleted, :mdeleted)"
         sqdb = sqlite3.connect(os.path.join(self.uploaddir, 'history-{}.sqlite'.format(datetime.now().strftime('%Y%m%d-%H%M%S'))))
         cursor = sqdb.cursor()
         try:
@@ -134,6 +146,10 @@ class UpdateDatabase:
             cursor.execute(fixedtable)
         except:
             print('Failed to create fixedtable', sys.exc_info())
+        try:
+            cursor.execute(statstable)
+        except:
+            print('Failed to create stats', sys.exc_info())
         sqdb.commit()
 
         engine = create_engine(url)
@@ -351,9 +367,31 @@ class UpdateDatabase:
             send_update(self.ws, progress=80, deletedmistags=mistagsdeleted, stage='Updating Database: Deleting Tracks')
             songsdeleted = conn.execute(pSong.__table__.delete().where(pSong.id.in_(drows))).rowcount
             send_update(self.ws, progress=100)
+        else:
+            playeddeleted = requestsdeleted = mistagsdeleted = songsdeleted = 0
 
         send_update(self.ws, progress=100, stage='Database Updated', active=False, spinner=False)
         print("Update complete")
+
+        totalupdatetime = time() - realstarttime
+        print('Saving stats')
+        istats = {'totaltime': totalupdatetime,
+                                'avetime': avetime,
+                                'checked': i+1,
+                                'added': newcount,
+                                'updated': updatedcount,
+                                'deleted': songsdeleted,
+                                'pdeleted': playeddeleted,
+                                'rdeleted': requestsdeleted,
+                                'mdeleted': mistagsdeleted}
+        print('Printing stats')
+        print('Saving update stats', istats)
+        try:
+            cursor.execute(insstats, istats)
+        except:
+            print('Failed to insert stats', sys.exc_info())
+
+        sqdb.commit()
         conn.close()
 
 

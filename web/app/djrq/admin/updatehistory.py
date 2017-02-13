@@ -37,4 +37,5 @@ class UpdateHistory:
         for t in valid_fields:
             x = cursor.execute('select count(id) as tcount from fixedtable where recordtype=:rtype', {'rtype': t}).fetchone()
             summary[t] = x['tcount']
+        summary['stats'] = cursor.execute('select * from stats').fetchone()
         return updatehistorysummary('Update Summary', self._ctx, summary, args['fileselection'])
