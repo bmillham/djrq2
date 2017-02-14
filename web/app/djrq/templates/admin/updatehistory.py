@@ -44,7 +44,19 @@
       <tbody>
        <tr><th colspan=2>Update Time</th><th colspan=3>Tracks</th><th colspan=4>Deleted</th></tr>
        <tr><th>Total</th><th>Average</th><th>Checked</th><th>Added</th><th>Updated</th><th>Tracks</th><th>Played</th><th>Requests</th><th>Mistags</th></tr>
-       <tr><td>#{'{:.2f}'.format(summary['stats']['totaltime']/60)} Minutes</td><td>#{'{0:.6f}'.format(summary['stats']['avetime'])}</td><td>${summary['stats']['checked']}</td><td>${summary['stats']['added']}</td><td>${summary['stats']['updated']}</td>
+       <tr><td>#{'{:.2f}'.format(summary['stats']['totaltime']/60)} Minutes</td>
+           <td>#{'{0:.6f}'.format(summary['stats']['avetime'])}</td>
+           <td>${summary['stats']['checked']}</td>
+           <td>${summary['stats']['added']}</td>
+           <td>
+            : if summary['stats']['updated'] > 0
+             <a href='/admin/updatehistory/view?fileselection=${fn}&details=updated'>
+            : end
+             ${summary['stats']['updated']}
+            : if summary['stats']['updated'] > 0
+             </a>
+            : end
+           </td>
            <td>${summary['stats']['deleted']}</td><td>${summary['stats']['pdeleted']}</td><td>${summary['stats']['rdeleted']}</td><td>${summary['stats']['mdeleted']}</td></tr>
       </tbody>
      </table>
@@ -55,6 +67,7 @@
      : details = {'empty': 'Tracks that are missing artist/album or title tags',
      :            'space': 'Tracks that have extra spaces in the artist/album or title tags',
      :            'dash': 'Tracks that have dash (surrounded by spaces) in artist/album or title tags',
+     :            'updated': 'Updated Tracks',
      :            }
      : for r in summary
       <tr>
@@ -155,16 +168,16 @@
     <div class='container'>
      : if args['details'] == 'space'
       : use spacemessage
-     : end
-     : if args['details'] == 'dash'
+     : elif args['details'] == 'dash'
       : use dashmessage
-     : end
-     : if args['details'] == 'empty'
+     : elif args['details'] == 'empty'
       : use emptymessage
+     : else
+      <h1>Updated Tracks</h1>
      : end
      <table class='table table-bordered table-striped vertical-table stats-table' style='margin-left: auto; margin-right: auto; width: 100%;'>
       <tr><th>Field</th>
-          : if args['details'] == 'space'
+          : if args['details'] == 'space' or args['details'] == 'updated'
            <th>Fixed Tag</th>
            <th>Original Tag</th>
           : elif args['details'] == 'dash'
@@ -182,9 +195,13 @@
       : for i, d in enumerate(cursor.execute('select * from fixedtable where recordtype=:rtype and id=:tid', {'rtype': args['details'], 'tid': r}))
       <tr>
         <td>${d['field'].capitalize()}</td>
-        : if args['details'] == 'space'
+        : if args['details'] == 'space' or args['details'] == 'updated'
          <td>${d['val']}</td>
-         <td>#{d['oval'].replace(' ', ' <b>_</b> ')}</td>
+         : if args['details'] == 'space'
+          <td>#{d['oval'].replace(' ', ' <b>_</b> ')}</td>
+         : else
+          <td>${d['oval']}</td>
+         : end
         : elif args['details'] == 'dash'
          <td>${d['oval']}</td>
         : end

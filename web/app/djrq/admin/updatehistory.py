@@ -25,7 +25,7 @@ class UpdateHistory:
         sqdb.row_factory = sqlite3.Row
         cursor = sqdb.cursor()
         summary = {}
-        valid_fields = ('empty', 'dash', 'space')
+        valid_fields = ('empty', 'dash', 'space', 'updated')
 
         if 'details' in args:
             if args['details'] not in valid_fields:
@@ -35,7 +35,7 @@ class UpdateHistory:
             return updatehistoryspace('Update Details', self._ctx, x, cursor, args)
 
         for t in valid_fields:
-            x = cursor.execute('select count(id) as tcount from fixedtable where recordtype=:rtype', {'rtype': t}).fetchone()
+            x = cursor.execute('select count(distinct id) as tcount from fixedtable where recordtype=:rtype', {'rtype': t}).fetchone()
             summary[t] = x['tcount']
         summary['stats'] = cursor.execute('select * from stats').fetchone()
         return updatehistorysummary('Update Summary', self._ctx, summary, args['fileselection'])

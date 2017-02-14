@@ -326,6 +326,7 @@ class UpdateDatabase:
                     if rc[field] != s[fieldmap[field]]:
                         diff = True
                         to_update[fieldmap[field]] = rc[field]
+                        cursor.execute(insfixed, {'id':rc['id'], 'field':field, 'val':rc[field], 'oval': s[fieldmap[field]], 'path': rc['path'], 'filename': rc['filename'], 'recordtype':'updated'})
                         diffs.append('DIFF {} was "{}" now "{}"'.format(field, s[fieldmap[field]], rc[field]))
                 if diff:
                     updatedcount += 1
