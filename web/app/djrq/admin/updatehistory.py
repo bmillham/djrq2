@@ -15,7 +15,7 @@ class UpdateHistory:
         self.uploaddir = os.path.join('privatefilearea', context.djname)
 
     def get(self, *arg, **args):
-        files = glob(os.path.join(self.uploaddir, 'history-*.sqlite'))
+        files = sorted(glob(os.path.join(self.uploaddir, 'history-*.sqlite')), reverse=True)
         return selectfile("Select History File", self._ctx, files)
 
     def view(self, *arg, **args):

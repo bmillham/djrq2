@@ -49,11 +49,11 @@
            <td>${summary['stats']['checked']}</td>
            <td>${summary['stats']['added']}</td>
            <td>
-            : if summary['stats']['updated'] > 0
+            : if summary['updated'] > 0
              <a href='/admin/updatehistory/view?fileselection=${fn}&details=updated'>
             : end
-             ${summary['stats']['updated']}
-            : if summary['stats']['updated'] > 0
+             ${summary['updated']}
+            : if summary['updated'] > 0
              </a>
             : end
            </td>
@@ -67,7 +67,6 @@
      : details = {'empty': 'Tracks that are missing artist/album or title tags',
      :            'space': 'Tracks that have extra spaces in the artist/album or title tags',
      :            'dash': 'Tracks that have dash (surrounded by spaces) in artist/album or title tags',
-     :            'updated': 'Updated Tracks',
      :            }
      : for r in summary
       <tr>

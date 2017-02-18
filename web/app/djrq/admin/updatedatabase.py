@@ -109,21 +109,16 @@ class UpdateDatabase:
         import re
 
         # Create a sqlite database to save update history info
-        songtable = """CREATE TABLE tracks
-                                        (rowid INTEGER PRIMARY KEY AUTOINCREMENT,
-                                         id INTEGER,
-                                         title TEXT,
-                                         artist TEXT,
-                                         album TEXT,
-                                         path TEXT,
-                                         filename TEXT,
-                                         recordtype TEXT)"""
-        insrow = """INSERT INTO tracks
-                                (id, title, artist, album, path, filename, recordtype)
-                                VALUES
-                                (:id, :title, :artist, :album, :path, :filename, :recordtype)"""
-        fixedtable = """CREATE TABLE fixedtable (rowid INTEGER PRIMARY KEY AUTOINCREMENT, id INTEGER, field TEXT, val TEXT, oval TEXT, path TEXT, filename TEXT, recordtype TEXT)"""
-        insfixed = """INSERT INTO fixedtable (id, field, val, oval, path, filename, recordtype) VALUES (:id, :field, :val, :oval, :path, :filename, :recordtype)"""
+        fixedtable = """CREATE TABLE fixedtable (
+                                            rowid INTEGER PRIMARY KEY AUTOINCREMENT,
+                                            id INTEGER, field TEXT,
+                                            val TEXT,
+                                            oval TEXT,
+                                            path TEXT,
+                                            filename TEXT,
+                                            recordtype TEXT)"""
+        insfixed = """INSERT INTO fixedtable (id, field, val, oval, path, filename, recordtype)
+                                VALUES (:id, :field, :val, :oval, :path, :filename, :recordtype)"""
         statstable = """CREATE TABLE stats (
                                             rowid INTEGER PRIMARY KEY AUTOINCREMENT,
                                             totaltime FLOAT,
@@ -135,13 +130,27 @@ class UpdateDatabase:
                                             pdeleted INTEGER,
                                             rdeleted INTEGER,
                                             mdeleted INTEGER)"""
-        insstats = "INSERT INTO stats (totaltime, avetime, checked, added, updated, deleted, pdeleted, rdeleted, mdeleted) VALUES (:totaltime, :avetime, :checked, :added, :updated, :deleted, :pdeleted, :rdeleted, :mdeleted)"
+        insstats = """INSERT INTO stats (totaltime,
+                                         avetime,
+                                         checked,
+                                         added,
+                                         updated,
+                                         deleted,
+                                         pdeleted,
+                                         rdeleted,
+                                         mdeleted)
+                        VALUES (:totaltime,
+                                :avetime,
+                                :checked,
+                                :added,
+                                :updated,
+                                :deleted,
+                                :pdeleted,
+                                :rdeleted,
+                                :mdeleted)"""
+
         sqdb = sqlite3.connect(os.path.join(self.uploaddir, 'history-{}.sqlite'.format(datetime.now().strftime('%Y%m%d-%H%M%S'))))
         cursor = sqdb.cursor()
-        try:
-            cursor.execute(songtable)
-        except:
-            print('Failed to create table', sys.exc_info())
         try:
             cursor.execute(fixedtable)
         except:
@@ -252,7 +261,7 @@ class UpdateDatabase:
                         print('Error inserting', sys.exc_info())
                     sqdb.commit()
                     if not sadded:
-                        spacetags.append(rc.copy())
+                        spacetags.append(rc['id'])
                         sadded = True
                     if self.stripspaces:
                         rc[f] = sf
@@ -265,7 +274,7 @@ class UpdateDatabase:
                 if df != rc[f]:
                     cursor.execute(insfixed, {'id':rc['id'], 'field':f, 'val':df, 'oval':rc[f], 'path': rc['path'], 'filename': rc['filename'], 'recordtype':'dash'})
                     if not dadded:
-                        dashtags.append(rc.copy())
+                        dashtags.append(rc['id'])
                         dadded = True
                     if self.fixdash:
                         rc[f] = df
@@ -277,21 +286,12 @@ class UpdateDatabase:
                 else:
                     ef = rc[f]
                 if ef != rc[f]:
+                    cursor.execute(insfixed, {'id':rc['id'], 'field':f, 'val':None, 'oval':None, 'path': rc['path'], 'filename': rc['filename'], 'recordtype':'empty'})
                     if not eadded:
-                        badtags.append(rc)
+                        badtags.append(rc['id'])
                         eadded = True
                     if (self.artisttagfix and f == 'artist') or (self.albumtagfix and f == 'album') or (self.titletagfix and f == 'title'):
                         rc[f] = ef
-
-            if rc in badtags:
-                etagfound = False
-                for f in fieldstofix:
-                    if rc[f] == '' or rc[f] is None:
-                        cursor.execute(insfixed, {'id':rc['id'], 'field':f, 'val':None, 'oval':None, 'path': rc['path'], 'filename': rc['filename'], 'recordtype':'empty'})
-                        etagfound = True
-                if etagfound:
-                    #print('empty tags in', rc['artist'], rc['album'], rc['title'])
-                    continue
 
             try:
                 sel = select([pSong]).where(pSong.filename==rc['filename']).where(pSong.path==rc['path'])
@@ -326,8 +326,9 @@ class UpdateDatabase:
                     if rc[field] != s[fieldmap[field]]:
                         diff = True
                         to_update[fieldmap[field]] = rc[field]
-                        cursor.execute(insfixed, {'id':rc['id'], 'field':field, 'val':rc[field], 'oval': s[fieldmap[field]], 'path': rc['path'], 'filename': rc['filename'], 'recordtype':'updated'})
-                        diffs.append('DIFF {} was "{}" now "{}"'.format(field, s[fieldmap[field]], rc[field]))
+                        if rc['id'] not in spacetags and rc['id'] not in badtags:
+                            cursor.execute(insfixed, {'id':rc['id'], 'field':field, 'val':rc[field], 'oval': s[fieldmap[field]], 'path': rc['path'], 'filename': rc['filename'], 'recordtype':'updated'})
+                            diffs.append('DIFF {} was "{}" now "{}"'.format(field, s[fieldmap[field]], rc[field]))
                 if diff:
                     updatedcount += 1
                     try:
@@ -394,31 +395,6 @@ class UpdateDatabase:
 
         sqdb.commit()
         conn.close()
-
-
-
-        # Save update problems. TODO: use a sqlite database possibly???
-        with open(os.path.join(self.uploaddir, 'badtags.txt'), mode='w') as badtagfile:
-            for r in badtags:
-                print(r, file=badtagfile)
-                try:
-                    cursor.execute(insrow, {**r, 'recordtype': 'empty'})
-                except:
-                    print('Failed to create table', sys.exc_info())
-            sqdb.commit()
-        with open(os.path.join(self.uploaddir, 'dashtags.txt'), mode='w') as dashtagfile:
-            for r in dashtags:
-                print(r, file=dashtagfile)
-                cursor.execute(insrow, {**r, 'recordtype': 'dash'})
-            sqdb.commit()
-        with open(os.path.join(self.uploaddir, 'spacetags.txt'), mode='w') as spacetagfile:
-            for r in spacetags:
-                print(r, file=spacetagfile)
-                cursor.execute(insrow, {**r, 'recordtype': 'space'})
-            sqdb.commit()
-        with open(os.path.join(self.uploaddir, 'diffs.txt'), mode='w') as diffsfile:
-            for r in diffs:
-                print(r, file=diffsfile)
 
         print('Bad tags', len(badtags))
         print('Dash tags', len(dashtags))
