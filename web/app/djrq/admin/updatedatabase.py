@@ -6,12 +6,10 @@ import zipfile
 from rarfile import RarFile
 from time import sleep, time
 from datetime import datetime
-from ..templates.admin.updatedatabase import selectfile, selectdatabasefile, updatecomplete, updateprogress
+from ..templates.admin.updatedatabase import selectfile, selectdatabasefile, updateprogress
 from concurrent.futures import ThreadPoolExecutor
 from .backupdatabase import backupdatabase
 from ..send_update import send_update
-from collections import deque
-from statistics import mean
 import sys
 import sqlite3
 
@@ -148,8 +146,8 @@ class UpdateDatabase:
                                 :pdeleted,
                                 :rdeleted,
                                 :mdeleted)"""
-
-        sqdb = sqlite3.connect(os.path.join(self.uploaddir, 'history-{}.sqlite'.format(datetime.now().strftime('%Y%m%d-%H%M%S'))))
+        historyfilename = 'history-{}.sqlite'.format(datetime.now().strftime('%Y%m%d-%H%M%S'))
+        sqdb = sqlite3.connect(os.path.join(self.uploaddir, historyfilename))
         cursor = sqdb.cursor()
         try:
             cursor.execute(fixedtable)
@@ -350,14 +348,14 @@ class UpdateDatabase:
                     finish = '{} minutes'.format(round(eta))
                 else:
                     finish = '{} seconds'.format(round(eta * 60))
-                send_update(self.ws, totaltracks=count, progress=cp, checkedtracks=i+1, newcount=newcount, updatedcount=updatedcount, avetime=avetime, stage='Updating Database: Estimated Time to Finish {}'.format(finish), spinner=False)
+                send_update(self.ws, totaltracks=count, progress=cp, checkedtracks=i+1, newcount=newcount, updatedcount=updatedcount, avetime=avetime, stage='Updating Database: Estimated Time to Finish {}'.format(finish), spinner=False, active=True)
 
             lasttime = thistime
 
-        send_update(self.ws, progress=0, checkedtracks=i+1, newcount=newcount, updatedcount=updatedcount, stage='Updating Database: Checking for deleted tracks', spinner=True)
+        send_update(self.ws, progress=0, checkedtracks=i+1, newcount=newcount, updatedcount=updatedcount, stage='Updating Database: Checking for deleted tracks', spinner=True, active=False)
         del_sel = select([pSong.id]).where(~pSong.id.in_(currentids))
         drows = [x.id for x in conn.execute(del_sel)]
-        send_update(self.ws, deletedtracks=len(drows))
+        send_update(self.ws, deletedtracks=len(drows), active=True)
         if len(drows) > 0:
             print('Deleted tracks', len(drows))
             send_update(self.ws, stage='Updating Database: Deleting Played', cp=20)
@@ -372,7 +370,7 @@ class UpdateDatabase:
         else:
             playeddeleted = requestsdeleted = mistagsdeleted = songsdeleted = 0
 
-        send_update(self.ws, progress=100, stage='Database Updated', active=False, spinner=False)
+        send_update(self.ws, progress=100, stage='Database Updated: Finalizing', active=False, spinner=True)
         print("Update complete")
 
         totalupdatetime = time() - realstarttime
@@ -395,7 +393,7 @@ class UpdateDatabase:
 
         sqdb.commit()
         conn.close()
-
+        send_update(self.ws, stage='Database Updated: ', historyfilename='/admin/updatehistory/view?fileselection='+historyfilename, spinner=False)
         print('Bad tags', len(badtags))
         print('Dash tags', len(dashtags))
         print('Space tags', len(spacetags))

@@ -42,6 +42,12 @@ sub.on("message", function(message, message_metadata) {
       }
   }
 
+  if ('historyfilename' in m) {
+      $('#historyfilename').prop('href', m.historyfilename);
+      $('#historyfilename').show();
+  }
+
+
   if ('stage' in m) {
       $('#stage').text(m.stage);
   }
