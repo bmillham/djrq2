@@ -12,23 +12,27 @@
 : def selectfile title, ctx, files=[]
     : using page title, ctx, lang="en"
     <div class='container'>
-        <form action='/admin/updatehistory/view' method='post'>
-         <fieldset>
-          <legend>File Selection</legend>
-          <div class='form-group'>
-           <label for='fileselection'>Select database update to view</label>
-           <select class="form-control" id="fileselection" name="fileselection">
-           : for f in files
-            : fn = os.path.split(f)[-1]
-            <option value='${fn}'>
-            : use showdate fn
-            </option>
-           : end
-           </select>
-          </div>
-         </fieldset>
-         <button type="submit" class="btn btn-primary" >View Update History</button>
-        </form>
+        : if len(files) == 0
+         <h3>No update history available</h3>
+        : else
+         <form action='/admin/updatehistory/view' method='post'>
+          <fieldset>
+           <legend>File Selection</legend>
+           <div class='form-group'>
+            <label for='fileselection'>Select database update to view</label>
+            <select class="form-control" id="fileselection" name="fileselection">
+            : for f in files
+             : fn = os.path.split(f)[-1]
+             <option value='${fn}'>
+             : use showdate fn
+             </option>
+            : end
+            </select>
+           </div>
+          </fieldset>
+          <button type="submit" class="btn btn-primary" >View Update History</button>
+         </form>
+        : end
     </div>
     : end
 : end

@@ -16,6 +16,8 @@ class UpdateHistory:
 
     def get(self, *arg, **args):
         files = sorted(glob(os.path.join(self.uploaddir, 'history-*.sqlite')), reverse=True)
+        if len(files) == 1:
+            return self.view(fileselection=os.path.split(files[0])[-1])
         return selectfile("Select History File", self._ctx, files)
 
     def view(self, *arg, **args):
