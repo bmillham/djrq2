@@ -9,17 +9,17 @@
     : return datetime.strptime('-'.join(fn.split('-')[1:]).split('.')[0], '%Y%m%d-%H%M%S').strftime('%c')
 : end
 
-: def selectfile title, ctx, files=[]
+: def selectfile title, ctx, files=[], action='/admin/updatehistory/view'
     : using page title, ctx, lang="en"
     <div class='container'>
         : if len(files) == 0
          <h3>No update history available</h3>
         : else
-         <form action='/admin/updatehistory/view' method='post'>
+         <form action=${action} method='post'>
           <fieldset>
            <legend>File Selection</legend>
            <div class='form-group'>
-            <label for='fileselection'>Select database update to view</label>
+            <label for='fileselection'>${title}</label>
             <select class="form-control" id="fileselection" name="fileselection">
             : for f in files
              : fn = os.path.split(f)[-1]
@@ -30,7 +30,7 @@
             </select>
            </div>
           </fieldset>
-          <button type="submit" class="btn btn-primary" >View Update History</button>
+          <button type="submit" class="btn btn-primary" >${title}</button>
          </form>
         : end
     </div>

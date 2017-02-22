@@ -32,6 +32,14 @@ sub.on("message", function(message, message_metadata) {
       }
   }
 
+  if ('r_spinner' in m) {
+      if (m.r_spinner) {
+          $('#r_spinner').show();
+      } else {
+          $('#r_spinner').hide();
+      }
+  }
+
   if ('updaterunning' in m) {
       if (m.updaterunning) {
           $('#updatedatabase-form').hide();
@@ -51,11 +59,50 @@ sub.on("message", function(message, message_metadata) {
   if ('stage' in m) {
       $('#stage').text(m.stage);
   }
+  if ('r_stage' in m) {
+      $('#r_stage').text(m.r_stage);
+  }
   if ('avetime' in m) {
       $('#avetime').text(m.avetime);
   }
+  if ('Song_avetime' in m) {
+      $('#Song_avetime').text(m.Song_avetime);
+  }
+  if ('RequestList_avetime' in m) {
+      $('#RequestList_avetime').text(m.RequestList_avetime);
+  }
+  if ('Mistags_avetime' in m) {
+      $('#Mistags_avetime').text(m.Mistags_avetime);
+  }
+  if ('Played_avetime' in m) {
+      $('#Played_avetime').text(m.Played_avetime);
+  }
   if ('checkedtracks' in m) {
       $('#checkedtracks').text(m.checkedtracks);
+  }
+  if ('Song_checkedtracks' in m) {
+      $('#Song_checkedtracks').text(m.Song_checkedtracks);
+  }
+  if ('RequestList_checkedtracks' in m) {
+      $('#RequestList_checkedtracks').text(m.RequestList_checkedtracks);
+  }
+  if ('Mistags_checkedtracks' in m) {
+      $('#Mistags_checkedtracks').text(m.Mistags_checkedtracks);
+  }
+  if ('Played_checkedtracks' in m) {
+      $('#Played_checkedtracks').text(m.Played_checkedtracks);
+  }
+  if ('Song_totaltracks' in m) {
+      $('#Song_totaltracks').text(m.Song_totaltracks);
+  }
+  if ('Played_totaltracks' in m) {
+      $('#Played_totaltracks').text(m.Played_totaltracks);
+  }
+  if ('RequestList_totaltracks' in m) {
+      $('#RequestList_totaltracks').text(m.RequestList_totaltracks);
+  }
+  if ('Mistags_totaltracks' in m) {
+      $('#Mistags_totaltracks').text(m.Mistags_totaltracks);
   }
   if ('totaltracks' in m) {
       $('#totaltracks').text(m.totaltracks);
@@ -104,6 +151,13 @@ sub.on("message", function(message, message_metadata) {
           $('#progress').removeClass('active');
       }
   }
+  if ('r_active' in m) {
+      if (m.r_active) {
+          $('#r_progress').addClass('active');
+      } else {
+          $('#r_progress').removeClass('active');
+      }
+  }
 
   if ('progress' in m) {
     $('.update-progress-bar').css('width', m.progress+'%').attr('aria-valuenow', m.progress).text(m.progress+'%');
@@ -111,6 +165,15 @@ sub.on("message", function(message, message_metadata) {
       $('.dbupdate').text("Update Database");
     } else {
       $('.dbupdate').text('Update Progress: ' + m.progress + '%');
+    }
+  }
+
+  if ('r_progress' in m) {
+    $('#r_progress').css('width', m.r_progress+'%').attr('aria-valuenow', m.r_progress).text(m.r_progress+'%');
+    if (m.r_progress == 100) {
+      $('.dbupdate').text("Update Database");
+    } else {
+      $('.dbupdate').text('Restore Progress: ' + m.r_progress + '%');
     }
   }
 });

@@ -92,6 +92,7 @@
            <ul class='dropdown-menu'>
             <li #{" class='active'" if resource == 'updatedatabase' else ""}><a class='dbupdate' href='/admin/updatedatabase'>Update Database</a></li>
             <li #{" class='active'" if resource == 'updatehistory' else ""}><a href='/admin/updatehistory'>View Update History</a></li>
+            <li #{" class='active'" if resource == 'restoredatabase' else ""}><a href='/admin/restoredatabase'>Restore Database</a></li>
            </ul>
           </li>
           : end

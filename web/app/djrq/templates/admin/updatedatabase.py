@@ -92,3 +92,40 @@
      </div>
     </div>
 : end
+
+: def restoreprogress title, ctx
+    : using page title, ctx, lang='en'
+    <div class='container'>
+    <div id='restore-progress-div' >
+     <div class='row'>
+        <div class='col-sm-11 col-lg-11'><h3><span id='r_stage'>Preparing To Restore</span></h3></div>
+        <div class='col-sm-1 col-lg-1'><img src='/public/icons/horse_7.gif' id='r_spinner' alt='spinner' style='top: 20px; width:30px; height: 30px; position: relative;' /></div>
+     </div>
+     <div class='progress'>
+      <div id='r_progress' class='progress-bar progress-bar-striped update-progress-bar' role='progressbar' aria-valuenow='0' aria-valuemin='0' aria-valuemax='100' style='min-width: 2em; width: 0%;'>
+       0%
+      </div>
+     </div>
+     <div class='stats'>
+      <table class='table table-bordered table-striped vertical-table stats-table' style='margin-left: auto; margin-right: auto; width: 100%;'>
+       <caption #{caption_args}>Restore Statistics</caption>
+       <tbody>
+        <tr>
+         <th colspan=3>Songs</th><th colspan=3>Requests</th><th colspan=3>Mistags</th><th colspan=3>Played</th>
+        </tr>
+        <tr>
+         <th>Ave. Time</th><th>Total</th><th>Restored</th>
+         <th>Ave. Time</th><th>Total</th><th>Restored</th>
+         <th>Ave. Time</th><th>Total</th><th>Restored</th>
+         <th>Ave. Time</th><th>Total</th><th>Restored</th>
+        </tr>
+        <tr><td id='Song_avetime'>0</td><td id='Song_totaltracks'>0</td><td id='Song_checkedtracks'>0</td>
+            <td id='RequestList_avetime'>0</td><td id='RequestList_totaltracks'>0</td><td id='RequestList_checkedtracks'>0</td>
+            <td id='Mistags_avetime'>0</td><td id='Mistags_totaltracks'>0</td><td id='Mistags_checkedtracks'>0</td>
+            <td id='Played_avetime'>0</td><td id='Played_totaltracks'>0</td><td id='Played_checkedtracks'>0</td></tr>
+       </tbody>
+      </table>
+     </div>
+    </div>
+    </div>
+: end

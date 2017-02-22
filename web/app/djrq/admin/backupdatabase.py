@@ -18,7 +18,7 @@ def backupdatabase(self, db=None, url=None):
     engine = create_engine(url)
     conn = engine.connect()
 
-    sqdb = sqlite3.connect(os.path.join(self.uploaddir, 'dbbackup{}.sqlite'.format(datetime.now().strftime('%Y%m%d-%H%M%S'))))
+    sqdb = sqlite3.connect(os.path.join(self.uploaddir, 'dbbackup-{}.sqlite'.format(datetime.now().strftime('%Y%m%d-%H%M%S'))))
     cursor = sqdb.cursor()
     tables = (Song, RequestList, Played, Mistags)
     tc = {RequestList: 'create table requestlist(ID INTEGER PRIMARY KEY, songID INTEGER, t_stamp DATETIME, host TEXT, msg TEXT, name TEXT, code TEXT, ETA DATETIME, status TEXT)',
