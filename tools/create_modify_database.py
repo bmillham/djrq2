@@ -66,8 +66,7 @@ for row in results:
 
     Base.metadata.create_all(bind=engine)
 
-    spw = scrypt.encrypt(str(urandom(64)), args.admin_passwd, maxtime=0.5)
-    #spw = scrypt.encrypt(urandom(64), args.admin_passwd, maxtime=0.5)
+
 
     if args.add_missing_columns:
         print('Checking for missing columns')
@@ -84,6 +83,11 @@ for row in results:
                     sql = 'ALTER TABLE {} ADD COLUMN {} {}'.format(table.__table__, cn, ct)
                     engine.execute(sql)
 
+    if not args.admin_passwd:
+        continue
+
+    spw = scrypt.encrypt(str(urandom(64)), args.admin_passwd, maxtime=0.5)
+    #spw = scrypt.encrypt(urandom(64), args.admin_passwd, maxtime=0.5)
     us = select([Users.spword, Users.administrator]).where(Users.uname == args.admin_user)
     conn = engine.connect()
     res = conn.execute(us).fetchone()
