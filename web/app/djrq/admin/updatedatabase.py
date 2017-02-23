@@ -6,7 +6,7 @@ import zipfile
 from rarfile import RarFile
 from time import sleep, time
 from datetime import datetime
-from ..templates.admin.updatedatabase import selectfile, selectdatabasefile, updateprogress
+from ..templates.admin.updatedatabase import selectfile, selectdatabasefile, updateprogress, restoreprogress
 from concurrent.futures import ThreadPoolExecutor
 from .backupdatabase import backupdatabase
 from ..send_update import send_update
@@ -28,6 +28,8 @@ class UpdateDatabase:
 
         if self._ctx.queries.is_updating():
             return selectdatabasefile('Updating Database', self._ctx)
+        if self._ctx.queries.is_restoring():
+            return restoreprogress('Restoring Database', self._ctx)
 
         for pattern in ('[Gg][Zz]', '[Gg][Zz][Ii][Pp]', '[Zz][Ii][Pp]', '[Rr][Aa][Rr]'):
             files += glob(os.path.join(self.uploaddir, '*.' + pattern))

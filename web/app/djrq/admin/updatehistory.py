@@ -3,6 +3,7 @@
 import os
 from glob import glob
 from ..templates.admin.updatehistory import selectfile, updatehistorysummary, updatehistoryspace
+from ..templates.admin.updatedatabase import restoreprogress
 import sqlite3
 
 class UpdateHistory:
@@ -15,6 +16,10 @@ class UpdateHistory:
         self.uploaddir = os.path.join('privatefilearea', context.djname)
 
     def get(self, *arg, **args):
+        if self._ctx.queries.is_updating():
+            return selectdatabasefile('Updating Database', self._ctx)
+        if self._ctx.queries.is_restoring():
+            return restoreprogress('Restoring Database', self._ctx)
         files = sorted(glob(os.path.join(self.uploaddir, 'history-*.sqlite')), reverse=True)
         if len(files) == 1:
             return self.view(fileselection=os.path.split(files[0])[-1])

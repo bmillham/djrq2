@@ -91,8 +91,8 @@
            <a href='#' class='dropdown-toggle' data-toggle='dropdown' role='button' aria-haspopup='true' aria-expanded='false'><span class='dbupdate'>Update Database</span><span class='caret'></span></a>
            <ul class='dropdown-menu'>
             <li #{" class='active'" if resource == 'updatedatabase' else ""}><a class='dbupdate' href='/admin/updatedatabase'>Update Database</a></li>
-            <li #{" class='active'" if resource == 'updatehistory' else ""}><a href='/admin/updatehistory'>View Update History</a></li>
-            <li #{" class='active'" if resource == 'restoredatabase' else ""}><a href='/admin/restoredatabase'>Restore Database</a></li>
+            <li #{" class='active'" if resource == 'updatehistory' else ""}><a class='dbupdate' href='/admin/updatehistory'>View Update History</a></li>
+            <li #{" class='active'" if resource == 'restoredatabase' else ""}><a class='dbupdate' href='/admin/restoredatabase'>Restore Database</a></li>
            </ul>
           </li>
           : end

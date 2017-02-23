@@ -31,6 +31,8 @@ class RestoreDatabase:
         self.ws = context.websocket_admin
 
     def get(self, *arg, **args):
+        if self._ctx.queries.is_updating():
+            return selectdatabasefile('Updating Database', self._ctx)
         if self._ctx.queries.is_restoring():
             return restoreprogress('Restoring Database', self._ctx)
         files = sorted(glob(os.path.join(self.uploaddir, 'dbbackup-*.sqlite')), reverse=True)
