@@ -307,3 +307,11 @@ class Queries:
         else:
             row.isupdating = status
             return self.db.commit()
+
+    def is_restoring(self, status=None):
+        row = self.db.query(SiteOptions).one()
+        if status is None:
+            return row.isrestoring
+        else:
+            row.isrestoring = status
+            return self.db.commit()

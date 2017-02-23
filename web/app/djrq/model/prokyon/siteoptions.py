@@ -9,6 +9,7 @@ class SiteOptions(Base):
     limit_requests = Column(String(255))
     offset = Column(Integer)
     isupdating = Column(Boolean)
+    isrestoring = Column(Boolean)
 
     @hybrid_property
     def catalog(self):
