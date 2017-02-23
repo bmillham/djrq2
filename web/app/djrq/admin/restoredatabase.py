@@ -31,14 +31,23 @@ class RestoreDatabase:
         self.ws = context.websocket_admin
 
     def get(self, *arg, **args):
+        if self._ctx.queries.is_restoring():
+            return restoreprogress('Restoring Database', self._ctx)
         files = sorted(glob(os.path.join(self.uploaddir, 'dbbackup-*.sqlite')), reverse=True)
         return selectfile("Select Backup File", self._ctx, files, action='/admin/restoredatabase')
 
     def post(self, *arg, **args):
+        self._ctx.queries.is_restoring(status=True)
         url = self._ctx.db[self._ctx.djname.lower()].session_factory.__dict__['kw']['bind'].url
         self.executor = ThreadPoolExecutor(max_workers=1)
         future = self.executor.submit(self._restoredatabase, url=url, fileselection=args['fileselection'])
+        future.add_done_callback(self._restorecomplete)
         return restoreprogress('Restoring Database', self._ctx)
+
+    def _restorecomplete(self, future):
+        self._ctx.queries.is_restoring(status=False)
+        self.executor.shutdown(wait=False)
+        return True
 
     def _restoredatabase(self, *arg, **args):
         send_update(self.ws, progress=0, spinner=True, stage='Starting Database Restore', updaterunning=True)
