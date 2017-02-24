@@ -81,6 +81,8 @@ class RestoreDatabase:
                  }
         tables = (Song, RequestList, Played, Mistags)
         realstarttime = int(time())
+        send_args = {}
+
         for t in tables:
             t_name = t.__name__
             tstart = int(time())
@@ -100,8 +102,8 @@ class RestoreDatabase:
                 session.add(nr)
                 session.commit()
                 thistime = time()
-                send_args = {t_name+'_totaltracks': count,
-                             t_name+'_checkedtracks': i+1}
+                send_args[t_name+'_totaltracks'] = count
+                send_args[t_name+'_checkedtracks'] = i+1
                 if int(lasttime) != int(thistime):
                     cp = '{0:.1f}'.format(i/count*100)
                     avetime = (thistime - tstart) / (i + 1)
