@@ -86,7 +86,7 @@ class RestoreDatabase:
         for t in tables:
             t_name = t.__name__
             tstart = int(time())
-            send_update(self.ws, r_progress=0, r_spinner=True, r_stage='Getting Data to Restore for {}'.format(t_name), r_updaterunning=True)
+            send_update(self.ws, r_progress=0, r_spinner=True, r_stage='Getting Data to Restore for {}'.format(t_name), updaterunning=True)
             count = cursor.execute(counts[t]).fetchone()[0]
             d = cursor.execute(tc[t])
             try:
@@ -113,12 +113,12 @@ class RestoreDatabase:
                         finish = '{} minutes'.format(round(eta))
                     else:
                         finish = '{} seconds'.format(round(eta * 60))
-                    send_update(self.ws, r_stage='Restoring {}: Estimated Time to Finish {}'.format(t_name, finish), r_progress=cp,  r_spinner=False, r_active=True, **send_args)
+                    send_update(self.ws, r_stage='Restoring {}: Estimated Time to Finish {}'.format(t_name, finish), r_progress=cp,  r_spinner=False, r_active=True, updaterunning=True, **send_args)
                     lasttime = thistime
             send_update(self.ws, r_progress=100, r_spinner=False, r_active=False, r_stage='Restore Completed', **send_args)
 
         updatedone = int(time())
-        send_update(self.ws, r_progress=100, checkedtracks=i+1, r_spinner=False, r_active=False, r_stage='Restore Completed in {:.1f} minutes'.format((updatedone - realstarttime)/60))
+        send_update(self.ws, r_progress=100, checkedtracks=i+1, r_spinner=False, r_active=False, r_stage='Restore Completed in {:.1f} minutes'.format((updatedone - realstarttime)/60), updaterunning=False)
 
         db.close()
         conn.close()

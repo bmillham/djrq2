@@ -87,7 +87,10 @@
            </ul>
           </li>
           : if ctx.databasetype != 'ampache'
-          <li class='dropdown'>
+          <li id='updaterunning' style='display: none;'>
+           <a id='updateprogress' href='/admin/currentprogress'>Current Progress</a>
+          </li>
+          <li id='noupdaterunning' class='dropdown'>
            <a href='#' class='dropdown-toggle' data-toggle='dropdown' role='button' aria-haspopup='true' aria-expanded='false'><span class='dbupdate'>Update Database</span><span class='caret'></span></a>
            <ul class='dropdown-menu'>
             <li #{" class='active'" if resource == 'updatedatabase' else ""}><a class='dbupdate' href='/admin/updatedatabase'>Update Database</a></li>

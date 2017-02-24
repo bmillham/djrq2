@@ -43,10 +43,14 @@ sub.on("message", function(message, message_metadata) {
   if ('updaterunning' in m) {
       if (m.updaterunning) {
           $('#updatedatabase-form').hide();
+          $('#updaterunning').show();
           $('#progress-div').show();
+          $('#noupdaterunning').hide();
       } else {
           $('#updatedatabase-form').show();
           $('#progress-div').hide();
+          $('#updaterunning').hide();
+          $('#noupdaterunning').show()
       }
   }
 
@@ -161,20 +165,24 @@ sub.on("message", function(message, message_metadata) {
 
   if ('progress' in m) {
     $('.update-progress-bar').css('width', m.progress+'%').attr('aria-valuenow', m.progress).text(m.progress+'%');
-    if (m.progress == 100) {
-      $('.dbupdate').text("Update Database");
-    } else {
-      $('.dbupdate').text('Update Progress: ' + m.progress + '%');
+    if (m.progress < 100) {
+    //  $('.dbupdate').text("Update Database");
+    //} else {
+      $('#updateprogress').text('Update Progress: ' + m.progress + '%');
     }
+
   }
 
   if ('r_progress' in m) {
     $('#r_progress').css('width', m.r_progress+'%').attr('aria-valuenow', m.r_progress).text(m.r_progress+'%');
-    if (m.r_progress == 100) {
-      $('.dbupdate').text("Update Database");
-    } else {
-      $('.dbupdate').text('Restore Progress: ' + m.r_progress + '%');
+    if (m.r_progress < 100) {
+    //  $('.dbupdate').text("Update Database");
+    //    $('#updateprogress').text("Update Progress");
+    //} else {
+    //  $('.dbupdate').text('Restore Progress: ' + m.r_progress + '%');
+        $('#updateprogress').text('Restore Progress: ' + m.r_progress + '%');
     }
+
   }
 });
 
