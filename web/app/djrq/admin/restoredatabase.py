@@ -16,9 +16,11 @@ from ..model.prokyon.mistags import Mistags
 from ..model.prokyon.song import Song
 from ..send_update import send_update
 from ..templates.admin.updatehistory import selectfile
-from ..templates.admin.updatedatabase import restoreprogress
+from ..templates.admin.updatedatabase import restoreprogress, updateprogress, selectdatabasefile
 from glob import glob
 from concurrent.futures import ThreadPoolExecutor
+
+from webob.exc import HTTPFound, HTTPError, HTTPNotFound
 
 class RestoreDatabase:
     __dispatch__ = 'resource'
@@ -126,3 +128,16 @@ class RestoreDatabase:
         print('Update took', updatedone - realstarttime)
         return True
 
+class CurrentProgress:
+    __dispatch__ = 'resource'
+    __resource__ = 'currentprogress'
+
+    def __init__(self, context, name, *arg, **args):
+        self._ctx = context
+
+    def get(self, *arg, **args):
+        if self._ctx.queries.is_updating():
+            return selectdatabasefile('Updating Database', self._ctx)
+        if self._ctx.queries.is_restoring():
+            return restoreprogress('Restoring Database', self._ctx)
+        raise HTTPNotFound('Not available unless update is running')

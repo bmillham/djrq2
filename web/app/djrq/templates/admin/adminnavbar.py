@@ -18,6 +18,8 @@
     : except AttributeError
         : resource = None
     : end
+    : is_updating = ctx.queries.is_updating()
+    : is_restoring = ctx.queries.is_restoring()
 
     <nav class='navbar navbar-fixed-top navbar-inverse'>
      <div class='container-fluid'>
@@ -87,11 +89,23 @@
            </ul>
           </li>
           : if ctx.databasetype != 'ampache'
-          <li id='updaterunning' style='display: none;'>
+          <li id='updaterunning'
+           : if not is_updating and not is_restoring
+              style='display: none;'
+           : end
+           : if resource in ('updatedatabase', 'restoredatabase', 'currentprogress')
+              class='active'
+           : end
+          >
            <a id='updateprogress' href='/admin/currentprogress'>Current Progress</a>
           </li>
-          <li id='noupdaterunning' class='dropdown'>
-           <a href='#' class='dropdown-toggle' data-toggle='dropdown' role='button' aria-haspopup='true' aria-expanded='false'><span class='dbupdate'>Update Database</span><span class='caret'></span></a>
+          <li id='noupdaterunning'
+              class='dropdown  #{" active" if resource in ("updatedatabase", "restoredatabase", "updatehistory") else ""}'
+           : if is_updating or is_restoring
+              style='display: none;'
+           : end
+          >
+           <a href='#' class='dropdown-toggle' data-toggle='dropdown' role='button' aria-haspopup='true' aria-expanded='false'><span class='dbupdate'>Database</span><span class='caret'></span></a>
            <ul class='dropdown-menu'>
             <li #{" class='active'" if resource == 'updatedatabase' else ""}><a class='dbupdate' href='/admin/updatedatabase'>Update Database</a></li>
             <li #{" class='active'" if resource == 'updatehistory' else ""}><a class='dbupdate' href='/admin/updatehistory'>View Update History</a></li>

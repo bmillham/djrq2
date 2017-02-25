@@ -166,7 +166,7 @@ class UpdateDatabase:
 
         dashre = re.compile('\s+-\s+') # To remove spaces around - in fields
 
-        send_update(self.ws, progress=0, stage='Starting Database Update', active=True, spinner=True)
+        send_update(self.ws, progress=0, stage='Starting Database Update', active=True, spinner=True, updaterunning=True)
 
         ftype = self.fileselection.split('.')[-1]
 
@@ -395,7 +395,7 @@ class UpdateDatabase:
 
         sqdb.commit()
         conn.close()
-        send_update(self.ws, stage='Database Updated: ', historyfilename='/admin/updatehistory/view?fileselection='+historyfilename, spinner=False)
+        send_update(self.ws, stage='Database Updated: ', historyfilename='/admin/updatehistory/view?fileselection='+historyfilename, spinner=False, updaterunning=False)
         print('Bad tags', len(badtags))
         print('Dash tags', len(dashtags))
         print('Space tags', len(spacetags))

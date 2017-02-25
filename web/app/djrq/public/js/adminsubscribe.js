@@ -47,8 +47,6 @@ sub.on("message", function(message, message_metadata) {
           $('#progress-div').show();
           $('#noupdaterunning').hide();
       } else {
-          $('#updatedatabase-form').show();
-          $('#progress-div').hide();
           $('#updaterunning').hide();
           $('#noupdaterunning').show()
       }

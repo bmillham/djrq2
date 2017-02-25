@@ -23,7 +23,7 @@ class Admin:
     from .updatedatabase import UpdateDatabase as updatedatabase
     from .changepw import ChangePassword as changepw
     from .showhistory import ShowHistory as showhistory
-    from .restoredatabase import RestoreDatabase as restoredatabase
+    from .restoredatabase import RestoreDatabase as restoredatabase, CurrentProgress as currentprogress
     from .updatehistory import UpdateHistory as updatehistory
 
     def __init__(self, context, name, *arg, **args):
