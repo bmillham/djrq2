@@ -17,8 +17,18 @@ parser.add_argument('-a', '--add_missing_columns', action='store_true', help='Ad
 parser.add_argument('--admin_user', help='Defines the site admin user for newly added databases')
 parser.add_argument('--admin_passwd', help='Defines the site admin user password')
 parser.add_argument('--add_missing_spw', action='store_true', help='Add missing scrypt password for admin user')
+parser.add_argument('-d', '--debug', action='store_true', help='Turn on debug messages')
+parser.add_argument('-c', '--config_file', help='Use an alternate configuration file')
 
 args = parser.parse_args()
+
+if not args.config_file:
+    config_file = '../web/app/djrq/config.themaster.yaml'
+else:
+    config_file = args.config_file
+
+if args.debug:
+    print('Using config_file:', config_file)
 
 if args.dbtype == 'prokyon':
     from web.app.djrq.model.prokyon import Base
@@ -41,7 +51,7 @@ elif args.dbtype == 'ampache':
     from web.app.djrq.model.ampache.users import Users
     from web.app.djrq.model.ampache.listeners import Listeners
 
-with open('../web/app/djrq/config.yaml') as f:
+with open(config_file) as f:
     config= yaml.safe_load(f)
 
 lpengine = create_engine('{uri}?charset=utf8'.format(**config['database']))
@@ -75,15 +85,21 @@ for row in results:
             print('Checking table {}'.format(table.__table__))
             u = Table(table.__table__, meta, autoload=True, autoload_with=engine)
             existing = [c.name for c in u.columns] # Get the columns in this table from the database
+            if args.debug:
+                print('Existing columns:', existing)
+                print('ORM Columns:', table.__table__.columns)
             for col in table.__table__.columns:
                 if col.name not in existing:
                     print('{} is missing in the database'.format(col.name))
                     cn = col.compile(dialect=engine.dialect)
                     ct = col.type.compile(dialect=engine.dialect)
                     sql = 'ALTER TABLE {} ADD COLUMN {} {}'.format(table.__table__, cn, ct)
-                    engine.execute(sql)
+                    if args.debug:
+                        print('Executing: ', sql)
+                    engine.execute(sql).execution_options(autocommit=True)
 
     if not args.admin_passwd:
+        engine.dispose()
         continue
 
     spw = scrypt.encrypt(str(urandom(64)), args.admin_passwd, maxtime=0.5)
