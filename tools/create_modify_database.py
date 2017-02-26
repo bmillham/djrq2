@@ -96,7 +96,7 @@ for row in results:
                     sql = 'ALTER TABLE {} ADD COLUMN {} {}'.format(table.__table__, cn, ct)
                     if args.debug:
                         print('Executing: ', sql)
-                    engine.execute(sql).execution_options(autocommit=True)
+                    engine.execute(sql)
 
     if not args.admin_passwd:
         engine.dispose()
