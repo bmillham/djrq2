@@ -23,7 +23,7 @@ parser.add_argument('-c', '--config_file', help='Use an alternate configuration 
 args = parser.parse_args()
 
 if not args.config_file:
-    config_file = '../web/app/djrq/config.themaster.yaml'
+    config_file = '../web/app/djrq/config.yaml'
 else:
     config_file = args.config_file
 
