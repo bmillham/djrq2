@@ -18,8 +18,6 @@
     : except AttributeError
         : resource = None
     : end
-    : is_updating = ctx.queries.is_updating()
-    : is_restoring = ctx.queries.is_restoring()
 
     <nav class='navbar navbar-fixed-top navbar-inverse'>
      <div class='container-fluid'>
@@ -90,7 +88,7 @@
           </li>
           : if ctx.databasetype != 'ampache'
           <li id='updaterunning'
-           : if not is_updating and not is_restoring
+           : if not ctx.queries.is_updating and not ctx.queries.is_restoring
               style='display: none;'
            : end
            : if resource in ('updatedatabase', 'restoredatabase', 'currentprogress')
@@ -101,7 +99,7 @@
           </li>
           <li id='noupdaterunning'
               class='dropdown  #{" active" if resource in ("updatedatabase", "restoredatabase", "updatehistory") else ""}'
-           : if is_updating or is_restoring
+           : if ctx.queries.is_updating or ctx.queries.is_restoring
               style='display: none;'
            : end
           >
