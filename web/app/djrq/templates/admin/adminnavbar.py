@@ -88,7 +88,7 @@
           </li>
           : if ctx.databasetype != 'ampache'
           <li id='updaterunning'
-           : if not ctx.queries.is_updating and not ctx.queries.is_restoring
+           : if not ctx.queries.is_updating() and not ctx.queries.is_restoring()
               style='display: none;'
            : end
            : if resource in ('updatedatabase', 'restoredatabase', 'currentprogress')
@@ -99,7 +99,7 @@
           </li>
           <li id='noupdaterunning'
               class='dropdown  #{" active" if resource in ("updatedatabase", "restoredatabase", "updatehistory") else ""}'
-           : if ctx.queries.is_updating or ctx.queries.is_restoring
+           : if ctx.queries.is_updating() or ctx.queries.is_restoring()
               style='display: none;'
            : end
           >
