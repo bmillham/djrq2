@@ -62,6 +62,7 @@ setup(
                 'requests',
                 'rarfile',
                 'gitpython', # For getting commit info
+		'pyyaml',
                 'marrow.package',
             ],
 
