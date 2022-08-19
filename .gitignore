@@ -14,3 +14,4 @@ web/app/djrq/public/bootstrap/
 /privatefilearea
 /unused-tools
 /web/app/djrq/config.themaster.yaml
+/.eggs/pytest_runner-6.0.0-py3.8.egg/ptr/__init__.py
