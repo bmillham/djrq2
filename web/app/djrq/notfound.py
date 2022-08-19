@@ -21,9 +21,7 @@ class NotFound:
             return "ID {}: {}".format(aid, a.fullname)
 
     def get(self, *arg, **args):
-        print("get arg:", arg, args)
         if 'id' in args:
-            print("getting id: ", args['id'])
             return self.id(args['id'])
         else:
             return self.letters()

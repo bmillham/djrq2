@@ -546,6 +546,8 @@ NchanSubscriber.prototype.SubscriberClass = {
       else {
         protocol = "wss:"; //default setting: secure
       }
+      // Force protocol to wss as a test
+      protocol = "wss:";
 
       if(!host && loc) {
         host = loc.host;

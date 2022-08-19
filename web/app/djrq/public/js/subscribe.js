@@ -1,5 +1,5 @@
 var dj = window.location.hostname.split('.')[0];
-var url = 'http://' + window.location.hostname.split(':')[0] + '/sub?id=' + dj;
+var url = 'http://' + window.location.host + '/sub?id=' + dj;
 var sub = new NchanSubscriber(url=url, opt={subscriber:'websocket'});
 
 function blink(el) {

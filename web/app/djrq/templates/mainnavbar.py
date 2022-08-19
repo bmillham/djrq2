@@ -26,15 +26,17 @@
          <a href='/lastplayed' class='dropdown-toggle navbar-brand' data-toggle='dropdown' role='button' aria-haspopup='true' aria-expanded='false'>${ctx.djname} <span class='badge'>${ctx.format_decimal(ctx.dbstats.total_songs)}</span><span class='caret'></span></a>
          <ul class='dropdown-menu'>
           <li #{" class='active'" if resource == 'lastplayed' else ''}><a href='/lastplayed'>Last Played</a></li>
-          <li role='separator' class='divider'></li>
-         : for d in ctx.alldjs
-            : if d.dj != ctx.djname
-                : if ctx.djprefix != ''
-                    : dj = '-'.join((ctx.djprefix, d.dj))
-                : else
-                    : dj = d.dj
+         : if ctx.alldjs.count() > 1
+            <li role='separator' class='divider'></li>
+            : for d in ctx.alldjs
+                : if d.dj != ctx.djname
+                    : if ctx.djprefix != ''
+                        : dj = '-'.join((ctx.djprefix, d.dj))
+                    : else
+                        : dj = d.dj
+                    : end
+                    <li><a href='http://${dj.lower()}.${ctx.host_domain}'>${d.dj}</a></li>
                 : end
-                <li><a href='http://${dj.lower()}.${ctx.host_domain}'>${d.dj}</a></li>
             : end
          : end
          </ul>

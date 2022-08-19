@@ -56,6 +56,6 @@ app=Application(Root, extensions=[
 
 if __name__ == "__main__":
     if __debug__:
-        app.serve('wsgiref', host='0.0.0.0')
+        app.serve('wsgiref', host='0.0.0.0', port=8888)
     else:
         app.serve('fcgi', socket=config['socket']['file'], umask=config['socket']['umask'])

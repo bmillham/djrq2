@@ -26,7 +26,10 @@ class Auth:
         if r == True:
             self._ctx.session.username = args['username']
             # Check if the spword field is empty. If so, force a password change
-            result = self._ctx.db.query(self._ctx.Users.spword).filter(self._ctx.Users.uname == args['username']).one()
+            try:
+                result = self._ctx.db.query(self._ctx.Users.spword).filter(self._ctx.Users.uname == args['username']).one()
+            except:
+                return False, False
             if result.spword == '' or result.spword is None:
                 return change_pw_template('Change Password', self._ctx, first_access=True)
             else:
@@ -36,12 +39,15 @@ class Auth:
         return authtemplate("Login", self._ctx,  [])
 
     def lookup(self):
-        print('lookup called')
         return True
 
     def authenticate(context, identifier=None, credential=None):
-        res = context.db.query(context.Users).\
-                    filter(context.Users.uname == identifier).one()
+        try:
+            res = context.db.query(context.Users).\
+                filter(context.Users.uname == identifier).one()
+        except:
+            print(f'Unable to authenticate {identifier}')
+            return False, False
 
         if res.spword == '' or res.spword is None: # If spword is not defined, use the old site password
             print('Using old site password')
@@ -57,5 +63,4 @@ class Auth:
             except scrypt.error:
                 result = False
 
-        #return [result, identifier]
         return [result, res]

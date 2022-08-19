@@ -14,6 +14,8 @@ from sqlalchemy.ext.serializer import dumps # For backing up tables.
 
 
 from time import time
+from datetime import datetime
+
 import hashlib # Used to verify admin passwords
 #import scrypt # Add this
 
@@ -137,6 +139,9 @@ class Queries:
     def get_song_by_id(self, id):
         return self.db.query(Song).filter(Song.id == id).one()
 
+    def get_song_by_art_title_alb(self, art=None, title=None, alb=None):
+        return self.db.query(Song).filter(Song.artist.name == art)
+
     def get_last_played(self, count=50):
         return self.db.query(func.count(Played.date_played).label('played_count'),\
                                             func.avg(Song.time).label('avg_time'),\
@@ -203,6 +208,17 @@ class Queries:
                             join(Song).filter(Song.catalog_id.in_(self.catalogs)).group_by(RequestList.name).\
                             order_by(func.count(RequestList.name).desc()).limit(limit)
 
+    def get_song_by_ata(self, artist, title, album):
+        return self.db.query(Song).join(Artist).join(Album).\
+            filter(Album.prename == album).\
+            filter(Artist.fullname == artist).\
+            filter(Song.title == title)
+
+    def add_played_song(self, track_id, played_by, played_by_me):
+        np = Played(track_id=track_id, date_played=datetime.utcnow(), played_by=played_by, played_by_me=played_by_me)
+        self.db.add(np)
+        self.db.commit()
+        
     def full_text_search(self, phrase):
         return self.db.query(Song).join(Artist).join(Album).\
                 filter(((Song.title.match(phrase)) | (Artist.name.match(phrase)) | (Album.name.match(phrase))), Song.catalog_id.in_(self.catalogs))

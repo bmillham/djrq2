@@ -1,0 +1,18 @@
+pip install -e djrq
+
+# Local saved packages
+pip install web.security
+pip install web.session
+pip install mongo # Needs GEOHAYSTACK fix
+
+pip install scrypt
+
+apt install nginx
+
+pip install flup6
+pip install fastcgi
+
+install MONGO: https://www.mongodb.com/docs/manual/tutorial/install-mongodb-on-ubuntu/
+
+
+

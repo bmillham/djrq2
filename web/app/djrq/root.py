@@ -36,7 +36,6 @@ class Root:
             return notfound(self._ctx, arg[0])
 
     def post(self, content, *arg, **args):
-        print("Got a post", content, arg, args )
         if content == 'search':
             if 'stext' not in args:
                 l = self._ctx.queries.advanced_search(search_for=args['advsearchtype'].lower(), phrase=args['advsearchtext'])

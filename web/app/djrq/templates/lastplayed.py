@@ -32,7 +32,7 @@
     : end
 : end
 
-: def lastplayed_row ctx, r, ma=True, played=False
+: def lastplayed_row ctx, r, ma=True, played=False, show_played_time=True
             <tr>
              <td>
               : use aa_link r.Played.song.artist, 'artist'
@@ -58,18 +58,27 @@
                 ${ctx.format_time(r.Played.song.time)}
              : end
              </td>
-             : pc = len(r.Played.song.played)
-             : playlist = r.Played.song.played
+             : try
+                 : pc = len(r.Played.song.played)
+                 : playlist = r.Played.song.played
+             : except
+                 : pc = 0
+                 : playlist = []
+             : end
              <td data-value='${playlist[0].date_played}'>
                 ${playlist[0].played_by}
-                ${ctx.time_ago(playlist[0].date_played)}
-             : if pc > 1
-              <span class='badge pull-right' title="Played ${pc} times" data-html='1' data-toggle='popover' data-placement='left auto' data-trigger='hover' data-content="
-               : for p in playlist
-                ${p.played_by}
-                ${ctx.time_ago(p.date_played)}<br/>
-               : end
-              ">
-                ${pc}</span>
-             : end
+                : if show_played_time
+                    ${ctx.time_ago(playlist[0].date_played)}
+                : end
+            : if show_played_time
+                : if pc > 1
+                    <span class='badge pull-right' title="Played ${pc} times" data-html='1' data-toggle='popover' data-placement='left auto' data-trigger='hover' data-content="
+                    : for p in playlist
+                        ${p.played_by}
+                        ${ctx.time_ago(p.date_played)}<br/>
+                    : end
+                    ">
+                    ${pc}</span>
+                : end
+            : end
             </tr>

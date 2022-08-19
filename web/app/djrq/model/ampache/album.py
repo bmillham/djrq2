@@ -20,6 +20,14 @@ class Album(Base):
     #   return "/album/?id={}".format(self.id)
 
     @hybrid_property
+    def prename(self):
+        name = []
+        if self.prefix is not None:
+            name.append(self.prefix)
+        name.append(self.name)
+        return " ".join(name)
+
+    @hybrid_property
     def fullname(self):
         name = []
         if self.prefix is not None:
@@ -30,6 +38,10 @@ class Album(Base):
         if self.year is not None and self.year != 0:
             name.append("({})".format(self.year))
         return " ".join(name)
+
+    @prename.expression
+    def prename(self):
+        return func.concat_ws(" ", self.prefix, self.name)
 
     @fullname.expression
     def fullname(self):
