@@ -28,8 +28,10 @@ class Song(Base):
     requests = relationship("RequestList", backref=backref('song'), order_by="RequestList.t_stamp.desc()")
     played_requests = relationship("RequestList",
                                    primaryjoin="and_(RequestList.song_id==Song.id, RequestList.status == 'played')",
-                                   order_by="RequestList.t_stamp.desc()")
+                                   order_by="RequestList.t_stamp.desc()",
+                                   overlaps="requests,song")
     new_requests = relationship("RequestList", 
-                                primaryjoin="and_(RequestList.song_id==Song.id, or_(RequestList.status == 'new', RequestList.status=='pending'))")
+                                primaryjoin="and_(RequestList.song_id==Song.id, or_(RequestList.status == 'new', RequestList.status=='pending'))",
+                                overlaps="played_requests,requests,song")
     mistags = relationship("Mistags", backref=backref('song'))
     catalog = relationship("Catalog", backref=backref("catalog"))
