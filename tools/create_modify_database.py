@@ -1,9 +1,10 @@
 # pip install sqlalchemy-utils
 from sqlalchemy import create_engine, Table, MetaData
 from sqlalchemy_utils.functions import database_exists, create_database
-from sqlalchemy.sql import select
+from sqlalchemy.sql import select, insert
 
 from web.app.djrq.model.lastplay import DJs
+from web.app.djrq.model.lastplay import Base as DJBase
 
 import yaml
 import argparse
@@ -55,6 +56,22 @@ with open(config_file) as f:
     config= yaml.safe_load(f)
 
 lpengine = create_engine('{uri}?charset=utf8'.format(**config['database']))
+if not database_exists(lpengine.url):
+    print(f"LP database {config['database']['uri']} does not exist, creating")
+    create_database(lpengine.url)
+    DJBase.metadata.create_all(bind=lpengine)
+    lp = lpengine.connect()
+    vals = {'dj': 'DJ-Bmillham',
+            'server': 'eldrad.local',
+            'password': 'pgj399wq',
+            'db': 'ampache1',
+            'user': 'brian',
+            'databasetype': 'ampache'}
+    insert(DJs).values(vals)
+    insert(DJs).values(dj='x', databasetype='ampache')
+    lp.close()
+    
+
 lpconn = lpengine.connect()
 s = select([DJs]).where((DJs.hide_from_menu == 0) & (DJs.databasetype == args.dbtype))
 results = lpconn.execute(s)

@@ -59,7 +59,7 @@ if __name__ == '__main__':
                     'current_max_listeners': 0,
                     'queries': load(package + '.queries:Queries'),
                     'listeners': load(package + '.listeners:Listeners'),
-                    'websocket': 'http://{}.rockitradio.info/pub?id={}'.format(djname, djname),
+                    'websocket': 'https://{}.rockitradio.space/pub?id={}'.format(djname, djname),
                     }
         #djs[djname]['websocket'] = 'http://dj-{}.gelth.local/pub?id=dj-{}'.format(djname, djname)
 

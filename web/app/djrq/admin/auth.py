@@ -23,13 +23,13 @@ class Auth:
 
     def post(self, *arg, **args):
         r = self._ctx.authenticate(self._ctx, identifier=args['username'], credential=args['password'])
-        if r == True:
+        if r:
             self._ctx.session.username = args['username']
             # Check if the spword field is empty. If so, force a password change
             try:
                 result = self._ctx.db.query(self._ctx.Users.spword).filter(self._ctx.Users.uname == args['username']).one()
             except:
-                return False, False
+                return authtemplate("Login", self._ctx, [])
             if result.spword == '' or result.spword is None:
                 return change_pw_template('Change Password', self._ctx, first_access=True)
             else:
@@ -56,7 +56,6 @@ class Auth:
             else:
                 result = False
         else:
-            print('Using scrypt password')
             try:
                 y = scrypt.decrypt(res.spword, credential, maxtime=1.0)
                 result = True

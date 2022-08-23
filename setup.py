@@ -63,6 +63,10 @@ setup(
                 'requests',
                 'rarfile',
                 'gitpython', # For getting commit info
+                'scrypt',
+                'backlash',
+                'flup6,'
+                'fastcgi',
 		'pyyaml',
                 'marrow.package',
             ],
