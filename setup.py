@@ -65,7 +65,7 @@ setup(
                 'gitpython', # For getting commit info
                 'scrypt',
                 'backlash',
-                'flup6,'
+                'flup6',
                 'fastcgi',
 		'pyyaml',
                 'marrow.package',
