@@ -8,6 +8,7 @@ from ..users import Users
 from ..suggestions import Suggestions
 from ..mistags import Mistags
 from ..catalog import Catalog
+import sqlalchemy
 from sqlalchemy.sql import func, or_
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.ext.serializer import dumps # For backing up tables.
@@ -143,13 +144,22 @@ class Queries:
         return self.db.query(Song).filter(Song.artist.name == art)
 
     def get_last_played(self, count=50):
-        return self.db.query(func.count(Played.date_played).label('played_count'),\
+        try:
+            return self.db.query(func.count(Played.date_played).label('played_count'),\
                                             func.avg(Song.time).label('avg_time'),\
                                             Played).join(Song).\
                                             filter(Song.catalog_id.in_(self.catalogs)).\
                                             group_by(Played.date_played).\
-                                            group_by(Played.played_id).\
                                             order_by(Played.date_played.desc()).limit(count)
+        except sqlalchemy.exc.OperationalError:
+            return self.db.query(func.count(Played.date_played).label('played_count'), \
+                                 func.avg(Song.time).label('avg_time'), \
+                                 Played).join(Song). \
+                filter(Song.catalog_id.in_(self.catalogs)). \
+                group_by(Played.date_played). \
+                group_by(Played.played_id). \
+                order_by(Played.date_played.desc()).limit(count)
+
 
     def get_requests(self, status='New/Pending'):
         return self.db.query(RequestList).filter(or_(*[RequestList.status == s for s in status.split('/')])).order_by(RequestList.id)
@@ -172,9 +182,15 @@ class Queries:
     def get_new_artists(self, days=7):
         start_time = time() - 60*60*24*days
 
-        return self.db.query(func.count(Song.artist_id).label('new_count'), func.sum(Song.time), func.sum(Song.size), Song).\
+        try:
+            return self.db.query(func.count(Song.artist_id).label('new_count'), func.sum(Song.time), func.sum(Song.size), Song).\
                             filter(Song.addition_time >= start_time, Song.catalog_id.in_(self.catalogs)).\
                             order_by(Song.addition_time.desc()).group_by(Song.artist_id)
+        except sqlalchemy.exc.OperationalError:
+            return self.db.query(func.count(Song.artist_id).label('new_count'), func.sum(Song.time),
+                                 func.sum(Song.size), Song). \
+                filter(Song.addition_time >= start_time, Song.catalog_id.in_(self.catalogs)).\
+                order_by(Song.addition_time.desc()).group_by(Song.artist_id).group_by(Song.catalog)
 
 
     def get_new_counts(self, days=180):
