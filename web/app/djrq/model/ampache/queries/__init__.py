@@ -148,6 +148,7 @@ class Queries:
                                             Played).join(Song).\
                                             filter(Song.catalog_id.in_(self.catalogs)).\
                                             group_by(Played.date_played).\
+                                            group_by(Played.played_id).\
                                             order_by(Played.date_played.desc()).limit(count)
 
     def get_requests(self, status='New/Pending'):
