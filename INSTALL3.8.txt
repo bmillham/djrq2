@@ -34,3 +34,9 @@ apt update
 apt install python3.8
 apt install python3.8-venv
 setup venv: python3.8 -m venv dir
+
+Change to mysql server for backward compatibility
+SET GLOBAL sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''));
+
+# Create the sock dir
+mkdir djrq2/var
