@@ -45,11 +45,11 @@ class Name(object):
 class Song(Base):
     __tablename__ = "tracks"
     id = Column(Integer, primary_key=True)
-    title = Column("title", String(255), index=True)
-    artist_fullname = Column("artist", String(255), index=True)
-    album_fullname = Column("album", String(255), index=True)
-    path = Column(String(255), index=True)
-    filename = Column(String(255), index=True)
+    title = Column("title", String(1024), index=True)
+    artist_fullname = Column("artist", String(1024), index=True)
+    album_fullname = Column("album", String(1024), index=True)
+    path = Column(String(1024), index=True)
+    filename = Column(String(1024), index=True)
     year = Column(String(255))
     bit_rate = Column("bitrate", Integer)
     sample_rate = Column("samplerate", Integer)
