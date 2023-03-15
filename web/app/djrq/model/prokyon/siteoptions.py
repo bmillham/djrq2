@@ -6,7 +6,7 @@ class SiteOptions(Base):
     show_title = Column(String(255))
     show_time = Column(String(255))
     show_end = Column(String(255))
-    limit_requests = Column(String(255))
+    limit_requests = Column(Integer)
     offset = Column(Integer)
     isupdating = Column(Boolean)
     isrestoring = Column(Boolean)
