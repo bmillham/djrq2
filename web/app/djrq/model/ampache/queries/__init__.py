@@ -151,6 +151,7 @@ class Queries:
                                             filter(Song.catalog_id.in_(self.catalogs)).\
                                             group_by(Played.date_played).\
                                             order_by(Played.date_played.desc()).limit(count)
+                                            #order_by(Played.played_id).limit(count)
         except sqlalchemy.exc.OperationalError:
             return self.db.query(func.count(Played.date_played).label('played_count'), \
                                  func.avg(Song.time).label('avg_time'), \
