@@ -163,11 +163,11 @@ class MediaLibrary:
       times = []
       while 1:
         fl = self.readfieldinfo()
-        if fl['ftype'] > 12 or fl['ftype'] == 0: return None
+        if fl['ftype'] > 13 or fl['ftype'] == 0: return None
         if fl['cid'] not in self.dbfields.keys():
             print("\nColid %d not a defined field for row: %d" % (fl['cid'], idx))
             continue
-        if fl['ftype'] == 4 or fl['ftype'] == 11: # Int and Length types
+        if fl['ftype'] == 4 or fl['ftype'] == 11 or fl['ftype'] == 13: # Int and Length types
             ir = self.readint()
         elif fl['ftype'] == 10: # Date/Time type
             t = self.readint()
