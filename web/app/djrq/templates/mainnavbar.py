@@ -46,45 +46,48 @@
          active
         : end
         '>
-         <a href='#' class='dropdown-toggle' data-toggle='dropdown' role='button' aria-haspopup='true' aria-expanded='false'><span class='glyphicon glyphicon-eye-open'></span><span class='caret'></span></a>
-         <ul class='dropdown-menu'>
-          <li
-            : if resource == 'artist'
-                class='active'
-            : end
-          ><a href="/artist">By Artist</a></li>
-          <li
-            : if resource == 'album'
-                class='active'
-            : end
-          ><a href="/album">By Album</a></li>
-         </ul>
-        </li>
-        : using li_active resource, 'requests'
-         <a href='/requests'>Requests <span class='badge'><span id="requestbutton">${ctx.format_decimal(ctx.requests_info.request_count)}</span></span></a>
-        : end
-        : if ctx.new_counts.new_count > 0
-         <li #{" class='active'" if resource == 'whatsnew' else ''}>
-          <a href='/whatsnew'>New <span class='badge'>${ctx.format_decimal(ctx.new_counts.new_count)}</span></a>
-         </li>
-        : end
-        <li #{" class='active'" if resource == 'stats' else ''}><a href="/stats">Stats</a></li>
-        <li><a href="#" data-toggle='modal' data-target='#suggestionModal'>Suggestions</a></li>
-       </ul>
-       <form class='navbar-form navbar-left hidden-xs hidden-sm' action='/search' method='post' role='search'>
-        <div class='form-group'>
-         <div class='input-group'>
-          <span class='input-group-addon'>
-           <li class='nav navbar-nav'>
-            <a href='#' data-toggle="modal" data-target='#searchModal'><span class='glyphicon glyphicon-search'></span></a>
+        : if ctx.dbstats.total_songs > 0
+            <a href='#' class='dropdown-toggle' data-toggle='dropdown' role='button' aria-haspopup='true' aria-expanded='false'><span class='glyphicon glyphicon-eye-open'></span><span class='caret'></span></a>
+            <ul class='dropdown-menu'>
+             <li
+               : if resource == 'artist'
+                   class='active'
+               : end
+             ><a href="/artist">By Artist</a></li>
+             <li
+               : if resource == 'album'
+                   class='active'
+               : end
+             ><a href="/album">By Album</a></li>
+            </ul>
            </li>
-          </span>
-          <input type='hidden' class='form-comtrol' name='navbarsearch' placeholder='Search'>
-          <input type='text' class='form-comtrol' data-target="#searchModal" name='stext' id='stext' placeholder='Search'>
-         </div>
-        </div>
-       </form>
-
+           : using li_active resource, 'requests'
+              <a href='/requests'>Requests <span class='badge'><span id="requestbutton">${ctx.format_decimal(ctx.requests_info.request_count)}</span></span></a>
+           : end
+           : if ctx.new_counts.new_count > 0
+              <li #{" class='active'" if resource == 'whatsnew' else ''}>
+                 <a href='/whatsnew'>New <span class='badge'>${ctx.format_decimal(ctx.new_counts.new_count)}</span></a>
+              </li>
+           : end
+           <li #{" class='active'" if resource == 'stats' else ''}><a href="/stats">Stats</a></li>
+        : end
+        <li><a href="#" data-toggle='modal' data-target='#suggestionModal'>Suggestion</a></li>
+       </ul>
+       : if ctx.dbstats.total_songs > 0
+           <form class='navbar-form navbar-left hidden-xs hidden-sm' action='/search' method='post' role='search'>
+            <div class='form-group'>
+             <div class='input-group'>
+              <span class='input-group-addon'>
+               <li class='nav navbar-nav'>
+                <a href='#' data-toggle="modal" data-target='#searchModal'><span class='glyphicon glyphicon-search'></span></a>
+               </li>
+              </span>
+              <input type='hidden' class='form-comtrol' name='navbarsearch' placeholder='Search'>
+              <input type='text' class='form-comtrol' data-target="#searchModal" name='stext' id='stext' placeholder='Search'>
+             </div>
+            </div>
+           </form>
+       : end
        <ul class='nav navbar-nav navbar-right hidden-xs hidden-sm'>
         <li name='usericon' style='${"display:none" if not ctx.session.sitenick else ""}'><a href="#"><span class='glyphicon glyphicon-user'></span></a></li>
         <li class='dropdown'>
