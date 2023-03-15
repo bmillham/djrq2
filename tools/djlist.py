@@ -12,7 +12,7 @@ except IndexError:
 
 class FakeContext:
     """ A fake session, just used to query the database """
-    def __init__(self, db={}, host=None):
+    def __init__(self, db={}, host=None, use_ssl=False):
         self.db = db
         self.queries = None
         self.__host = host
@@ -20,6 +20,7 @@ class FakeContext:
             self.__djname = list(db.keys())[0]
         else:
             self.__djname = None
+        self.use_ssl = use_ssl
 
     @property
     def db(self):
@@ -53,11 +54,12 @@ class FakeContext:
         hn = self.__host
         if '.' not in hn:
             hn += '.local'
-        return f'http://{self.__djname}.{hn}/pub?id={self.__djname}'
+        return (f'{"https" if self.use_ssl else "http"}://'
+                f'{self.__djname}.{hn}/pub?id={self.__djname}')
         
 
 class DJInfo:
-    def __init__(self, engines, djrow, site):
+    def __init__(self, engines, djrow, site, use_ssl):
         self._engines = engines
         self.site = site
         self.real_djname = djrow.dj
@@ -67,11 +69,12 @@ class DJInfo:
         self.max_listeners = 0
         self.ignore_adj = djrow.ignore_adj
         self.db = self.engines[self.djname]
-        self.context = FakeContext({self.djname: self.db.Session}, host=site)
+        self.context = FakeContext({self.djname: self.db.Session}, host=site, use_ssl=use_ssl)
         self.db.start(self.context)
         self.context.queries = self.queries(db=self.db.Session)
         self.context.listeners = self.listeners
         self.websocket = self.context.websocket
+        self.use_ssl = use_ssl
 
     @property
     def websocket(self):
@@ -161,9 +164,10 @@ class DJInfo:
         return self._listeners
 
 class DJList:
-    def __init__(self, config, site):
+    def __init__(self, config, site, use_ssl=False):
         self.context = FakeContext()
         self.site = site
+        self.use_ssl = use_ssl
         self.databases = DJDatabaseExtension(config=config)
         self.lpdb = self.databases.engines['lastplay']
         self.lpdb.start(self.context)
@@ -178,10 +182,9 @@ class DJList:
     def _get_djs(self):
         djlist = self.lpdb.Session.query(DJs).filter(DJs.hide_from_menu == 0)
         for djrow in djlist:
-            print(f'Found DJ: {djrow.dj}')
-            package = 'web.app.djrq.model.'+djrow.databasetype
+            print(f'Found DJ: {djrow.dj} {djrow.databasetype}')
             djname = djrow.dj.lower()
-            djinfo = DJInfo(self.databases.engines, djrow, self.site)
+            djinfo = DJInfo(self.databases.engines, djrow, self.site, self.use_ssl)
             self._djs[djname] = djinfo
 
     def close_db(self):
