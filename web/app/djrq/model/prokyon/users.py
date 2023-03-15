@@ -5,5 +5,5 @@ class Users(Base):
 
     uname = Column(String(50), primary_key=True)
     pword = Column(String(50))
-    spword = Column(Binary())
+    spword = Column(LargeBinary())
     administrator = Column(Boolean(), default=False)
