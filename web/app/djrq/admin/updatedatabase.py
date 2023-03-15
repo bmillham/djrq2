@@ -21,7 +21,7 @@ class UpdateDatabase:
         self._ctx = context
         ctx = context
         self.uploaddir = os.path.join('privatefilearea', context.djname)
-        self.ws = context.websocket_admin
+        self.ws = context.websocket_admin.replace('http:', 'https:')
 
     def get(self, *arg, **args):
         files = []
@@ -85,7 +85,6 @@ class UpdateDatabase:
         future = self.executor.submit(backupdatabase, self, url=url)
         future1 = self.executor.submit(self._startupdate, url=url)
         future1.add_done_callback(self._updatecomplete)
-        print('Update is running!')
 
     def _backupcomplete(self, future):
         future = self.executor.submit(self._startupdate)
@@ -149,15 +148,18 @@ class UpdateDatabase:
                                 :rdeleted,
                                 :mdeleted)"""
         historyfilename = 'history-{}.sqlite'.format(datetime.now().strftime('%Y%m%d-%H%M%S'))
+
         sqdb = sqlite3.connect(os.path.join(self.uploaddir, historyfilename))
         cursor = sqdb.cursor()
         try:
             cursor.execute(fixedtable)
         except:
+            send_update(self.ws, progress=0, stage=f'Failed to create fixedtable: {sys.exc_info()}', active=True, spinner=False, updaterunning=False)
             print('Failed to create fixedtable', sys.exc_info())
         try:
             cursor.execute(statstable)
         except:
+            send_update(self.ws, progress=0, stage=f'Failed to create stats: {sys.exc_info()}', active=True, spinner=False, updaterunning=False)
             print('Failed to create stats', sys.exc_info())
         sqdb.commit()
 
@@ -258,6 +260,7 @@ class UpdateDatabase:
                     try:
                         cursor.execute(insfixed, {'id':rc['id'], 'field':f, 'val':sf, 'oval':rc[f], 'path': rc['path'], 'filename': rc['filename'], 'recordtype':'space'})
                     except:
+                        send_update(self.ws, stage=f'Error inserting: {sys.exc_info()} {rc}')
                         print('Error inserting', sys.exc_info())
                     sqdb.commit()
                     if not sadded:
@@ -296,10 +299,12 @@ class UpdateDatabase:
             try:
                 sel = select([pSong]).where(pSong.filename==rc['filename']).where(pSong.path==rc['path'])
             except:
+                send_update(self.ws, stage=f'SQL Failed: {sys.exc_info()}')
                 print('SQL failed', sys.exc_info())
             try:
                 s = conn.execute(sel).fetchone()
             except:
+                send_update(self.ws, stage=f'Execute Failed: {sys.exc_info()}')
                 print('Execute failed', sys.exc_info())
 
             if s is None:
@@ -312,10 +317,15 @@ class UpdateDatabase:
                 try:
                     track = pSong.__table__.insert().values(**new_track)
                 except:
+                    send_update(self.ws, stage=f'Something went wrong trying to add {new_track}')
                     print("Something went wrong trying to add", new_track)
                     print(sys.exc_info()[0])
                 else:
-                    res = conn.execute(track)
+                    try:
+                        res = conn.execute(track)
+                    except:
+                        print('failed to insert track', sys.exc_info())
+                        send_update(self.ws, stage=f'Failed to insert track: {sys.exc_info()}')
                     rc['id'] = res.inserted_primary_key[0]
                     newcount += 1
             else:
@@ -373,10 +383,8 @@ class UpdateDatabase:
             playeddeleted = requestsdeleted = mistagsdeleted = songsdeleted = 0
 
         send_update(self.ws, progress=100, stage='Database Updated: Finalizing', active=False, spinner=True)
-        print("Update complete")
 
         totalupdatetime = time() - realstarttime
-        print('Saving stats')
         istats = {'totaltime': totalupdatetime,
                                 'avetime': avetime,
                                 'checked': i+1,
@@ -386,11 +394,11 @@ class UpdateDatabase:
                                 'pdeleted': playeddeleted,
                                 'rdeleted': requestsdeleted,
                                 'mdeleted': mistagsdeleted}
-        print('Printing stats')
-        print('Saving update stats', istats)
         try:
             cursor.execute(insstats, istats)
         except:
+            send_update(self.ws, progress=100, stage=f'Failed to insert stats {sys.exc_info()}',
+                        active=False, spinner=True)
             print('Failed to insert stats', sys.exc_info())
 
         sqdb.commit()
