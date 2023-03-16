@@ -108,7 +108,7 @@ def update_irc_songs(ctx=None, as_dj=None, info=None, no_updates=None, update_pl
     try:
         dbsong = ctx.queries.get_song_by_ata(info.artist, info.song, info.album)
     except:
-        print(f"Error querying the {ctx.db} database for {info.title}!", file=sys.stderr)
+        print(f"Error querying the database for {info.title}!", file=sys.stderr)
     else:
         if dbsong.count() == 0:
             print(f"No full match was found for {ctx.db} {info.title}")
@@ -121,25 +121,20 @@ def update_irc_songs(ctx=None, as_dj=None, info=None, no_updates=None, update_pl
                 print(f'Unable to find a match for {info.title}')
 
         for ds in dbsong:
-            print(f'Checking played', ds.id, ds.title)
             #if not no_updates:
             if no_updates:
-                print('inserting played', ds.id, ctx)
-                #ctx.queries.add_played_song(track_id=ds.id, played_by=played_dj_name, played_by_me=True)
                 try:
                     ctx.queries.add_played_song(track_id=ds.id, played_by=played_dj_name, played_by_me=True)
                 except Exception as e:
                     print('Failed to update played into', e)
                     fakerow = None
                 else:
-                    print('inserted played, getting count')
                     try:
                         lpr = ctx.queries.get_last_played(count=1).one()
                     except:
                         print('Failed to get lpr')
                         fakerow = None
                     else:
-                        print('creating fake row')
                         fakerow = cinje.flatten(lastplayed_row(djlist.context,
                                                                lpr,
                                                                ma=False,

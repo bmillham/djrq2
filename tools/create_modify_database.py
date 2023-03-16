@@ -20,6 +20,8 @@ parser.add_argument('--admin_passwd', help='Defines the site admin user password
 parser.add_argument('--add_missing_spw', action='store_true', help='Add missing scrypt password for admin user')
 parser.add_argument('-d', '--debug', action='store_true', help='Turn on debug messages')
 parser.add_argument('-c', '--config_file', help='Use an alternate configuration file')
+parser.add_argument('-n', '--new-dj', help='New DJ to add to the site_options')
+parser.add_argument('--new-dj-passwd', help='Password for a new DJ')
 
 args = parser.parse_args()
 
@@ -63,7 +65,7 @@ if not database_exists(lpengine.url):
     lp = lpengine.connect()
     vals = {'dj': 'DJ-Bmillham',
             'server': 'eldrad.local',
-            'password': 'pgj399wq',
+            'password': '',
             'db': 'ampache1',
             'user': 'brian',
             'databasetype': 'ampache'}
@@ -73,23 +75,69 @@ if not database_exists(lpengine.url):
     
 
 lpconn = lpengine.connect()
+
+if args.new_dj is not None:
+    if args.new_dj_passwd is None:
+        print('You must use the --new-dj-passwd option to set a password')
+        exit(1)
+    # Adding a new user
+    vals = {'dj': args.new_dj.title(),
+            'server': '10.8.0.1',
+            'password': 'pgj399wq',
+            'update_mine': 1,
+            'update_others': 1,
+            'ignore_adj': 1,
+            'db': args.new_dj.lower(),
+            'user': 'brian',
+            'auto_add': 1,
+            'shout_title': f'DJ-{args.new_dj.title()}',
+            'hide_from_menu': 0,
+            'databasetype': args.dbtype}
+    ins = insert(DJs).values(vals)
+    lpconn.execute(ins)
+
 s = select([DJs]).where((DJs.hide_from_menu == 0) & (DJs.databasetype == args.dbtype))
 results = lpconn.execute(s)
 
 for row in results:
 
     db_created = False
-    if row.server in config['database']['server_map']:
-        dbserver = config['database']['server_map'][row.server]
-    else:
+    try:
+        if row.server in config['database']['server_map']:
+            dbserver = config['database']['server_map'][row.server]
+        else:
+            dbserver = row.server
+    except KeyError:
         dbserver = row.server
+        
     print('Checking if {} exists on {} ({})'.format(row.db, row.server, dbserver))
     engine = create_engine("mysql://{}:{}@{}/{}?charset=utf8".format(row.user, row.password, dbserver, row.db), echo=False)
 
     if not database_exists(engine.url):
-        print('Creating {}'.format(engine.url))
+        print(f'Creating new database for {args.new_dj}')
         create_database(engine.url)
+        Base.metadata.create_all(bind=engine)
         db_created = True
+        if args.new_dj_passwd:
+            vals = {'uname': args.new_dj,
+                    'administrator': True,
+                    'spword': scrypt.encrypt(str(urandom(64)), args.new_dj_passwd, maxtime=0.5)}
+            print(f'Connecting to new database {args.new_dj}')
+            new_engine = engine.connect()
+            print(f'Inserting admin user {args.new_dj}')
+            ins = insert(Users).values(vals)
+            new_engine.execute(ins)
+            vals = {'show_title': '',
+                    'show_time': None,
+                    'limit_requests': 12,
+                    'offset': 0,
+                    'isupdating': 0,
+                    'isrestoring': 0}
+            print('Inserting default show options')
+            ins = insert(SiteOptions).values(vals)
+            new_engine.execute(ins)
+            new_engine.close()
+
 
     Base.metadata.create_all(bind=engine)
 

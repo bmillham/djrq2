@@ -96,7 +96,6 @@ class Queries:
                                  order_by(func.count(RequestList.song_id).desc()).\
                                  group_by(RequestList.song_id).limit(10):
             r = self.db.query(RequestList).join(Song).filter(RequestList.id==rid).one()
-            print('r', dir(r))
             yield r.song
 
     def get_song_stats(self):
@@ -188,18 +187,12 @@ class Queries:
                          filter(Song.addition_time >= start_time).one()
 
     def add_played_song(self, track_id, played_by, played_by_me):
-        print('adding played', track_id, played_by, played_by_me)
-        try:
-            np = Played(track_id=track_id,
-                        date_played=datetime.utcnow(),
-                        played_by=played_by,
-                        played_by_me=played_by_me)
-        except Exception as e:
-            print('failed to create np', e)
-        print(np)
+        np = Played(track_id=track_id,
+                    date_played=datetime.utcnow(),
+                    played_by=played_by,
+                    played_by_me=played_by_me)
         self.db.add(np)
 
-        print('commiting add')
         try:
             self.db.commit()
         except Exception as e:
@@ -261,7 +254,6 @@ class Queries:
             search = Song.album_name
         p = r'%'+phrase+r'%'
         r = self.db.query(Song).filter(search.ilike(phrase))
-        print("Got results: ", r.count())
         return r
 
     def verify_user(self, uname, pword):
