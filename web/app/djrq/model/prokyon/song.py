@@ -59,13 +59,18 @@ class Song(Base):
     size = Column(Integer)
     jingle = Column('jingle', Integer, index=True)
 
-    played = relationship("Played", backref="song", order_by="Played.date_played.desc()")
-    requests = relationship("RequestList", backref='song', order_by='RequestList.t_stamp.desc()')
+    played = relationship("Played", backref="tracks", order_by="Played.date_played.desc()")
+    requests = relationship("RequestList",
+                            backref='tracks',
+                            order_by='RequestList.t_stamp.desc()',
+                            viewonly=True)
     new_requests = relationship("RequestList",
-        primaryjoin="and_(RequestList.song_id==Song.id, or_(RequestList.status == 'new', RequestList.status=='pending'))")
+                                primaryjoin="and_(RequestList.song_id==Song.id, or_(RequestList.status == 'new', RequestList.status=='pending'))",
+                                viewonly=True)
     played_requests = relationship("RequestList",
                        primaryjoin="and_(RequestList.song_id==Song.id, RequestList.status == 'played')",
-                       order_by="RequestList.t_stamp.desc()")
+                                   order_by="RequestList.t_stamp.desc()",
+                                   viewonly=True)
     last_request = relationship("RequestList",\
                                 primaryjoin="RequestList.song_id==Song.id",\
                                 uselist=False, order_by='RequestList.t_stamp.desc()')

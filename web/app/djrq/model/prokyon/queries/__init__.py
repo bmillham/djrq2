@@ -10,7 +10,7 @@ from ..mistags import Mistags
 from sqlalchemy.sql import func, or_
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.ext.serializer import dumps # For backing up tables.
-import datetime
+from datetime import datetime
 from time import time
 import hashlib # Used to verify admin passwords
 
@@ -96,6 +96,7 @@ class Queries:
                                  order_by(func.count(RequestList.song_id).desc()).\
                                  group_by(RequestList.song_id).limit(10):
             r = self.db.query(RequestList).join(Song).filter(RequestList.id==rid).one()
+            print('r', dir(r))
             yield r.song
 
     def get_song_stats(self):
@@ -149,6 +150,17 @@ class Queries:
     def get_song_by_id(self, id):
         return self.db.query(Song).filter(Song.id == id).one()
 
+    def get_song_by_ata(self, artist, title, album):
+        return self.db.query(Song).\
+            filter(Song.album_name == album).\
+            filter(Song.artist_name == artist).\
+            filter(Song.title == title)
+
+    def get_song_by_artist_title(self, artist, title):
+        return self.db.query(Song).\
+            filter(Song.artist_name == artist).\
+            filter(Song.title == title)
+
     def get_requests(self, status='New/Pending'):
         return self.db.query(RequestList).\
                                 filter(or_(*[RequestList.status == s for s in status.split('/')])).order_by(RequestList.id)
@@ -174,6 +186,24 @@ class Queries:
                          func.sum(Song.time).label('total_time'),\
                          func.sum(Song.size).label('total_size')).\
                          filter(Song.addition_time >= start_time).one()
+
+    def add_played_song(self, track_id, played_by, played_by_me):
+        print('adding played', track_id, played_by, played_by_me)
+        try:
+            np = Played(track_id=track_id,
+                        date_played=datetime.utcnow(),
+                        played_by=played_by,
+                        played_by_me=played_by_me)
+        except Exception as e:
+            print('failed to create np', e)
+        print(np)
+        self.db.add(np)
+
+        print('commiting add')
+        try:
+            self.db.commit()
+        except Exception as e:
+            print('commit failed', e)
 
     def get_new_artists(self, days=7):
         start_time = time() - 60*60*24*days

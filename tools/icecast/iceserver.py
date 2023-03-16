@@ -79,15 +79,9 @@ class IceServer(IceDict):
             except KeyError:
                 self._icestats.sources[mp].genre = None
             #print(self._icestats.sources[mp])
-            if mp not in self._previous:
-                print(f'Creating previous for {mp}')
-                self._previous[mp] = IceDict({'title': None,
-                                              'description': None,
-                                              'genre': None,
-                                              'listenurl': None,
-                                              'listeners': IceDict({'max': 0,
-                                                                    'current': 0})
-                })
+            if mp not in self._previous or self._icestats.sources[mp].dj is None:
+                #print(f'Creating previous for {mp}')
+                self._previous[mp] = self._create_empty_mp()
                 #print(self._previous[mp])
             mps = self._icestats.sources[mp]
             mps.mp = mp
@@ -108,6 +102,15 @@ class IceServer(IceDict):
                 mps.artist.strip()
                 mps.song.strip()
                 mps.album.strip()
+
+    def _create_empty_mp(self):
+        return  IceDict({'title': None,
+                                    'description': None,
+                                    'genre': None,
+                                    'listenurl': None,
+                                    'listeners': IceDict({'max': 0,
+                                                                      'current': 0})
+                                  })
 
     def _mps(self):
         mp = []
