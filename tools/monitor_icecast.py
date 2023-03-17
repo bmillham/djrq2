@@ -63,8 +63,8 @@ parser.add_argument('--use-ssl',
 parser.add_argument('-n', '--no-updates',
                     action="store_true",
                     help='Do not update IRC/Websockets. Used for testing.')
-parser.add_argument('-m', '--monitor-djs', default='autodj',
-                    help='Comma separated list of DJs to monitor')
+parser.add_argument('-m', '--ignore-djs', default='autodj',
+                    help='Comma separated list of DJs to ignore')
 parser.add_argument('-p', '--mount-points', default='autodj,listen',
                     help='Comma separated list of mountpoint to watch')
 parser.add_argument('-w', '--watchdog',
@@ -121,8 +121,7 @@ def update_irc_songs(ctx=None, as_dj=None, info=None, no_updates=None, update_pl
                 print(f'Unable to find a match for {info.title}')
 
         for ds in dbsong:
-            #if not no_updates:
-            if no_updates:
+            if not no_updates:
                 try:
                     ctx.queries.add_played_song(track_id=ds.id, played_by=played_dj_name, played_by_me=True)
                 except Exception as e:
@@ -246,10 +245,16 @@ while True:
 
     if active_source.previous.description != active_source.description:
         print(f'New Show: {active_source.description}')
+        new_show = active_source.description
         active_source.previous.description = active_source.description
+    else:
+        new_show = None
     if active_source.previous.listenurl != active_source.listenurl:
         print(f'New URL: {active_source.listenurl}')
+        new_listenurl = active_source.listenurl.replace('/autodj', '/listen')
         active_source.previous.listenurl = active_source.listenurl
+    else:
+        new_listenurl = None
     if active_source.previous.genre != active_source.genre:
         print(f'New Genre: {active_source.genre}')
         active_source.previous.genre = active_source.genre
@@ -260,6 +265,14 @@ while True:
         as_dj = active_source.dj_db
 
         if ircclient is not None:
+            if new_show is not None:
+                ircclient.privmsg(args.irc_channel,
+                              f"\x02New DJ: {active_source.dj}\x0F")
+                ircclient.privmsg(args.irc_channel,
+                                  f"\x02New Show: {new_show}\x0F")
+            if new_listenurl is not None:
+                ircclient.privmsg(args.irc_channel,
+                                  f"\x02Listen @ {new_listenurl}\x0F")
             ircclient.privmsg(args.irc_channel,
                               f"\x02{active_source.dj} Playing: {active_source.title}\x0F")
             ircreactor.process_once()
@@ -310,7 +323,7 @@ while True:
 
     if update_listen:
         lstr = (f"Listeners: {active_source.listeners}/{active_source.previous.listeners.max}, ",
-                f"DJ: {active_source.dj}, MP: {active_source.mp}")
+                f"DJ: {active_source.dj}")
         if not args.no_updates:
             ircclient.action(args.irc_channel, ''.join(lstr))
         ctx = djs[active_source.dj_db].context
