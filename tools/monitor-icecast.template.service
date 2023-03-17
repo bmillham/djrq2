@@ -1,0 +1,21 @@
+# Edit the WorkingDirectory paths for correct locations
+# and then save this as /etc/systemd/system/monitor-icecast.service
+# Reload systemd: sudo systemctl daemon-reload
+# Enable the service: sudo systemctl enable monitor-icecast.service
+# Start the service: sudo systemctl start monitor-icecast.service
+#
+# This monitors the IceCast service and does the accouncements in the
+# IRC. It also updates DJs database with played information and listener information
+
+[Unit]
+Description=DJRQ Web Site IceCast Monitor and IRC Bot
+After=djrq.service
+
+[Service]
+User=root # If not using the watchdog feature this can be run as a user instead of root.
+WorkingDirectory=/path/to/djrq2/djrq2/tools
+ExecStart=/path/to/djrq2/bin/python /path/to/djrq2/djrq2/tools/monitor_icecast.py --site <siteurl_without_dj> --use-ssl -p "mountpoints,to,monitor" --irc-server irc.yourserver.com
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
