@@ -163,13 +163,13 @@ if not args.watchdog_only:
     le.prepare(djlist.context)
     djs = djlist.djs
 
-    iserv = IceServer(args=args)
-    try:
-        iserv.get()
-    except:
-        print('Unable to contact IRC')
-    
-    #iserv.relay_get()
+iserv = IceServer(args=args)
+try:
+    iserv.get()
+except:
+    print('Unable to contact IRC')
+
+#iserv.relay_get()
 
 if args.no_updates or args.watchdog_only:
     print('Will not connect to the IRC server.')
@@ -199,12 +199,13 @@ else:
     ircreactor.process_once()
 
 #icestats = IceStats(iceuri)
-requestcount = {}
-for dj in djs:
-    requestcount[dj] = 0
+if not args.watchdog_only:
+    requestcount = {}
+    for dj in djs:
+        requestcount[dj] = 0
 
 while True:
-    if not args.no_updates:
+    if not args.no_updates and not args.watchdog_only:
         ircreactor.process_once()
 
     try:
@@ -219,7 +220,7 @@ while True:
                 print(f'Failed to restart autodj {args.watchdog}: {e.get_dbus_message()}')
             sleep(30) # Give ezstream time to start before checking again
         continue
-    
+
     try:
         active_source = iserv.icestats.sources.listen
     except AttributeError:
@@ -264,6 +265,9 @@ while True:
         played_dj_name = active_source.dj
         as_dj = active_source.dj_db
 
+        if args.watchdog_only:
+            continue
+
         if ircclient is not None:
             if new_show is not None:
                 ircclient.privmsg(args.irc_channel,
@@ -299,6 +303,9 @@ while True:
                 #exit(1)
                 sleep(10)
 
+    if args.watchdog_only:
+        sleep(10)
+        continue
     update_listen = False
     if active_source.previous.listeners.max == -1:
         # Special case to trigger reading the database
@@ -353,7 +360,7 @@ while True:
             print(f'Unable to rollback because {rb_e}')
     else:
         if requestcount[active_source.dj_db] != new_requests[0]:
-            print(f'Updating requests {new_requests}')
+            print(f'Updating requests: {new_requests[0]}')
             requestcount[active_source.dj_db] = new_requests[0]
             if requests is not None:
                 requests.post(djs[active_source.dj_db].websocket, json={'requestbutton': new_requests[0]})
