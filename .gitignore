@@ -19,3 +19,4 @@ web/app/djrq/public/bootstrap/
 *.md~
 /.eggs/pytest_runner-6.0.0-py3.6.egg/
 *.pyc
+/tools/monitor-icecast.service
