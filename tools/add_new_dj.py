@@ -44,6 +44,7 @@ if args.dbtype == 'prokyon':
     from web.app.djrq.model.prokyon.suggestions import Suggestions
     from web.app.djrq.model.prokyon.users import Users
     from web.app.djrq.model.prokyon.listeners import Listeners
+    index_list = {'tracks': ('artist', 'album', 'title')}
 elif args.dbtype == 'ampache':
     from web.app.djrq.model.ampache import Base
     from web.app.djrq.model.ampache.mistags import Mistags
@@ -105,5 +106,11 @@ vals = {'show_title': '',
 print('Inserting default show options')
 ins = insert(SiteOptions).values(vals)
 new_engine.execute(ins)
+print('Creating FULLTEXT indexes')
+for table in index_list:
+    for column in index_list[table]:
+        sql = f'ALTER TABLE {table} ADD FULLTEXT({column});'
+        print(sql)
+        new_engine.execute(sql)
 new_engine.close()
 print('Database created')
