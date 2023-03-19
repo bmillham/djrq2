@@ -236,10 +236,16 @@ class Queries:
 
     def get_song_by_ata(self, artist, title, album):
         return self.db.query(Song).join(Artist).join(Album).\
+            filter(Song.catalog_id.in_(self.catalogs)).\
             filter(Album.prename == album).\
             filter(Artist.fullname == artist).\
             filter(Song.title == title)
 
+    def get_song_by_artist_title(self, artist, title):
+        return self.db.query(Song).join(Artist).join(Album).\
+            filter(Song.catalog_id.in_(self.catalogs)).\
+            filter(Artist.fullname == artist).\
+            filter(Song.title == title)
 
     def add_played_song(self, track_id, played_by, played_by_me):
         np = Played(track_id=track_id, date_played=datetime.utcnow(), played_by=played_by, played_by_me=played_by_me)

@@ -16,6 +16,7 @@ from web.ext.locale import LocaleExtension
 from web.app.djrq.templates.lastplayed import lastplayed_row
 from sqlalchemy.ext.declarative import declarative_base
 from time import sleep
+from datetime import timedelta
 from djlist import DJList
 from icecast.iceserver import IceServer, IceDict
 
@@ -102,8 +103,18 @@ def on_join(connection, event):
     print(f"IRC: Joined {event.target}")
     joined = True
 
+def sec_to_hms(seconds):
+    s = str(timedelta(seconds=seconds)).split(':', 1)
+    if int(s[0]) > 0:
+        s[0] = f'{h:02}' # Force hour to be 2 digits
+    else:
+        s.pop(0) # Remove hour if 0
+    return ':'.join(s)
+
 def update_irc_songs(ctx=None, as_dj=None, info=None, no_updates=None, update_played_only=False, fuzzy_match=False, played_dj_name=None):
     requested_by = None
+    song_lengths = []
+
     if played_dj_name is None:
         played_dj_name = info.dj
     try:
@@ -112,7 +123,7 @@ def update_irc_songs(ctx=None, as_dj=None, info=None, no_updates=None, update_pl
         print(f"Error querying the database for {info.title}!", file=sys.stderr)
     else:
         if dbsong.count() == 0:
-            print(f"No full match was found for {ctx.db} {info.title}")
+            print(f"No full match was found for {info.title}")
             try:
                 dbsong = ctx.queries.get_song_by_artist_title(info.artist, info.song)
             except:
@@ -120,8 +131,9 @@ def update_irc_songs(ctx=None, as_dj=None, info=None, no_updates=None, update_pl
                 return
             if dbsong.count() == 0:
                 print(f'Unable to find a match for {info.title}')
-
+        print(f'Found {dbsong.count()} matches')
         for ds in dbsong:
+            song_lengths.append(sec_to_hms(ds.time))
             try:
                 req = ctx.queries.get_requests(status="New/Pending/Playing", id=ds.id)
             except Exception as e:
@@ -164,7 +176,8 @@ def update_irc_songs(ctx=None, as_dj=None, info=None, no_updates=None, update_pl
                 else:
                     if requests is not None:
                         print('no fakerow')
-        return requested_by
+        return {'requested_by': requested_by,
+                'song_lengths': song_lengths}
         #if not update_played_only:
         #    ircclient.privmsg(args.irc_channel, f"\x02{info.dj} Playing: {info.title}\x0F")
         #    ircreactor.process_once()
@@ -296,7 +309,7 @@ while True:
             else:
                 as_dj = d
             try:
-                requested_by = update_irc_songs(ctx=djs[d].context,
+                update_info = update_irc_songs(ctx=djs[d].context,
                                  as_dj=as_dj,
                                  info=active_source,
                                  no_updates=args.no_updates,
@@ -308,6 +321,11 @@ while True:
                 #print('Aborting!')
                 #exit(1)
                 sleep(10)
+        if len(update_info['song_lengths']) > 0:
+            length = f" [{', '.join(update_info['song_lengths'])}]"
+            print('Length: ', length)
+        else:
+            length = None
 
         if ircclient is not None:
             if new_show is not None:
@@ -318,9 +336,13 @@ while True:
             if new_listenurl is not None:
                 ircclient.privmsg(args.irc_channel,
                                   f"\x02Listen @ {new_listenurl}\x0F")
-            playing =  f"\x02{active_source.dj} Playing: {active_source.title}\x0F"
-            if requested_by is not None:
-                playing += f' (Requested by: {requested_by})'
+
+            playing =  f"\x02{active_source.dj} Playing: {active_source.title}"
+            if length is not None:
+                playing += f" [{', '.join(update_info['song_lengths'])}]"
+            playing += f"\x0F"
+            if update_info['requested_by'] is not None:
+                playing += f' (Requested by: {update_info["requested_by"]})'
             ircclient.privmsg(args.irc_channel, playing)
             ircreactor.process_once()
 
