@@ -7,12 +7,6 @@ import irc.client
 import irc.events
 
 # pip3 install dbus-python
-try:
-    import dbus
-except ModuleNotFoundError:
-    print('Unable to import dbus, so will not attempt to restart autodj on failure')
-    print('Install dbus with either apt install python3-dbus or pip3 install dbus-python')
-    dbus = None
 import requests
 import cinje
 import yaml
@@ -80,12 +74,18 @@ args = parser.parse_args()
 joined = False
 on_break = False
 
-if dbus is not None:
-    sysbus = dbus.SystemBus()
-    systemd1 = sysbus.get_object('org.freedesktop.systemd1', '/org/freedesktop/systemd1')
-    manager = dbus.Interface(systemd1, 'org.freedesktop.systemd1.Manager')
-else:
-    manager = None
+if args.watchdog is not None:
+    try:
+        import dbus
+    except ModuleNotFoundError:
+        print('Unable to import dbus, so will not attempt to restart autodj on failure')
+        print('Install dbus with either apt install python3-dbus or pip3 install dbus-python')
+        dbus = None
+        manager = None
+    else:
+        sysbus = dbus.SystemBus()
+        systemd1 = sysbus.get_object('org.freedesktop.systemd1', '/org/freedesktop/systemd1')
+        manager = dbus.Interface(systemd1, 'org.freedesktop.systemd1.Manager')
 
 # Setup IRC handlers
 def on_connect(connection, event):
@@ -103,6 +103,7 @@ def on_join(connection, event):
     joined = True
 
 def update_irc_songs(ctx=None, as_dj=None, info=None, no_updates=None, update_played_only=False, fuzzy_match=False, played_dj_name=None):
+    requested_by = None
     if played_dj_name is None:
         played_dj_name = info.dj
     try:
@@ -121,6 +122,23 @@ def update_irc_songs(ctx=None, as_dj=None, info=None, no_updates=None, update_pl
                 print(f'Unable to find a match for {info.title}')
 
         for ds in dbsong:
+            try:
+                req = ctx.queries.get_requests(status="New/Pending/Playing", id=ds.id)
+            except Exception as e:
+                print(f'Failed to find requests: {e}')
+            else:
+                if req.count() > 0:
+                    try:
+                        r = req.one()
+                    except Exception as e:
+                        print(f'Something went wong getting requestor: {e}')
+                    print('Requested by', r.name)
+                    requested_by = r.name
+                    try:
+                        ctx.queries.update_request_to_played(r.id)
+                    except Exception as e:
+                        print(f'Unable to update request status: {e}')
+
             if not no_updates:
                 try:
                     ctx.queries.add_played_song(track_id=ds.id, played_by=played_dj_name, played_by_me=True)
@@ -146,7 +164,7 @@ def update_irc_songs(ctx=None, as_dj=None, info=None, no_updates=None, update_pl
                 else:
                     if requests is not None:
                         print('no fakerow')
-
+        return requested_by
         #if not update_played_only:
         #    ircclient.privmsg(args.irc_channel, f"\x02{info.dj} Playing: {info.title}\x0F")
         #    ircreactor.process_once()
@@ -251,8 +269,8 @@ while True:
     else:
         new_show = None
     if active_source.previous.listenurl != active_source.listenurl:
-        print(f'New URL: {active_source.listenurl}')
         new_listenurl = active_source.listenurl.replace('/autodj', '/listen')
+        print(f'New URL: {new_listenurl}')
         active_source.previous.listenurl = active_source.listenurl
     else:
         new_listenurl = None
@@ -268,18 +286,6 @@ while True:
         if args.watchdog_only:
             continue
 
-        if ircclient is not None:
-            if new_show is not None:
-                ircclient.privmsg(args.irc_channel,
-                              f"\x02New DJ: {active_source.dj}\x0F")
-                ircclient.privmsg(args.irc_channel,
-                                  f"\x02New Show: {new_show}\x0F")
-            if new_listenurl is not None:
-                ircclient.privmsg(args.irc_channel,
-                                  f"\x02Listen @ {new_listenurl}\x0F")
-            ircclient.privmsg(args.irc_channel,
-                              f"\x02{active_source.dj} Playing: {active_source.title}\x0F")
-            ircreactor.process_once()
         for d in djs:
             update_played_only = False
             if active_source.dj_db != d:
@@ -290,7 +296,7 @@ while True:
             else:
                 as_dj = d
             try:
-                update_irc_songs(ctx=djs[d].context,
+                requested_by = update_irc_songs(ctx=djs[d].context,
                                  as_dj=as_dj,
                                  info=active_source,
                                  no_updates=args.no_updates,
@@ -302,6 +308,21 @@ while True:
                 #print('Aborting!')
                 #exit(1)
                 sleep(10)
+
+        if ircclient is not None:
+            if new_show is not None:
+                ircclient.privmsg(args.irc_channel,
+                              f"\x02New DJ: {active_source.dj}\x0F")
+                ircclient.privmsg(args.irc_channel,
+                                  f"\x02New Show: {new_show}\x0F")
+            if new_listenurl is not None:
+                ircclient.privmsg(args.irc_channel,
+                                  f"\x02Listen @ {new_listenurl}\x0F")
+            playing =  f"\x02{active_source.dj} Playing: {active_source.title}\x0F"
+            if requested_by is not None:
+                playing += f' (Requested by: {requested_by})'
+            ircclient.privmsg(args.irc_channel, playing)
+            ircreactor.process_once()
 
     if args.watchdog_only:
         sleep(10)

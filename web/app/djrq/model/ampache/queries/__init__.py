@@ -9,7 +9,7 @@ from ..suggestions import Suggestions
 from ..mistags import Mistags
 from ..catalog import Catalog
 import sqlalchemy
-from sqlalchemy.sql import func, or_
+from sqlalchemy.sql import func, or_, and_
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.ext.serializer import dumps # For backing up tables.
 
@@ -162,8 +162,16 @@ class Queries:
                 order_by(Played.date_played.desc()).limit(count)
 
 
-    def get_requests(self, status='New/Pending'):
-        return self.db.query(RequestList).filter(or_(*[RequestList.status == s for s in status.split('/')])).order_by(RequestList.id)
+    def get_requests(self, status='New/Pending', id=None):
+        if id:
+            return self.db.query(RequestList).filter(or_(*[RequestList.status == s for s in status.split('/')]),
+                                                     and_(RequestList.song_id == id)).order_by(RequestList.id)
+        else:
+            return self.db.query(RequestList).filter(or_(*[RequestList.status == s for s in status.split('/')])).order_by(RequestList.id)
+
+    def update_request_to_played(self, request_id):
+        self.db.query(RequestList).filter(RequestList.id == request_id).update({'status': 'played'})
+        self.db.commit()
 
     def get_requests_info(self, status='New/Pending'):
         return self.db.query(func.count(RequestList.id).label('request_count'),
@@ -231,6 +239,7 @@ class Queries:
             filter(Album.prename == album).\
             filter(Artist.fullname == artist).\
             filter(Song.title == title)
+
 
     def add_played_song(self, track_id, played_by, played_by_me):
         np = Played(track_id=track_id, date_played=datetime.utcnow(), played_by=played_by, played_by_me=played_by_me)
