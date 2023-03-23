@@ -151,8 +151,8 @@ class Queries:
 
     def get_song_by_ata(self, artist, title, album):
         return self.db.query(Song).\
-            filter(Song.album_name == album).\
-            filter(Song.artist_name == artist).\
+            filter(Song.album_fullname == album).\
+            filter(Song.artist_fullname == artist).\
             filter(Song.title == title)
 
     def get_song_by_artist_title(self, artist, title):
@@ -240,9 +240,21 @@ class Queries:
             group_by(Played.date_played).\
             order_by(Played.date_played.desc()).limit(count)
 
+    def get_artist(self, artist):
+        return self.db.query(Song).filter(Song.artist_fullname  == artist)
+
+    def get_album(self, artist, album):
+        return self.db.query(Song).filter((Song.artist_fullname == artist) & (Song.album.fullname == album))
+
     def get_multi_albums(self, artist_name, song_title):
         return self.db.query(Song).filter(func.lower(Song.artist_fullname) == func.lower(artist_name),\
                                       func.lower(Song.title) == func.lower(song_title))
+
+    def get_artist_with_dash(self):
+        return self.db.query(Song).filter(Song.artist_fullname.match(' - '))
+
+    def get_album_with_dash(self, artist):
+        return self.db.query(Song).filter(((Song.artist_fullname == artist)) & (Song.album.match(' - ')))
 
     def full_text_search(self, phrase=None):
         return self.db.query(Song).filter(

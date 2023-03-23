@@ -59,7 +59,7 @@ class Song(Base):
     size = Column(Integer)
     jingle = Column('jingle', Integer, index=True)
 
-    played = relationship("Played", backref="tracks", order_by="Played.date_played.desc()")
+    played = relationship("Played", backref="song", order_by="Played.date_played.desc()")
     requests = relationship("RequestList",
                             backref='tracks',
                             order_by='RequestList.t_stamp.desc()',

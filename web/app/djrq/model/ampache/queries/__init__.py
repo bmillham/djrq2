@@ -130,6 +130,13 @@ class Queries:
                         group_by(self.model.id)
         return names
 
+    def get_artist(self, artist):
+        return self.db.query(Artist).filter(Artist.name == artist)
+
+    def get_album(self, artist_id, album):
+        return self.db.query(Song).join(Artist).join(Album).\
+            filter((Artist.id == id) & (Album.name == album))
+
     def get_artist_album_by_id(self, id, days=None):
         if days is not None:
             start_time = time() - 60*60*24*days
@@ -251,6 +258,13 @@ class Queries:
         np = Played(track_id=track_id, date_played=datetime.utcnow(), played_by=played_by, played_by_me=played_by_me)
         self.db.add(np)
         self.db.commit()
+
+    def get_artist_with_dash(self):
+        return self.db.query(Artist).filter(Artist.name.match(' - '))
+
+    def get_album_with_dash(self, artist):
+        return self.db.query(Song).join(Artist).join(Album).\
+            filter(((Artist.name == artist) & (Album.name.match(' ' ))))
         
     def full_text_search(self, phrase):
         return self.db.query(Song).join(Artist).join(Album).\
