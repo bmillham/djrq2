@@ -1,6 +1,7 @@
 from . import *
 from datetime import datetime
 from .mistags import Mistags
+from .requestlist import RequestList
 
 class Name(object):
     def __init__(self, type, fullname, name, prefix):
@@ -61,18 +62,19 @@ class Song(Base):
 
     played = relationship("Played", backref="song", order_by="Played.date_played.desc()")
     requests = relationship("RequestList",
-                            backref='tracks',
+                            backref='song',
                             order_by='RequestList.t_stamp.desc()',
                             viewonly=True)
-    new_requests = relationship("RequestList",
-                                primaryjoin="and_(RequestList.song_id==Song.id, or_(RequestList.status == 'new', RequestList.status=='pending'))",
-                                viewonly=True)
     played_requests = relationship("RequestList",
-                       primaryjoin="and_(RequestList.song_id==Song.id, RequestList.status == 'played')",
+                                   primaryjoin="and_(RequestList.song_id==Song.id, RequestList.status == 'played')",
                                    order_by="RequestList.t_stamp.desc()",
                                    viewonly=True)
-    last_request = relationship("RequestList",\
-                                primaryjoin="RequestList.song_id==Song.id",\
+    new_requests = relationship("RequestList",
+                                overlaps="played_requests,requests,song",
+                                primaryjoin="and_(RequestList.song_id==Song.id, or_(RequestList.status == 'new', RequestList.status=='pending'))",
+                                viewonly=True)
+    last_request = relationship("RequestList",
+                                primaryjoin="RequestList.song_id==Song.id",
                                 uselist=False, order_by='RequestList.t_stamp.desc()')
     mistags = relationship("Mistags", backref='song')
 

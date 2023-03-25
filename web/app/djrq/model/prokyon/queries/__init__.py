@@ -161,9 +161,13 @@ class Queries:
             filter(Song.title == title)
 
     def get_requests(self, status='New/Pending', id=None):
-        return self.db.query(RequestList).\
-                                filter(or_(*[RequestList.status == s for s in status.split('/')]),
-                                       and_(RequestList.song_id == id)).order_by(RequestList.id)
+        if id is None:
+            return self.db.query(RequestList).\
+                filter(or_(*[RequestList.status == s for s in status.split('/')])).order_by(RequestList.id)
+        else:
+            return self.db.query(RequestList).\
+                filter(or_(*[RequestList.status == s for s in status.split('/')]),
+                       and_(RequestList.song_id == id)).order_by(RequestList.id)
 
     def update_request_to_played(info, request_id):
         self.db.query(RequestList).filter(RequestList.id == request_id).update({'status': 'played'})
