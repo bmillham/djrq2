@@ -62,19 +62,21 @@
             </ul>
            </li>
            : using li_active resource, 'requests'
-              <a href='/requests'>Requests <span class='badge'><span id="requestbutton">${ctx.format_decimal(ctx.requests_info.request_count)}</span></span></a>
+              <a href='/requests'><span class="hidden-md hidden-lg hidden-xl hidden-xxl">R</span>
+              <span class="hidden-xs hidden-sm">Requests</span> <span class='badge'><span id="requestbutton">${ctx.format_decimal(ctx.requests_info.request_count)}</span></span></a>
            : end
            : if ctx.new_counts.new_count > 0
               <li #{" class='active'" if resource == 'whatsnew' else ''}>
-                 <a href='/whatsnew'>New <span class='badge'>${ctx.format_decimal(ctx.new_counts.new_count)}</span></a>
+                 <a href='/whatsnew'><span class="hidden-md hidden-lg hidden-xl hidden-xxl">N</span>
+                 <span class="hidden-xs hidden-sm">New</span> <span class='badge'>${ctx.format_decimal(ctx.new_counts.new_count)}</span></a>
               </li>
            : end
            <li #{" class='active'" if resource == 'stats' else ''}><a href="/stats">Stats</a></li>
         : end
-        <li><a href="#" data-toggle='modal' data-target='#suggestionModal'>Suggestion</a></li>
+        <li class="hidden-xs hidden-sm"><a href="#" data-toggle='modal' data-target='#suggestionModal'>Suggestion</a></li>
        </ul>
        : if ctx.dbstats.total_songs > 0
-           <form class='navbar-form navbar-left hidden-xs hidden-sm' action='/search' method='post' role='search'>
+           <form class='navbar-form navbar-left hidden-xs' action='/search' method='post' role='search'>
             <div class='form-group'>
              <div class='input-group'>
               <span class='input-group-addon'>
@@ -83,7 +85,7 @@
                </li>
               </span>
               <input type='hidden' class='form-comtrol' name='navbarsearch' placeholder='Search'>
-              <input type='text' class='form-comtrol' data-target="#searchModal" name='stext' id='stext' placeholder='Search'>
+              <input type='text' class='form-comtrol hidden-xs hidden-sm' data-target="#searchModal" name='stext' id='stext' placeholder='Search'>
              </div>
             </div>
            </form>
