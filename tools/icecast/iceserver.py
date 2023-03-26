@@ -23,6 +23,7 @@ class IceServer(IceDict):
         self._icestats = None
         self._last_check = None
         self._sources = {}
+        self._mount_points = args.mount_points.split(','),
         self._previous = IceDict({'title': None,
                                   'listeners': IceDict({'max': -1,
                                                         'current': -1})
@@ -38,13 +39,13 @@ class IceServer(IceDict):
         if uri is None:
             print('No IceCast to check.')
             return None
-
+        #print('Getting icestats from', uri)
         try:
             self._icestats = IceDict(requests.get(uri).json()['icestats'])
         except:
             print(f'Problem getting stats from {uri}')
             raise IOError
-
+        #print('got icestats', self._icestats)
         self._icestats.mountpoints = []
 
         if self._previous is None:
@@ -55,6 +56,8 @@ class IceServer(IceDict):
             self._icestats.source = [self._icestats.source]
         for s in self._icestats.source:
             mp = s['listenurl'].split('/')[-1]
+            if mp not in self._mount_points[0]:
+                continue
             self._icestats.mountpoints.append(mp)
             self._icestats.sources[mp] = IceDict(s)
             try:
@@ -94,10 +97,15 @@ class IceServer(IceDict):
                 mps.song = None
                 mps.album = None
             except ValueError:
-                print(f'Bad title: {mps.title}')
-                mps.artist = None
-                mps.song = None
-                mps.album = None
+                #print(f'Bad title: {mps.title}')
+                try:
+                    mps.artist, mps.song = mps.title.split(' - ')
+                except ValueError:
+                    mps.artist = None
+                    mps.song = None
+                    mps.album = None
+                else:
+                    mps.album = None
             else:
                 mps.artist.strip()
                 mps.song.strip()
