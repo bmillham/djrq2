@@ -102,9 +102,15 @@ vals = {'show_title': '',
         'limit_requests': 12,
         'offset': 0,
         'isupdating': 0,
-        'isrestoring': 0}
+        'isrestoring': 0,
+        'auto_update_requests': 0}
 print('Inserting default show options')
 ins = insert(SiteOptions).values(vals)
+new_engine.execute(ins)
+print('Inserting default Listeners values')
+vals = {'current': 0,
+        'max': 0}
+ins = insert(Listeners).values(vals)
 new_engine.execute(ins)
 print('Creating FULLTEXT indexes')
 for table in index_list:

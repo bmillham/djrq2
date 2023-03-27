@@ -74,7 +74,7 @@ args = parser.parse_args()
 
 joined = False
 on_break = False
-
+print('Mount points to monitor', args.mount_points)
 if args.watchdog is not None:
     try:
         import dbus
@@ -87,6 +87,8 @@ if args.watchdog is not None:
         sysbus = dbus.SystemBus()
         systemd1 = sysbus.get_object('org.freedesktop.systemd1', '/org/freedesktop/systemd1')
         manager = dbus.Interface(systemd1, 'org.freedesktop.systemd1.Manager')
+else:
+    manager = None
 
 # Setup IRC handlers
 def on_connect(connection, event):
@@ -111,10 +113,66 @@ def sec_to_hms(seconds):
         s.pop(0) # Remove hour if 0
     return ':'.join(s)
 
+def find_info_with_extra_dashes(ctx, title):
+    """ Try and find a song when there are more than 3 fields in title"""
+    fields = title.split(' - ')
+    song_title = title.split(' - ')
+    num_fields = len(fields)
+    #print('Trying to make sense of', title)
+    if num_fields < 3:
+        print(f'Cannot do anything more with {title}')
+        return None
+    for f in range(1, num_fields):
+        l = ' - '.join(fields[:f])
+        #print(f'art ({l})')
+        a = ctx.queries.get_artist(l)
+        song_title.pop(0)
+        if a.count() > 0:
+            #print(dir(a))
+            art = a.first()
+            #print(f'Artist id: {art.id}')
+            break
+        art = None
+
+    if art is None:
+        print(f'Unable to find an artist for {title}')
+        return None
+    #print('song title', song_title)
+    temp_song_title = song_title.copy()
+    #print('temp', temp_song_title)
+    for f in range(len(temp_song_title), 1, -1):
+        l = ' - '.join(temp_song_title[f-1:])
+        #print(f'trying {f}, {temp_song_title}, {l}')
+        a = ctx.queries.get_album(art.artist_fullname, l)
+
+        if a.count() > 0:
+            alb = a.first()
+            song_title.pop()
+            break
+        song_title.pop()
+        alb = None
+    if alb is None:
+        print(f'Unable to find Album for {title}')
+        return None
+
+    #print('Art', art.artist_fullname)
+    #print('Alb', alb.album_fullname)
+    title = ' - '.join(song_title)
+    #print('Title', title)
+    song = ctx.queries.get_song_by_ata(art.artist_fullname, title, alb.album_fullname)
+    if song.count() == 0:
+        print('Giving up!')
+        return None
+    else:
+        s = song.one()
+        #print('Found song id', s.id)
+    return s.id
+        
+
 def update_irc_songs(ctx=None, as_dj=None, info=None, no_updates=None, update_played_only=False, fuzzy_match=False, played_dj_name=None):
     requested_by = None
     song_lengths = []
-
+        
     if played_dj_name is None:
         played_dj_name = info.dj
     try:
@@ -144,8 +202,9 @@ def update_irc_songs(ctx=None, as_dj=None, info=None, no_updates=None, update_pl
                         r = req.one()
                     except Exception as e:
                         print(f'Something went wong getting requestor: {e}')
-                    print('Requested by', r.name)
-                    requested_by = r.name
+                    else:
+                        print('Requested by', r.name)
+                        requested_by = r.name
                     try:
                         ctx.queries.update_request_to_played(r.id)
                     except Exception as e:
@@ -252,11 +311,20 @@ while True:
             sleep(30) # Give ezstream time to start before checking again
         continue
 
+    #print(iserv.icestats.sources)
+    #active_source = iserv.icestats.sources.listen
     try:
         active_source = iserv.icestats.sources.listen
     except AttributeError:
-        active_source = iserv.icestats.sources.autodj
-
+        try:
+            active_source = iserv.icestats.sources.autodj
+        except AttributeError:
+            active_source = None
+    #print('active', active_source)
+    if active_source is None:
+        print("no source")
+        sleep(10)
+        continue
     if active_source.dj is None: # Must be listen with no active DJ
         try:
             active_source = iserv.icestats.sources.autodj
@@ -300,6 +368,20 @@ while True:
             continue
 
         for d in djs:
+            print(d)
+            tt = ("B-52's - Private Idaho - Dance This Mess Around - The Best Of",
+                  "Orchestre G.M.I - Groupement mobil d'intervention - Africa - Analog Africa n° 19 : Senegal 70",
+                  "The Byrds - Chimes of Freedom - The Byrds, Dylan, Bob - The Byrds - Greatest Hits")
+            if d == "sartre1":
+                print('Doing sartre')
+                for test_title in tt:
+                    sid = find_info_with_extra_dashes(djs[d].context, test_title)
+                    print(f'{test_title} ID {sid}')
+                #s = djs[d].context.queries.get_song_by_id(id=173291)
+                #a = djs[d].context.queries.get_artist('The Byrds')
+                #print(a.count())
+                #print(s.artist_fullname)
+
             update_played_only = False
             if active_source.dj_db != d:
                 if active_source.dj_db == 'autodj':
@@ -321,10 +403,13 @@ while True:
                 #print('Aborting!')
                 #exit(1)
                 sleep(10)
-        if len(update_info['song_lengths']) > 0:
-            length = f" [{', '.join(update_info['song_lengths'])}]"
-            print('Length: ', length)
-        else:
+        try:
+            if len(update_info['song_lengths']) > 0:
+                length = f" [{', '.join(update_info['song_lengths'])}]"
+                print('Length: ', length)
+            else:
+                length = None
+        except TypeError:
             length = None
 
         if ircclient is not None:

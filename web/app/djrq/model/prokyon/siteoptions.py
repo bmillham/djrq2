@@ -10,6 +10,7 @@ class SiteOptions(Base):
     offset = Column(Integer)
     isupdating = Column(Boolean)
     isrestoring = Column(Boolean)
+    auto_update_requests = Column(Boolean)
 
     @hybrid_property
     def catalog(self):

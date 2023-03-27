@@ -9,3 +9,4 @@ class SiteOptions(Base):
     limit_requests = Column(String(255))
     offset = Column(Integer)
     catalog = Column(String(255))
+    auto_update_requests = Column(Boolean)
