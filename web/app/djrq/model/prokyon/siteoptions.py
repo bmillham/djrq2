@@ -10,7 +10,9 @@ class SiteOptions(Base):
     offset = Column(Integer)
     isupdating = Column(Boolean)
     isrestoring = Column(Boolean)
-    auto_update_requests = Column(Boolean)
+    auto_update_requests = Column(Boolean, default=False)
+    metadata_fields = (Enum('artist - title', 'artist - title - album'),
+                       default='artist - title - artist')
 
     @hybrid_property
     def catalog(self):
