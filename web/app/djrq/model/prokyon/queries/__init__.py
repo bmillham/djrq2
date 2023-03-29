@@ -54,6 +54,9 @@ class Queries:
     def model(self, value): # Allows changing the model used in some queries
         self.__model = value
 
+    def get_metadata_fields(self):
+        return self.db.query(SiteOptions.metadata_fields).limit(1).one()
+
     def get_total_artists(self):
         return self.db.query(func.count(Song.artist_fullname.distinct()).label('total')).one()
 

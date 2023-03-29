@@ -72,6 +72,9 @@ class Queries:
     def get_options(self):
         return self.db.query(SiteOptions).one()
 
+    def get_metadata_fields(self):
+        return self.db.query(SiteOptions.metadata_fields).limit(1).one()
+
     def get_song_stats(self):
         return self.db.query(func.sum(Song.size).label('song_size'),
                                         func.count(Song.id).label('total_songs'),
@@ -131,11 +134,15 @@ class Queries:
         return names
 
     def get_artist(self, artist):
-        return self.db.query(Artist).filter(Artist.name == artist)
+        return self.db.query(Artist).filter(Artist.fullname == artist)
 
     def get_album(self, artist_id, album):
         return self.db.query(Song).join(Artist).join(Album).\
-            filter((Artist.id == id) & (Album.name == album))
+            filter((Artist.id == artist_id) & (Album.prename == album))
+
+    def get_title(self, artist_id, title):
+        return self.db.query(Song).\
+            filter((Song.artist_id == artist_id) & (Song.title == title))
 
     def get_artist_album_by_id(self, id, days=None):
         if days is not None:

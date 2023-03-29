@@ -23,14 +23,17 @@ class IceServer(IceDict):
         self._icestats = None
         self._last_check = None
         self._sources = {}
-        self._mount_points = args.mount_points.split(','),
+        self._listen_mount_points = args.listen_mount_points.split(',')
+        self._autodj_mount_point = args.autodj_mount_point
         self._previous = IceDict({'title': None,
                                   'listeners': IceDict({'max': -1,
                                                         'current': -1})
         })
+        self._listen = IceDict({})
+        self._autodj = IceDict({})
         #self._mountpoints = IceMounts()
 
-    def _get(self, relay=False):
+    def _get(self, relay=False, listen=False):
         if relay:
             uri = self._relay_uri
         else:
@@ -46,6 +49,7 @@ class IceServer(IceDict):
             print(f'Problem getting stats from {uri}')
             raise IOError
         #print('got icestats', self._icestats)
+        return self._icestats
         self._icestats.mountpoints = []
 
         if self._previous is None:
@@ -56,7 +60,7 @@ class IceServer(IceDict):
             self._icestats.source = [self._icestats.source]
         for s in self._icestats.source:
             mp = s['listenurl'].split('/')[-1]
-            if mp not in self._mount_points[0]:
+            if mp not in self._listen_mount_points[0]:
                 continue
             self._icestats.mountpoints.append(mp)
             self._icestats.sources[mp] = IceDict(s)
@@ -128,8 +132,33 @@ class IceServer(IceDict):
     def get(self):
         self._get(relay=False)
 
-    def relay_get(self):
-        self._get(relay=True)
+    def relay_get(self, listen):
+        self._get(relay=True, listen=listen)
+
+    def now_playing(self):
+        for listen in [True, False]:
+            if listen:
+                mps = self._listen_mount_points
+            else:
+                mps = [self._autodj_mount_point]
+            for relay in [False, True]:
+                listen_info = self._get(relay=relay, listen=listen)
+                #print('listen info', listen_info)
+                if type(listen_info['source']) == dict:
+                    ls = [listen_info['source']]
+                else:
+                    ls = listen_info['source']
+                for source in ls:
+                    #print('source', source, relay)
+                    mp = source['listenurl'].split('/')[-1]
+                    #print('mp', mp)
+                    if mp in mps:
+                        if 'title' in source:
+                            source['active_source'] = mp
+                            #print('found mp')
+                            source['dj_db'] = source['server_name'].split('-')[-1].lower()
+                            return source
+        return None
 
     @property
     def icestats(self):

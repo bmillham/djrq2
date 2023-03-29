@@ -60,8 +60,10 @@ parser.add_argument('-n', '--no-updates',
                     help='Do not update IRC/Websockets. Used for testing.')
 parser.add_argument('-m', '--ignore-djs', default='autodj',
                     help='Comma separated list of DJs to ignore')
-parser.add_argument('-p', '--mount-points', default='autodj,listen',
-                    help='Comma separated list of mountpoint to watch')
+parser.add_argument('--autodj-mount-point', default='autodj',
+                    help='The AutoDJ mount point')
+parser.add_argument('-p', '--listen-mount-points', default='listen',
+                    help='Comma separated list of DJ mount points to watch')
 parser.add_argument('-w', '--watchdog',
                     default=None,
                     help='Act as a watchdog for the named autodj service.')
@@ -74,7 +76,8 @@ args = parser.parse_args()
 
 joined = False
 on_break = False
-print('Mount points to monitor', args.mount_points)
+print('Mount points to monitor', args.listen_mount_points)
+
 if args.watchdog is not None:
     try:
         import dbus
@@ -92,7 +95,7 @@ else:
 
 # Setup IRC handlers
 def on_connect(connection, event):
-    print(f'IRC: {event.target} connected to {event.source}')
+    #rint(f'IRC: {event.target} connected to {event.source}')
     for a in event.arguments:
         print(f'IRC: {a}')
     if irc.client.is_channel(args.irc_channel):
@@ -115,82 +118,106 @@ def sec_to_hms(seconds):
 
 def find_info_with_extra_dashes(ctx, title):
     """ Try and find a song when there are more than 3 fields in title"""
+    md_fields = ctx.queries.get_metadata_fields()[0].split(' - ')
     fields = title.split(' - ')
     song_title = title.split(' - ')
     num_fields = len(fields)
-    #print('Trying to make sense of', title)
-    if num_fields < 3:
-        print(f'Cannot do anything more with {title}')
-        return None
-    for f in range(1, num_fields):
-        l = ' - '.join(fields[:f])
-        #print(f'art ({l})')
-        a = ctx.queries.get_artist(l)
-        song_title.pop(0)
-        if a.count() > 0:
-            #print(dir(a))
-            art = a.first()
-            #print(f'Artist id: {art.id}')
-            break
-        art = None
+    found = {}
+    for field in md_fields:
+        print('Working on', field, song_title)
+        val = []
+        while len(song_title) > 0:
+            val.append(song_title.pop(0))
+            l = ' - '.join(val)
+            #print(f'val ({l})')
+            if field == 'artist':
+                a = ctx.queries.get_artist(l)
+            elif field == 'title':
+                print('Looking for title', found['artist'].id, l)
+                a = ctx.queries.get_title(found['artist'].id, l)
+                print('song title now', song_title)
+                #print(a)
+                #print(a.count())
+            elif field == 'album':
+                print('Looking for album', found['artist'].id, l)
+                if type(found['artist']) == list:
+                    print('artist is a list')
+                    for art in found['artist']:
+                        print('trying art', art)
+                        print('trying', art.id)
+                        a = ctx.queries.get_album(art.id, l)
+                        if a.count() > 0:
+                            break
+                else:
+                    print('artist is not a list')
+                    a = ctx.queries.get_album(found['artist'].id, l)
+            else:
+                print(f'ERROR: Unknow field: {field}')
+            if a.count() > 0:
+                if a.count() > 1:
+                    print('found more than one match for', field)
+                    found[field] = a.all()
+                else:
+                    found[field] = a.one()
+                break
+    print('trying to find the song now')
 
-    if art is None:
-        print(f'Unable to find an artist for {title}')
-        return None
-    #print('song title', song_title)
-    temp_song_title = song_title.copy()
-    #print('temp', temp_song_title)
-    for f in range(len(temp_song_title), 1, -1):
-        l = ' - '.join(temp_song_title[f-1:])
-        #print(f'trying {f}, {temp_song_title}, {l}')
-        a = ctx.queries.get_album(art.artist_fullname, l)
-
-        if a.count() > 0:
-            alb = a.first()
-            song_title.pop()
-            break
-        song_title.pop()
-        alb = None
-    if alb is None:
-        print(f'Unable to find Album for {title}')
-        return None
-
-    #print('Art', art.artist_fullname)
-    #print('Alb', alb.album_fullname)
-    title = ' - '.join(song_title)
-    #print('Title', title)
-    song = ctx.queries.get_song_by_ata(art.artist_fullname, title, alb.album_fullname)
+    titles = set()
+    if type(found['title']) == list:
+        for title in found['title']:
+            titles.add(title.title)
+    else:
+        titles.add(found['title'].title)
+    albums = set()
+    if type(found['album']) == list:
+        for album in found['album']:
+            albums.add(album.album.prename)
+    else:
+        albums.add(found['albums'].album.prename)
+    if len(titles) == 1:
+        titles = titles.pop()
+    if len(albums) == 1:
+        albums = albums.pop()
+    print('sets are titles', titles, 'albums', albums)
+    #song = ctx.queries.get_song_by_ata(found['artist'].fullname,
+    #                                   found['title'].title,
+    #                                   found['album'].album.prename)
+    song = ctx.queries.get_song_by_ata(found['artist'].fullname,
+                                       titles, albums)
     if song.count() == 0:
         print('Giving up!')
         return None
     else:
         s = song.one()
-        #print('Found song id', s.id)
-    return s.id
+        print('Found song id', s.id)
+    return found['artist'].fullname, titles, albums
         
-
 def update_irc_songs(ctx=None, as_dj=None, info=None, no_updates=None, update_played_only=False, fuzzy_match=False, played_dj_name=None):
     requested_by = None
     song_lengths = []
-        
+    print('trying to update', info['title'])
     if played_dj_name is None:
         played_dj_name = info.dj
+    artist, title, album = find_info_with_extra_dashes(ctx, info['title'])
+    print('got', artist, title, album)
     try:
-        dbsong = ctx.queries.get_song_by_ata(info.artist, info.song, info.album)
+        dbsong = ctx.queries.get_song_by_ata(artist, title, album)
     except:
-        print(f"Error querying the database for {info.title}!", file=sys.stderr)
+        print(f"Error querying the database for {info['title']}!", file=sys.stderr)
     else:
         if dbsong.count() == 0:
-            print(f"No full match was found for {info.title}")
+            print(f"No full match was found for {info['title']}")
             try:
                 dbsong = ctx.queries.get_song_by_artist_title(info.artist, info.song)
             except:
-                print(f'Error searching for {info.title}')
+                print(f'Error searching for {info["title"]}')
                 return
             if dbsong.count() == 0:
-                print(f'Unable to find a match for {info.title}')
+                print(f'Unable to find a match for {info["title"]}')
         print(f'Found {dbsong.count()} matches')
+        songs = []
         for ds in dbsong:
+            songs.append(ds)
             song_lengths.append(sec_to_hms(ds.time))
             try:
                 req = ctx.queries.get_requests(status="New/Pending/Playing", id=ds.id)
@@ -236,7 +263,8 @@ def update_irc_songs(ctx=None, as_dj=None, info=None, no_updates=None, update_pl
                     if requests is not None:
                         print('no fakerow')
         return {'requested_by': requested_by,
-                'song_lengths': song_lengths}
+                'song_lengths': song_lengths,
+                'songs': songs}
         #if not update_played_only:
         #    ircclient.privmsg(args.irc_channel, f"\x02{info.dj} Playing: {info.title}\x0F")
         #    ircreactor.process_once()
@@ -294,75 +322,89 @@ if not args.watchdog_only:
     for dj in djs:
         requestcount[dj] = 0
 
+previous = {'server_description': None,
+            'listenurl': None,
+            'genre': None,
+            'title': None,
+            'server_name': None,
+            'listeners': {'current': 0,
+                          'max': 0}}
 while True:
     if not args.no_updates and not args.watchdog_only:
         ircreactor.process_once()
 
-    try:
-        iserv.get() # Get latest data
-    except:
-        print('Problem reading icestats')
-        if manager is not None and args.watchdog is not None:
-            print(f'Restarting AutoDJ service: {args.watchdog}')
-            try:
-                job = manager.RestartUnit(f'{args.watchdog}.service', 'fail')
-            except dbus.exceptions.DBusException as e:
-                print(f'Failed to restart autodj {args.watchdog}: {e.get_dbus_message()}')
-            sleep(30) # Give ezstream time to start before checking again
-        continue
+    active_source = iserv.now_playing()
+    #try:
+    #   iserv.get() # Get latest data
+    #except:
+    #   print('Problem reading icestats')
+    #   if manager is not None and args.watchdog is not None:
+    #      print(f'Restarting AutoDJ service: {args.watchdog}')
+    #      try:
+    #          job = manager.RestartUnit(f'{args.watchdog}.service', 'fail')
+    #        except dbus.exceptions.DBusException as e:
+    #           print(f'Failed to restart autodj {args.watchdog}: {e.get_dbus_message()}')
+    #        sleep(30) # Give ezstream time to start before checking again
+    #    sleep(10)
+    #    continue
 
     #print(iserv.icestats.sources)
     #active_source = iserv.icestats.sources.listen
-    try:
-        active_source = iserv.icestats.sources.listen
-    except AttributeError:
-        try:
-            active_source = iserv.icestats.sources.autodj
-        except AttributeError:
-            active_source = None
+    #try:
+    #    active_source = iserv.icestats.sources.listen
+    #except AttributeError:
+    #    try:
+    #        active_source = iserv.icestats.sources.autodj
+    #    except AttributeError:
+    #        active_source = None
     #print('active', active_source)
     if active_source is None:
         print("no source")
         sleep(10)
         continue
-    if active_source.dj is None: # Must be listen with no active DJ
-        try:
-            active_source = iserv.icestats.sources.autodj
-        except AttributeError:
-            active_source = None
-            print('No active source')
-            sleep(10)
-            continue
+    #if active_source.dj is None: # Must be listen with no active DJ
+    #   try:
+    #        active_source = iserv.icestats.sources.autodj
+    #    except AttributeError:
+    #        active_source = None
+    #        print('No active source')
+    #        sleep(10)
+    #        continue
 
-    if active_source.dj is None: # If still none, there must be no DJs!
-        sleep(10)
-        continue
+    #if active_source.dj is None: # If still none, there must be no DJs!
+    #    sleep(10)
+    #    continue
 
     if 'title' not in active_source:
         print('No title!')
         sleep(10)
         continue
 
-    if active_source.previous.description != active_source.description:
-        print(f'New Show: {active_source.description}')
-        new_show = active_source.description
-        active_source.previous.description = active_source.description
+    if previous['server_name'] != active_source['server_name']:
+        print(f'New DJ: {active_source["server_name"]}')
+        previous['server_name'] = active_source['server_name']
+        previous['dj_db'] = active_source['server_name'].split('-')[-1].lower()
+    #if active_source.previous.description != active_source.description:
+    if previous['server_description'] != active_source['server_description']:
+        print(f'New Show: {active_source["server_description"]}')
+        new_show = active_source['server_description']
+        previous['server_description'] = active_source['server_description']
     else:
         new_show = None
-    if active_source.previous.listenurl != active_source.listenurl:
-        new_listenurl = active_source.listenurl.replace('/autodj', '/listen')
+    if previous['listenurl'] != active_source['listenurl']:
+        new_listenurl = active_source['listenurl'].replace('/autodj', '/listen')
         print(f'New URL: {new_listenurl}')
-        active_source.previous.listenurl = active_source.listenurl
+        previous['listenurl'] = active_source['listenurl']
     else:
         new_listenurl = None
-    if active_source.previous.genre != active_source.genre:
-        print(f'New Genre: {active_source.genre}')
-        active_source.previous.genre = active_source.genre
-    if active_source.previous.title != active_source.title:
-        active_source.previous.title = active_source.title
-        print(f'New Title: {active_source.dj}: {active_source.title}')
-        played_dj_name = active_source.dj
-        as_dj = active_source.dj_db
+    if previous['genre'] != active_source['genre']:
+        print(f'New Genre: {active_source["genre"]}')
+        previous['genre'] = active_source['genre']
+    if previous['title'] != active_source['title']:
+        previous['title'] = active_source['title']
+        print(f'New Title: {active_source["server_name"]}: {active_source["title"]}')
+        played_dj_name = active_source["server_name"]
+        #as_dj = active_source.dj_db
 
         if args.watchdog_only:
             continue
@@ -383,13 +425,19 @@ while True:
                 #print(s.artist_fullname)
 
             update_played_only = False
-            if active_source.dj_db != d:
-                if active_source.dj_db == 'autodj':
+            if active_source['dj_db'] != d:
+                if active_source['dj_db'] == 'autodj':
                     continue
                 #update_played_only = True
                 as_dj = d
             else:
                 as_dj = d
+            #update_info = update_irc_songs(ctx=djs[d].context,
+            #                     as_dj=as_dj,
+            #                     info=active_source,
+            #                     no_updates=args.no_updates,
+            #                     update_played_only=update_played_only,
+            #                     played_dj_name=played_dj_name)
             try:
                 update_info = update_irc_songs(ctx=djs[d].context,
                                  as_dj=as_dj,
@@ -411,18 +459,29 @@ while True:
                 length = None
         except TypeError:
             length = None
-
+        db_artist = []
+        db_title = []
+        db_album = []
+        for song in update_info['songs']:
+            db_artist.append(song.artist.fullname)
+            db_title.append(song.title)
+            db_album.append(song.album.fullname)
+        send_title = f"{active_source['server_name']} Playing: {'/'.join(db_artist)}"
+        send_title += f" - {'/'.join(db_title)} - {'/'.join(db_album)}"
+        send_title += f" [{', '.join(update_info['song_lengths'])}]"
+        print("Send: ", send_title)
         if ircclient is not None:
             if new_show is not None:
                 ircclient.privmsg(args.irc_channel,
-                              f"\x02New DJ: {active_source.dj}\x0F")
+                                  f"\x02New DJ: {active_source['server_name']}\x0F")
                 ircclient.privmsg(args.irc_channel,
                                   f"\x02New Show: {new_show}\x0F")
             if new_listenurl is not None:
                 ircclient.privmsg(args.irc_channel,
                                   f"\x02Listen @ {new_listenurl}\x0F")
 
-            playing =  f"\x02{active_source.dj} Playing: {active_source.title}"
+            playing =  f"\x02{active_source['server_name']} Playing: {' / '.join(db_artist)}"
+            playing += f" - {'/'.join(db_title)} - {'/'.join(db_album)}"
             if length is not None:
                 playing += f" [{', '.join(update_info['song_lengths'])}]"
             playing += f"\x0F"
@@ -435,62 +494,62 @@ while True:
         sleep(10)
         continue
     update_listen = False
-    if active_source.previous.listeners.max == -1:
+    if previous['listeners']['max']  == -1:
         # Special case to trigger reading the database
         try:
-            lrow = djs[active_source.dj_db].db.Session.query(djs[active_source.dj_db].context.listeners).one()
+            lrow = djs[active_source['dj_db']].db.Session.query(djs[active_source['dj_db']].context.listeners).one()
         except:
-            print(f'Failed to get historical max listeners for {active_source.dj}')
-            active_source.previous.listeners.max = 0
+            print(f'Failed to get historical max listeners for {active_source["server_name"]}')
+            previous['listeners']['max'] = 0
         else:
-            print(f'Setting historical max listeners for {active_source.dj} to {lrow.max}')
-            active_source.previous.listeners.max = lrow.max
+            print(f'Setting historical max listeners for {active_source["server_name"]} to {lrow.max}')
+            previous['listeners']['max'] = lrow.max
 
-    if active_source.previous.listeners.current != active_source.listeners:
-        print(f'Change listeners to: {active_source.listeners}')
-        active_source.previous.listeners.current = active_source.listeners
+    if previous['listeners']['current'] != active_source['listeners']:
+        print(f"Change listeners to: {active_source['listeners']}")
+        previous['listeners']['current'] = active_source['listeners']
         update_listen = True
 
-    if active_source.listeners > active_source.previous.listeners.max:
-        active_source.previous.listeners.max = active_source.listeners
-        print(f'Change max listeners to: {active_source.previous.listeners.max}')
+    if active_source['listeners'] > previous['listeners']['max']:
+        previous['listeners']['max'] = active_source['listeners']
+        print(f'Change max listeners to: {previous["listeners"]["max"]}')
         update_listen = True
 
     if update_listen:
-        lstr = (f"Listeners: {active_source.listeners}/{active_source.previous.listeners.max}, ",
-                f"DJ: {active_source.dj}")
+        lstr = (f"Listeners: {active_source['listeners']}/{previous['listeners']['max']}, ",
+                f"DJ: {active_source['server_name']}")
         if not args.no_updates:
             ircclient.action(args.irc_channel, ''.join(lstr))
-        ctx = djs[active_source.dj_db].context
+        ctx = djs[active_source['dj_db']].context
         try:
-            lrow = djs[active_source.dj_db].db.Session.query(ctx.listeners).one()
+            lrow = djs[active_source['dj_db']].db.Session.query(ctx.listeners).one()
         except:
             print('No saved listener count')
         else:
-            lrow.current = active_source.listeners
-            lrow.max = active_source.previous.listeners.max
-            djs[active_source.dj_db].db.Session.commit()
-        l = {'listeners': active_source.listeners,
-             'maxlisteners': active_source.previous.listeners.max}
+            lrow.current = active_source['listeners']
+            lrow.max = previous['listeners']['max']
+            djs[active_source['dj_db']].db.Session.commit()
+        l = {'listeners': active_source['listeners'],
+             'maxlisteners': previous['listeners']['max']}
         if requests is not None:
-            uri = djs[active_source.dj_db].websocket
+            uri = djs[active_source['dj_db']].websocket
             requests.post(uri, json=l)
             requests.post(uri + '-admin', json=l)
 
 
     try:
-        new_requests = djs[active_source.dj_db].context.queries.get_requests_info(status='new')
+        new_requests = djs[active_source['dj_db']].context.queries.get_requests_info(status='new')
     except Exception as e:
-        print(f'Error running requests query for {active_source.dj_db} ({e})')
+        print(f'Error running requests query for {active_source["dj_db"]} ({e})')
         try:
             djs[active_source.dj_db].db.Session.rollback()
         except Exception as rb_e:
             print(f'Unable to rollback because {rb_e}')
     else:
-        if requestcount[active_source.dj_db] != new_requests[0]:
+        if requestcount[active_source['dj_db']] != new_requests[0]:
             print(f'Updating requests: {new_requests[0]}')
-            requestcount[active_source.dj_db] = new_requests[0]
+            requestcount[active_source['dj_db']] = new_requests[0]
             if requests is not None:
-                requests.post(djs[active_source.dj_db].websocket, json={'requestbutton': new_requests[0]})
+                requests.post(djs[active_source['dj_db']].websocket, json={'requestbutton': new_requests[0]})
 
     sleep(1)

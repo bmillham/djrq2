@@ -10,5 +10,5 @@ class SiteOptions(Base):
     offset = Column(Integer)
     catalog = Column(String(255))
     auto_update_requests = Column(Boolean, default=False)
-    metadata_fields = (Enum('artist - title', 'artist - title - album'),
+    metadata_fields = Column(Enum('artist - title', 'artist - title - album'),
                        default='artist - title - artist')
