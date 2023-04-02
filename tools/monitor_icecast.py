@@ -230,71 +230,74 @@ def update_irc_songs(ctx=None, as_dj=None, info=None, found_info=None, no_update
     try:
         dbsong = ctx.queries.get_song_by_ata(found_info[0], found_info[1], found_info[2])
     except:
-        print(f"Error querying the database for {found_info}!", file=sys.stderr)
-    else:
-        if dbsong.count() == 0:
-            #print(f"No full match was found for {found_info}")
-            try:
-                dbsong = ctx.queries.get_song_by_artist_title(found_info[0], found_info[1])
-            except:
-                print(f'Error searching for {info["title"]}')
-                return None
-            #if dbsong.count() == 0:
-            #    print(f'Unable to find a match for {info["title"]}')
-        print(f'Found {dbsong.count()} matches')
-        songs = []
-        for ds in dbsong:
-            songs.append(ds)
-            song_lengths.append(sec_to_hms(ds.time))
-            try:
-                req = ctx.queries.get_requests(status="New/Pending/Playing", id=ds.id)
-            except Exception as e:
-                print(f'Failed to find requests: {e}')
-            else:
-                if req.count() > 0:
-                    try:
-                        r = req.one()
-                    except Exception as e:
-                        print(f'Something went wong getting requestor: {e}')
-                    else:
-                        print('Requested by', r.name)
-                        requested_by = r.name
-                    try:
-                        ctx.queries.update_request_to_played(r.id)
-                    except Exception as e:
-                        print(f'Unable to update request status: {e}')
+        #print(f"Error querying the database for {found_info}!", file=sys.stderr)
+        try:
+            dbsong = ctx.queries.get_song_by_artist_title(found_info[0], found_info[1])
+        except:
+            #print(f"Error querying the database for {found_info} (2 fields)")
+            print(f"Query error {found_info}")
+            return None # Unable to find a match 
 
-            if not no_updates:
+    #if dbsong.count() == 0:
+        #print(f"No full match was found for {found_info}")
+        #try:
+        #    dbsong = ctx.queries.get_song_by_artist_title(found_info[0], found_info[1])
+        #except:
+        #    print(f'Error searching for {info["title"]}')
+        #    return None
+        #if dbsong.count() == 0:
+        #    print(f'Unable to find a match for {info["title"]}')
+    print(f'Found {dbsong.count()} matches')
+    songs = []
+    for ds in dbsong:
+        songs.append(ds)
+        song_lengths.append(sec_to_hms(ds.time))
+        try:
+            req = ctx.queries.get_requests(status="New/Pending/Playing", id=ds.id)
+        except Exception as e:
+            print(f'Failed to find requests: {e}')
+        else:
+            if req.count() > 0:
                 try:
-                    ctx.queries.add_played_song(track_id=ds.id, played_by=played_dj_name, played_by_me=True)
+                    r = req.one()
                 except Exception as e:
-                    print('Failed to update played into', e)
+                    print(f'Something went wong getting requestor: {e}')
+                else:
+                    print('Requested by', r.name)
+                    requested_by = r.name
+                try:
+                    ctx.queries.update_request_to_played(r.id)
+                except Exception as e:
+                    print(f'Unable to update request status: {e}')
+
+        if not no_updates:
+            try:
+                ctx.queries.add_played_song(track_id=ds.id, played_by=played_dj_name, played_by_me=True)
+            except Exception as e:
+                print('Failed to update played into', e)
+                fakerow = None
+            else:
+                try:
+                    lpr = ctx.queries.get_last_played(count=1).one()
+                except:
+                    print('Failed to get lpr')
                     fakerow = None
                 else:
-                    try:
-                        lpr = ctx.queries.get_last_played(count=1).one()
-                    except:
-                        print('Failed to get lpr')
-                        fakerow = None
-                    else:
-                        fakerow = cinje.flatten(lastplayed_row(djlist.context,
-                                                               lpr,
-                                                               ma=False,
-                                                               played=True,
-                                                               show_played_time=False))
-                if fakerow is not None and requests is not None:
-                    lp = {'lastplay': fakerow}
-                    uri = ctx.websocket
-                    requests.post(uri, json=lp)
-                else:
-                    if requests is not None:
-                        print('no fakerow')
-        return {'requested_by': requested_by,
-                'song_lengths': song_lengths,
-                'songs': songs}
-        #if not update_played_only:
-        #    ircclient.privmsg(args.irc_channel, f"\x02{info.dj} Playing: {info.title}\x0F")
-        #    ircreactor.process_once()
+                    fakerow = cinje.flatten(lastplayed_row(djlist.context,
+                                                           lpr,
+                                                           ma=False,
+                                                           played=True,
+                                                           show_played_time=False))
+            if fakerow is not None and requests is not None:
+                lp = {'lastplay': fakerow}
+                uri = ctx.websocket
+                requests.post(uri, json=lp)
+            else:
+                if requests is not None:
+                    print('no fakerow')
+    return {'requested_by': requested_by,
+            'song_lengths': song_lengths,
+            'songs': songs}
 
 if not args.watchdog_only:
     with open(args.config_file) as f:
@@ -481,9 +484,9 @@ while True:
                 length = None
         except TypeError:
             length = None
-        db_artist = []
-        db_title = []
-        db_album = []
+        db_artist = set()
+        db_title = set()
+        db_album = set()
         if update_info is None:
             print('No update_info')
             sleep(5)
@@ -494,10 +497,11 @@ while True:
                 sleep(5)
                 continue
             for song in update_info['songs']:
-                db_artist.append(song.artist.fullname)
-                db_title.append(song.title)
-                db_album.append(song.album.fullname)
-                           
+                db_artist.add(song.artist.fullname)
+                db_title.add(song.title)
+                db_album.add(song.album.fullname)
+        if len(db_album) > 1:
+            db_album = [f"On {len(db_album)} albums"]
         send_title = f"{active_source['server_name']}"
         if update_info is None:
             send_title += f" Playing: {info['title']}"
