@@ -504,10 +504,10 @@ while True:
             db_album = [f"On {len(db_album)} albums"]
         send_title = f"{active_source['server_name']}"
         if update_info is None:
-            send_title += f" Playing: {info['title']}"
+            send_title += f" Playing: {active_source['title']}"
         else:
             if len(db_artist) == 0 and len(db_title) == 0 and len(db_album) == 0:
-                send_title += f" Playing: {info['title']}"
+                send_title += f" Playing: {active_source['title']}"
             else:
                 send_title += f" Playing: {'/'.join(db_artist)}"
                 send_title += f" - {'/'.join(db_title)} - {'/'.join(db_album)}"

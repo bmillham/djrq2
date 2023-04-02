@@ -144,10 +144,14 @@ class IceServer(IceDict):
             for relay in [False, True]:
                 listen_info = self._get(relay=relay, listen=listen)
                 #print('listen info', listen_info)
-                if type(listen_info['source']) == dict:
-                    ls = [listen_info['source']]
-                else:
-                    ls = listen_info['source']
+                try:
+                    if type(listen_info['source']) == dict:
+                        ls = [listen_info['source']]
+                    else:
+                        ls = listen_info['source']
+                except KeyError:
+                    print('No source found!')
+                    return None
                 for source in ls:
                     #print('source', source, relay)
                     mp = source['listenurl'].split('/')[-1]
