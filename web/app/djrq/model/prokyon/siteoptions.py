@@ -13,6 +13,7 @@ class SiteOptions(Base):
     auto_update_requests = Column(Boolean, default=False)
     metadata_fields = Column(Enum('artist - title', 'artist - title - album'),
                        default='artist - title - artist')
+    strict_metadata = Column(Boolean, default=True)
 
     @hybrid_property
     def catalog(self):

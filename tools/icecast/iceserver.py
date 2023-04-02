@@ -155,7 +155,7 @@ class IceServer(IceDict):
                     if mp in mps:
                         if 'title' in source:
                             source['active_source'] = mp
-                            #print('found mp')
+                            #print('found mp', mp)
                             source['dj_db'] = source['server_name'].split('-')[-1].lower()
                             return source
         return None

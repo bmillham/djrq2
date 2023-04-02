@@ -116,10 +116,24 @@ def sec_to_hms(seconds):
         s.pop(0) # Remove hour if 0
     return ':'.join(s)
 
-def find_info_with_extra_dashes(ctx, title):
+def find_info(ctx, title):
+    if title is None:
+        print('None in dashes!')
+        return None, None, None
     """ Try and find a song when there are more than 3 fields in title"""
-    md_fields = ctx.queries.get_metadata_fields()[0].split(' - ')
-    fields = title.split(' - ')
+    #md_fields = ctx.queries.get_metadata_fields()[0].split(' - ')
+    site_options = ctx.queries.get_siteoptions()
+    md_fields = site_options.metadata_fields.split(' - ')
+    strict_md = site_options.strict_metadata
+    if strict_md:
+        found_fields = title.split(' - ')
+        if len(found_fields) != len(md_fields):
+            print(f'Strict Metadata set and fields to not match for {title}')
+            return [None] * 3
+        else:
+            return found_fields
+        
+    #fields = title.split(' - ')
     song_title = title.split(' - ')
     num_fields = len(fields)
     found = {}
@@ -173,7 +187,7 @@ def find_info_with_extra_dashes(ctx, title):
         for album in found['album']:
             albums.add(album.album.prename)
     else:
-        albums.add(found['albums'].album.prename)
+        albums.add(found['album'].album.prename)
     if len(titles) == 1:
         titles = titles.pop()
     if len(albums) == 1:
@@ -186,34 +200,47 @@ def find_info_with_extra_dashes(ctx, title):
                                        titles, albums)
     if song.count() == 0:
         print('Giving up!')
-        return None
+        return None, None, None
     else:
         s = song.one()
         print('Found song id', s.id)
     return found['artist'].fullname, titles, albums
         
-def update_irc_songs(ctx=None, as_dj=None, info=None, no_updates=None, update_played_only=False, fuzzy_match=False, played_dj_name=None):
+def update_irc_songs(ctx=None, as_dj=None, info=None, found_info=None, no_updates=None, update_played_only=False, fuzzy_match=False, played_dj_name=None):
     requested_by = None
     song_lengths = []
-    print('trying to update', info['title'])
+    #print('trying to update', info['title'])
     if played_dj_name is None:
         played_dj_name = info.dj
-    artist, title, album = find_info_with_extra_dashes(ctx, info['title'])
-    print('got', artist, title, album)
+    info_parts = []
+    #if info is None:
+    #    print(f'Unable to process: {info}')
+    #    return None
+    #else:
+    #    artist, title, album = find_info(ctx, info['title'])
+        #try:
+        #   artist, title, album = info['title'].split(' - ')
+        #except ValueError:
+        #    
+        #    artist, title = info['title'].split(' - ')
+        #    album = ''
+        #info_parts = info['title'].split(' - ')
+        #print('got', info_parts)
+    #dbsong = ctx.queries.get_song_by_ata(found_info['artist'], found_info['title'], found_info['album'])
     try:
-        dbsong = ctx.queries.get_song_by_ata(artist, title, album)
+        dbsong = ctx.queries.get_song_by_ata(found_info[0], found_info[1], found_info[2])
     except:
-        print(f"Error querying the database for {info['title']}!", file=sys.stderr)
+        print(f"Error querying the database for {found_info}!", file=sys.stderr)
     else:
         if dbsong.count() == 0:
-            print(f"No full match was found for {info['title']}")
+            #print(f"No full match was found for {found_info}")
             try:
-                dbsong = ctx.queries.get_song_by_artist_title(info.artist, info.song)
+                dbsong = ctx.queries.get_song_by_artist_title(found_info[0], found_info[1])
             except:
                 print(f'Error searching for {info["title"]}')
-                return
-            if dbsong.count() == 0:
-                print(f'Unable to find a match for {info["title"]}')
+                return None
+            #if dbsong.count() == 0:
+            #    print(f'Unable to find a match for {info["title"]}')
         print(f'Found {dbsong.count()} matches')
         songs = []
         for ds in dbsong:
@@ -404,11 +431,16 @@ while True:
         previous['title'] = active_source['title']
         print(f'New Title: {active_source["server_name"]}: {active_source["title"]}')
         played_dj_name = active_source["server_name"]
+        for d in djs:
+            if d.lower() in played_dj_name.lower():
+                active_source['dj_db'] = d.lower()
+                found_title_info = find_info(djs[d.lower()].context, active_source['title'])
         #as_dj = active_source.dj_db
 
         if args.watchdog_only:
             continue
 
+        current_dj_info = None
         for d in djs:
             print(d)
             tt = ("B-52's - Private Idaho - Dance This Mess Around - The Best Of",
@@ -417,7 +449,7 @@ while True:
             if d == "sartre1":
                 print('Doing sartre')
                 for test_title in tt:
-                    sid = find_info_with_extra_dashes(djs[d].context, test_title)
+                    sid = find_info(djs[d].context, test_title)
                     print(f'{test_title} ID {sid}')
                 #s = djs[d].context.queries.get_song_by_id(id=173291)
                 #a = djs[d].context.queries.get_artist('The Byrds')
@@ -432,29 +464,19 @@ while True:
                 as_dj = d
             else:
                 as_dj = d
-            #update_info = update_irc_songs(ctx=djs[d].context,
-            #                     as_dj=as_dj,
-            #                     info=active_source,
-            #                     no_updates=args.no_updates,
-            #                     update_played_only=update_played_only,
-            #                     played_dj_name=played_dj_name)
-            try:
-                update_info = update_irc_songs(ctx=djs[d].context,
-                                 as_dj=as_dj,
-                                 info=active_source,
-                                 no_updates=args.no_updates,
-                                 update_played_only=update_played_only,
-                                 played_dj_name=played_dj_name)
-            except Exception as e:
-                print(f'Failed to update irc and database: Try again in 10 seconds')
-                print(e)
-                #print('Aborting!')
-                #exit(1)
-                sleep(10)
+            update_info = update_irc_songs(ctx=djs[d].context,
+                                           as_dj=as_dj,
+                                           info=active_source,
+                                           found_info=found_title_info,
+                                           no_updates=args.no_updates,
+                                           update_played_only=update_played_only,
+                                           played_dj_name=played_dj_name)
+            if  active_source['dj_db'] == d:
+                current_dj_info = update_info
+        update_info = current_dj_info
         try:
             if len(update_info['song_lengths']) > 0:
                 length = f" [{', '.join(update_info['song_lengths'])}]"
-                print('Length: ', length)
             else:
                 length = None
         except TypeError:
@@ -462,13 +484,28 @@ while True:
         db_artist = []
         db_title = []
         db_album = []
-        for song in update_info['songs']:
-            db_artist.append(song.artist.fullname)
-            db_title.append(song.title)
-            db_album.append(song.album.fullname)
-        send_title = f"{active_source['server_name']} Playing: {'/'.join(db_artist)}"
-        send_title += f" - {'/'.join(db_title)} - {'/'.join(db_album)}"
-        send_title += f" [{', '.join(update_info['song_lengths'])}]"
+        if update_info is None:
+            print('No update_info')
+            sleep(5)
+            continue
+        if update_info is not None:
+            if update_info['songs'] is None:
+                print('No songs to update')
+                sleep(5)
+                continue
+            for song in update_info['songs']:
+                db_artist.append(song.artist.fullname)
+                db_title.append(song.title)
+                db_album.append(song.album.fullname)
+                           
+        send_title = f"{active_source['server_name']}"
+        if update_info is None:
+            send_title += f" Playing: {info['title']}"
+        else:
+            send_title += f" Playing: {'/'.join(db_artist)}"
+            send_title += f" - {'/'.join(db_title)} - {'/'.join(db_album)}"
+            if length is not None:
+                send_title += f" [{', '.join(update_info['song_lengths'])}]"
         print("Send: ", send_title)
         if ircclient is not None:
             if new_show is not None:
@@ -480,13 +517,15 @@ while True:
                 ircclient.privmsg(args.irc_channel,
                                   f"\x02Listen @ {new_listenurl}\x0F")
 
-            playing =  f"\x02{active_source['server_name']} Playing: {' / '.join(db_artist)}"
-            playing += f" - {'/'.join(db_title)} - {'/'.join(db_album)}"
-            if length is not None:
-                playing += f" [{', '.join(update_info['song_lengths'])}]"
+            #playing =  f"\x02{active_source['server_name']} Playing: {' / '.join(db_artist)}"
+            #playing += f" - {'/'.join(db_title)} - {'/'.join(db_album)}"
+            playing = f"\x02{send_title}"
+            #if length is not None:
+            #   playing += f" [{', '.join(update_info['song_lengths'])}]"
             playing += f"\x0F"
-            if update_info['requested_by'] is not None:
-                playing += f' (Requested by: {update_info["requested_by"]})'
+            if update_info is not None:
+                if update_info['requested_by'] is not None:
+                    playing += f' (Requested by: {update_info["requested_by"]})'
             ircclient.privmsg(args.irc_channel, playing)
             ircreactor.process_once()
 

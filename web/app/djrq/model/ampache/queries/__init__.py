@@ -249,11 +249,15 @@ class Queries:
                             order_by(func.count(RequestList.name).desc()).limit(limit)
 
     def get_song_by_ata(self, artist, title, album):
+        if type(album) is not list:
+            album = [album]
+        if type(title) is not list:
+            title = [title]
         return self.db.query(Song).join(Artist).join(Album).\
             filter(Song.catalog_id.in_(self.catalogs)).\
-            filter(Album.prename == album).\
+            filter(Album.prename.in_(album)).\
             filter(Artist.fullname == artist).\
-            filter(Song.title == title)
+            filter(Song.title.in_(title))
 
     def get_song_by_artist_title(self, artist, title):
         return self.db.query(Song).join(Artist).join(Album).\
