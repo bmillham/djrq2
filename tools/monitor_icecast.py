@@ -117,9 +117,6 @@ def sec_to_hms(seconds):
     return ':'.join(s)
 
 def find_info(ctx, title):
-    if title is None:
-        print('None in dashes!')
-        return None, None, None
     """ Try and find a song when there are more than 3 fields in title"""
     #md_fields = ctx.queries.get_metadata_fields()[0].split(' - ')
     site_options = ctx.queries.get_siteoptions()
@@ -247,7 +244,7 @@ def update_irc_songs(ctx=None, as_dj=None, info=None, found_info=None, no_update
         #    return None
         #if dbsong.count() == 0:
         #    print(f'Unable to find a match for {info["title"]}')
-    print(f'Found {dbsong.count()} matches')
+    #print(f'Found {dbsong.count()} matches')
     songs = []
     for ds in dbsong:
         songs.append(ds)
@@ -432,7 +429,7 @@ while True:
         previous['genre'] = active_source['genre']
     if previous['title'] != active_source['title']:
         previous['title'] = active_source['title']
-        print(f'New Title: {active_source["server_name"]}: {active_source["title"]}')
+        #print(f'New Title: {active_source["server_name"]}: {active_source["title"]}')
         played_dj_name = active_source["server_name"]
         for d in djs:
             if d.lower() in played_dj_name.lower():
@@ -445,7 +442,6 @@ while True:
 
         current_dj_info = None
         for d in djs:
-            print(d)
             tt = ("B-52's - Private Idaho - Dance This Mess Around - The Best Of",
                   "Orchestre G.M.I - Groupement mobil d'intervention - Africa - Analog Africa n° 19 : Senegal 70",
                   "The Byrds - Chimes of Freedom - The Byrds, Dylan, Bob - The Byrds - Greatest Hits")
@@ -474,6 +470,10 @@ while True:
                                            no_updates=args.no_updates,
                                            update_played_only=update_played_only,
                                            played_dj_name=played_dj_name)
+            if update_info is None:
+                print(f"{d}: Found 0 matches")
+            else:
+                print(f"{d}: Found {len(update_info['songs'])} matches")
             if  active_source['dj_db'] == d:
                 current_dj_info = update_info
         update_info = current_dj_info
