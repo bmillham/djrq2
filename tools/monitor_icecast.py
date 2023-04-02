@@ -506,10 +506,13 @@ while True:
         if update_info is None:
             send_title += f" Playing: {info['title']}"
         else:
-            send_title += f" Playing: {'/'.join(db_artist)}"
-            send_title += f" - {'/'.join(db_title)} - {'/'.join(db_album)}"
-            if length is not None:
-                send_title += f" [{', '.join(update_info['song_lengths'])}]"
+            if len(db_artist) == 0 and len(db_title) == 0 and len(db_album) == 0:
+                send_title += f" Playing: {info['title']}"
+            else:
+                send_title += f" Playing: {'/'.join(db_artist)}"
+                send_title += f" - {'/'.join(db_title)} - {'/'.join(db_album)}"
+                if length is not None:
+                    send_title += f" [{', '.join(update_info['song_lengths'])}]"
         print("Send: ", send_title)
         if ircclient is not None:
             if new_show is not None:
