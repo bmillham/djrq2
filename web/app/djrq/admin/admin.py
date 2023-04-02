@@ -18,6 +18,7 @@ class Admin:
     from .logout import Logout as logout
     from .showinfo import ShowInfo as showinfo
     from .requestoptions import RequestOptions as requestoptions
+    from .botoptions import BotOptions as botoptions
     from .catalogoptions import CatalogOptions as catalogoptions
     from .uploadfiles import UploadFiles as uploadfiles
     from .updatedatabase import UpdateDatabase as updatedatabase

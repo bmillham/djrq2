@@ -69,6 +69,7 @@
            <ul class='dropdown-menu'>
             <li #{" class='active'" if resource == 'showinfo' else ''}><a href='/admin/showinfo'>Show Info</a></li>
             <li #{" class='active'" if resource == 'requestoptions' else ''}><a href='/admin/requestoptions'>Request Options</a></li>
+            <li #{" class='active'" if resource == 'botoptions' else ''}><a href='/admin/botoptions'>Bot Options</a></li>
             : if ctx.databasetype == 'ampache'
              <li #{" class='active'" if resource == 'catalogoptions' else ''}><a href='/admin/catalogoptions'>Catalog Selection</a></li>
             : end

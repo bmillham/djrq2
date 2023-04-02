@@ -332,6 +332,10 @@ class Queries:
         for field in args:
             if field == 'cat_group':
                 row.catalog = ','.join(args[field])
+            elif field == 'strict_metadata':
+                row.strict_metadata = int(args[field])
+            elif field == 'metadata_fields':
+                row.metadata_fields = args[field]
             elif field != 'sid':
                 row.__setattr__(field, args[field])
         return self.db.commit()
