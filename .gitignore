@@ -20,3 +20,6 @@ web/app/djrq/public/bootstrap/
 /.eggs/pytest_runner-6.0.0-py3.6.egg/
 *.pyc
 /tools/monitor-icecast.service
+*~
+#*#
+/web/ext/#git.py#
