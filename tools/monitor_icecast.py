@@ -2,10 +2,12 @@
 # -- coding: utf-8 --
 # encoding: utf-8
 
-# IRC imports
+# IRC import
 from djirc.irc import IRC
 # Helpers
-from helpers.helpers import Helpers
+
+from helpers.update_database import update_database
+from helpers.find_info import find_info
 
 import requests
 import cinje
@@ -63,9 +65,8 @@ parser.add_argument('-p', '--listen-mount-points', default='listen',
                     help='Comma separated list of DJ mount points to watch')
 
 args = parser.parse_args()
-helpers = Helpers()
 
-def update_irc_songs(ctx=None, as_dj=None, info=None, found_info=None, no_updates=None, update_played_only=False, fuzzy_match=False, played_dj_name=None):
+""" def update_irc_songs(ctx=None, as_dj=None, info=None, found_info=None, no_updates=None, update_played_only=False, fuzzy_match=False, played_dj_name=None):
     requested_by = None
     song_lengths = []
     #print('trying to update', info['title'])
@@ -156,7 +157,7 @@ def update_irc_songs(ctx=None, as_dj=None, info=None, found_info=None, no_update
                     print('no fakerow')
     return {'requested_by': requested_by,
             'song_lengths': song_lengths,
-            'songs': songs}
+            'songs': songs} """
 
 with open(args.config_file) as f:
     config = yaml.safe_load(f)
@@ -173,7 +174,7 @@ iserv = IceServer(args=args)
 try:
     iserv.get()
 except:
-    print('Unable to contact IRC')
+    print('Unable to contact IceCast')
 
 #iserv.relay_get()
 
@@ -237,7 +238,7 @@ while True:
         for d in djs:
             if d.lower() in played_dj_name.lower():
                 active_source['dj_db'] = d.lower()
-                found_title_info = helpers.find_info(djs[d.lower()].context, active_source['title'])
+                found_title_info = find_info(djs[d.lower()].context, active_source['title'])
         #as_dj = active_source.dj_db
 
         current_dj_info = None
@@ -250,7 +251,8 @@ while True:
                 as_dj = d
             else:
                 as_dj = d
-            update_info = update_irc_songs(ctx=djs[d].context,
+            #update_info = update_irc_songs(ctx=djs[d].context,
+            update_info = update_database(ctx=djs[d].context,
                                            as_dj=as_dj,
                                            info=active_source,
                                            found_info=found_title_info,
