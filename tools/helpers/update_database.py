@@ -1,7 +1,11 @@
+import cinje
+import requests
+from web.app.djrq.templates.lastplayed import lastplayed_row
 from helpers.sec_to_hms import sec_to_hms
 
-def update_database(ctx=None, as_dj=None, info=None, found_info=None,
-                    no_updates=None, update_played_only=False, fuzzy_match=False, played_dj_name=None):
+def update_database(ctx=None, djlist=None, as_dj=None, info=None, found_info=None,
+                    no_updates=None, update_played_only=False,
+                    fuzzy_match=False, played_dj_name=None):
     requested_by = None
     song_lengths = []
     #print('trying to update', info['title'])
