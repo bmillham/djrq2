@@ -63,33 +63,11 @@ parser.add_argument('--autodj-mount-point', default='autodj',
                     help='The AutoDJ mount point')
 parser.add_argument('-p', '--listen-mount-points', default='listen',
                     help='Comma separated list of DJ mount points to watch')
-parser.add_argument('-w', '--watchdog',
-                    default=None,
-                    help='Act as a watchdog for the named autodj service.')
-parser.add_argument('--watchdog-only',
-                    default=False,
-                    action='store_true',
-                    help='Only act as a watchdog for the autodj service. Do not update played or IRC.')
 
 args = parser.parse_args()
 
 joined = False
 on_break = False
-
-if args.watchdog is not None:
-    try:
-        import dbus
-    except ModuleNotFoundError:
-        print('Unable to import dbus, so will not attempt to restart autodj on failure')
-        print('Install dbus with either apt install python3-dbus or pip3 install dbus-python')
-        dbus = None
-        manager = None
-    else:
-        sysbus = dbus.SystemBus()
-        systemd1 = sysbus.get_object('org.freedesktop.systemd1', '/org/freedesktop/systemd1')
-        manager = dbus.Interface(systemd1, 'org.freedesktop.systemd1.Manager')
-else:
-    manager = None
 
 def sec_to_hms(seconds):
     s = str(timedelta(seconds=seconds)).split(':', 1)
@@ -264,17 +242,16 @@ def update_irc_songs(ctx=None, as_dj=None, info=None, found_info=None, no_update
             'song_lengths': song_lengths,
             'songs': songs}
 
-if not args.watchdog_only:
-    with open(args.config_file) as f:
-        config = yaml.safe_load(f)
+with open(args.config_file) as f:
+    config = yaml.safe_load(f)
 
-    iceuri = f"http://{args.ice_server}:{args.ice_port}/status-json.xsl"
-    errorlog = "errors.txt"
-    djlist = DJList(config, args.site, args.use_ssl)
-    le = LocaleExtension() # For now, default to english
-    djlist.close_db()
-    le.prepare(djlist.context)
-    djs = djlist.djs
+iceuri = f"http://{args.ice_server}:{args.ice_port}/status-json.xsl"
+errorlog = "errors.txt"
+djlist = DJList(config, args.site, args.use_ssl)
+le = LocaleExtension() # For now, default to english
+djlist.close_db()
+le.prepare(djlist.context)
+djs = djlist.djs
 
 iserv = IceServer(args=args)
 try:
@@ -284,7 +261,7 @@ except:
 
 #iserv.relay_get()
 
-if args.no_updates or args.watchdog_only:
+if args.no_updates:
     print('Will not connect to the IRC server.')
     requests = None
 else:
@@ -294,10 +271,9 @@ djirc = IRC(server=args.irc_server, port=args.irc_port, channel=args.irc_channel
 djirc.connect()
 
 #icestats = IceStats(iceuri)
-if not args.watchdog_only:
-    requestcount = {}
-    for dj in djs:
-        requestcount[dj] = 0
+requestcount = {}
+for dj in djs:
+    requestcount[dj] = 0
 
 previous = {'server_description': None,
             'listenurl': None,
@@ -307,7 +283,7 @@ previous = {'server_description': None,
             'listeners': {'current': 0,
                           'max': 0}}
 while True:
-    if not args.no_updates and not args.watchdog_only:
+    if not args.no_updates:
         djirc.send(send_now=True) # Needed to 'ping' the irc server so connection is not lost
 
     active_source = iserv.now_playing()
@@ -347,9 +323,6 @@ while True:
                 active_source['dj_db'] = d.lower()
                 found_title_info = find_info(djs[d.lower()].context, active_source['title'])
         #as_dj = active_source.dj_db
-
-        if args.watchdog_only:
-            continue
 
         current_dj_info = None
         for d in djs:
@@ -435,9 +408,6 @@ while True:
                     playing.append(f' (Requested by: {update_info["requested_by"]})')
         djirc.send(message=playing, bold=True, send_now=True)
 
-    if args.watchdog_only:
-        sleep(10)
-        continue
     update_listen = False
     if previous['listeners']['max']  == -1:
         # Special case to trigger reading the database
