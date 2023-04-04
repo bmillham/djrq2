@@ -3,8 +3,7 @@
 # encoding: utf-8
 
 # IRC imports
-import irc.client
-import irc.events
+from djirc.irc import IRC
 
 # pip3 install dbus-python
 import requests
@@ -30,7 +29,7 @@ parser.add_argument('--irc-server',
 parser.add_argument('--irc-port',
                     default='6667',
                     help='The IRC port to use')
-parser.add_argument('--irc-user',
+parser.add_argument('--irc-nick',
                     default='BerthaButt',
                     help='The IRC user')
 parser.add_argument('-c', '--config-file',
@@ -91,20 +90,6 @@ if args.watchdog is not None:
         manager = dbus.Interface(systemd1, 'org.freedesktop.systemd1.Manager')
 else:
     manager = None
-
-# Setup IRC handlers
-def on_connect(connection, event):
-    for a in event.arguments:
-        print(f'IRC: {a}')
-    if irc.client.is_channel(args.irc_channel):
-        connection.join(args.irc_channel)
-        return
-    print('IRC: Joined IRC without a target!')
-
-def on_join(connection, event):
-    global joined
-    print(f"IRC: Joined {event.target}")
-    joined = True
 
 def sec_to_hms(seconds):
     s = str(timedelta(seconds=seconds)).split(':', 1)
@@ -279,24 +264,6 @@ def update_irc_songs(ctx=None, as_dj=None, info=None, found_info=None, no_update
             'song_lengths': song_lengths,
             'songs': songs}
 
-def send_irc_message(message=None, bold=False, send_now=False, action=False):
-    if type(message) == list:
-        print(" ".join(message))
-        if bold:
-            message[0] = f"\x02{message[0]}\x0F"
-        message = " ".join(message)
-    elif message is not None:
-        print(message)
-        if bold and message is not None:
-            message = f"\x02{message}\x0F"
-    if ircclient is not None and message is not None:
-        if action:
-            ircclient.action(args.irc_channel, message)
-        else:
-            ircclient.privmsg(args.irc_channel, message)
-    if send_now and ircreactor is not None:
-        ircreactor.process_once()
-
 if not args.watchdog_only:
     with open(args.config_file) as f:
         config = yaml.safe_load(f)
@@ -319,30 +286,12 @@ except:
 
 if args.no_updates or args.watchdog_only:
     print('Will not connect to the IRC server.')
-    ircclient = None
-    ircreactor = None
     requests = None
 else:
-    print(f'Connecting to IRC server: {args.irc_user}@{args.irc_server}/{args.irc_port}')
-    ircreactor = irc.client.Reactor()
-    try:
-        ircclient = ircreactor.server().connect(args.irc_server, int(args.irc_port), args.irc_user)
-    except irc.client.ServerConnectionError:
-        print(sys.exc_info()[1])
-        raise SystemExit(1)
+    pass
 
-    print(f'Connected. Joining {args.irc_channel}')
-
-    ircclient.add_global_handler("welcome", on_connect)
-    ircclient.add_global_handler("join", on_join)
-    #c.add_global_handler("disconnect", on_disconnect)
-    # Wait until the channel is joined
-    print('Waiting to join')
-    while not joined:
-        ircreactor.process_once()
-        sleep(.1)
-    print('Joined')
-    send_irc_message(message=f"Is on the job!", send_now=True, action=True)
+djirc = IRC(server=args.irc_server, port=args.irc_port, channel=args.irc_channel, nick=args.irc_nick, no_irc=args.no_updates)
+djirc.connect()
 
 #icestats = IceStats(iceuri)
 if not args.watchdog_only:
@@ -359,7 +308,7 @@ previous = {'server_description': None,
                           'max': 0}}
 while True:
     if not args.no_updates and not args.watchdog_only:
-        send_irc_message(send_now=True) # Needed to 'ping' the irc server so connection is not lost
+        djirc.send(send_now=True) # Needed to 'ping' the irc server so connection is not lost
 
     active_source = iserv.now_playing()
 
@@ -476,15 +425,15 @@ while True:
                 if length is not None:
                     send_title += f" [{', '.join(update_info['song_lengths'])}]"
         if new_show is not None:
-            send_irc_message(f"New DJ: {active_source['server_name']}", bold=True)
-            send_irc_message(f"New Show: {new_show}", bold=True)
+            djirc.send(f"New DJ: {active_source['server_name']}", bold=True)
+            djirc.send(f"New Show: {new_show}", bold=True)
         if new_listenurl is not None:
-            send_irc_message(f"Listen @ {new_listenurl}", bold=True)
+            djirc.send(f"Listen @ {new_listenurl}", bold=True)
         playing = [send_title]
         if update_info is not None:
             if update_info['requested_by'] is not None:
                     playing.append(f' (Requested by: {update_info["requested_by"]})')
-        send_irc_message(message=playing, bold=True, send_now=True)
+        djirc.send(message=playing, bold=True, send_now=True)
 
     if args.watchdog_only:
         sleep(10)
@@ -514,7 +463,7 @@ while True:
     if update_listen:
         lstr = [f"Listeners: {active_source['listeners']}/{previous['listeners']['max']},",
                 f"DJ: {active_source['server_name']}"]
-        send_irc_message(message=lstr, send_now=True, action=True)
+        djirc.send(message=lstr, send_now=True, action=True)
         ctx = djs[active_source['dj_db']].context
         try:
             lrow = djs[active_source['dj_db']].db.Session.query(ctx.listeners).one()
