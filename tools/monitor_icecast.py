@@ -4,20 +4,18 @@
 
 # IRC imports
 from djirc.irc import IRC
+# Helpers
+from helpers.helpers import Helpers
 
-# pip3 install dbus-python
 import requests
 import cinje
 import yaml
-import sys
 import argparse
 from web.ext.locale import LocaleExtension
 from web.app.djrq.templates.lastplayed import lastplayed_row
-from sqlalchemy.ext.declarative import declarative_base
 from time import sleep
-from datetime import timedelta
 from djlist import DJList
-from icecast.iceserver import IceServer, IceDict
+from icecast.iceserver import IceServer
 
 parser = argparse.ArgumentParser(description="Update an IRC channel and ampache database from an Icecast stream")
 parser.add_argument('--irc-channel',
@@ -65,17 +63,7 @@ parser.add_argument('-p', '--listen-mount-points', default='listen',
                     help='Comma separated list of DJ mount points to watch')
 
 args = parser.parse_args()
-
-joined = False
-on_break = False
-
-def sec_to_hms(seconds):
-    s = str(timedelta(seconds=seconds)).split(':', 1)
-    if int(s[0]) > 0:
-        s[0] = f'{h:02}' # Force hour to be 2 digits
-    else:
-        s.pop(0) # Remove hour if 0
-    return ':'.join(s)
+helpers = Helpers()
 
 def find_info(ctx, title):
     """ Try and find a song when there are more than 3 fields in title"""
@@ -173,7 +161,6 @@ def update_irc_songs(ctx=None, as_dj=None, info=None, found_info=None, no_update
     try:
         dbsong = ctx.queries.get_song_by_ata(found_info[0], found_info[1], found_info[2])
     except:
-        #print(f"Error querying the database for {found_info}!", file=sys.stderr)
         try:
             dbsong = ctx.queries.get_song_by_artist_title(found_info[0], found_info[1])
         except:
@@ -194,7 +181,8 @@ def update_irc_songs(ctx=None, as_dj=None, info=None, found_info=None, no_update
     songs = []
     for ds in dbsong:
         songs.append(ds)
-        song_lengths.append(sec_to_hms(ds.time))
+        #song_lengths.append(sec_to_hms(ds.time))
+        song_lengths.append(helpers.sec_to_hms(ds.time))
         try:
             req = ctx.queries.get_requests(status="New/Pending/Playing", id=ds.id)
         except Exception as e:

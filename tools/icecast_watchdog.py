@@ -1,5 +1,7 @@
 #!python
 
+# pip3 install dbus-python
+
 import yaml
 import sys
 import argparse
