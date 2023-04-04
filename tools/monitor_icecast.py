@@ -61,6 +61,8 @@ parser.add_argument('--autodj-mount-point', default='autodj',
                     help='The AutoDJ mount point')
 parser.add_argument('-p', '--listen-mount-points', default='listen',
                     help='Comma separated list of DJ mount points to watch')
+parser.add_argument('--url-map', default='autodj=listen',
+                    help='Comma separated list of listen urls to correct')
 
 args = parser.parse_args()
 
@@ -130,7 +132,12 @@ while True:
     else:
         new_show = None
     if previous['listenurl'] != active_source['listenurl']:
-        new_listenurl = active_source['listenurl'].replace('/autodj', '/listen')
+        new_listenurl = active_source['listenurl']
+        for r in args.url_map.split(','):
+            f, t = r.split('=')
+            new_listenurl = new_listenurl.replace(f'/{f}', f'/{t}')
+        #new_listenurl = active_source['listenurl'].replace('/autodj', '/listen')
+        #new_listenurl = new_listenurl.replace('/foobar', '/listen')
         previous['listenurl'] = active_source['listenurl']
     else:
         new_listenurl = None
