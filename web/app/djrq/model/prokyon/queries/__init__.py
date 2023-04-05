@@ -160,7 +160,7 @@ class Queries:
 
     def get_song_by_artist_title(self, artist, title):
         return self.db.query(Song).\
-            filter(Song.artist_name == artist).\
+            filter(Song.artist_fullname == artist).\
             filter(Song.title == title)
 
     def get_requests(self, status='New/Pending', id=None):
