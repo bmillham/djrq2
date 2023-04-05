@@ -273,9 +273,9 @@ class Queries:
         if search_for == 'title':
             search = Song.title
         elif search_for == 'artist':
-            search = Song.artist_name
+            search = Song.artist_fullname
         elif search_for == 'album':
-            search = Song.album_name
+            search = Song.album_fullname
         p = r'%'+phrase+r'%'
         r = self.db.query(Song).filter(search.ilike(phrase))
         return r
