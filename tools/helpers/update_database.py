@@ -96,8 +96,10 @@ def update_database(ctx=None, djlist=None, as_dj=None, info=None, found_info=Non
                     print('no fakerow')
     if len(lengths) == 1:
         song_length = sec_to_hms(lengths[0])
-    else:
+    elif len(lengths) > 1:
         song_length = f"~{sec_to_hms(mean(lengths))}"
+    else:
+        song_length = None
     return {'requested_by': requested_by,
             'song_length': song_length,
             'songs': songs}
