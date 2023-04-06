@@ -180,10 +180,12 @@ while True:
                 current_dj_info = update_info
         update_info = current_dj_info
         try:
-            if len(update_info['song_lengths']) > 0:
-                length = f" [{', '.join(update_info['song_lengths'])}]"
-            else:
-                length = None
+            #if len(update_info['song_lengths']) > 0:
+            #    #length = f" [{', '.join(update_info['song_lengths'])}]"
+            #    length = f" [{update_info['song_length']}]"
+            #else:
+            #    length = None
+            length = f"{update_info['song_length']}"
         except TypeError:
             length = None
         db_artist = set()
@@ -214,7 +216,7 @@ while True:
                 send_title += f" Playing: {'/'.join(db_artist)}"
                 send_title += f" - {'/'.join(db_title)} - {'/'.join(db_album)}"
                 if length is not None:
-                    send_title += f" [{', '.join(update_info['song_lengths'])}]"
+                    send_title += f" [{length}]"
         if new_show is not None:
             djirc.send(f"New DJ: {active_source['server_name']}", bold=True)
             djirc.send(f"New Show: {new_show}", bold=True)

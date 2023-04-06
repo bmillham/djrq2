@@ -2,12 +2,13 @@ import cinje
 import requests
 from web.app.djrq.templates.lastplayed import lastplayed_row
 from helpers.sec_to_hms import sec_to_hms
+from statistics import mean
 
 def update_database(ctx=None, djlist=None, as_dj=None, info=None, found_info=None,
                     no_updates=None, update_played_only=False,
                     fuzzy_match=False, played_dj_name=None):
     requested_by = None
-    song_lengths = []
+    lengths = []
     #print('trying to update', info['title'])
     if played_dj_name is None:
         played_dj_name = info.dj
@@ -49,8 +50,7 @@ def update_database(ctx=None, djlist=None, as_dj=None, info=None, found_info=Non
     songs = []
     for ds in dbsong:
         songs.append(ds)
-        #song_lengths.append(sec_to_hms(ds.time))
-        song_lengths.append(sec_to_hms(ds.time))
+        lengths.append(ds.time)
         try:
             req = ctx.queries.get_requests(status="New/Pending/Playing", id=ds.id)
         except Exception as e:
@@ -94,7 +94,11 @@ def update_database(ctx=None, djlist=None, as_dj=None, info=None, found_info=Non
             else:
                 if requests is not None:
                     print('no fakerow')
+    if len(lengths) == 1:
+        song_length = sec_to_hms(lengths[0])
+    else:
+        song_length = f"~{sec_to_hms(mean(lengths))}"
     return {'requested_by': requested_by,
-            'song_lengths': song_lengths,
+            'song_length': song_length,
             'songs': songs}
 
