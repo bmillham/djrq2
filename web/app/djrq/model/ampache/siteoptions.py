@@ -13,3 +13,7 @@ class SiteOptions(Base):
     metadata_fields = Column(Enum('artist - title', 'artist - title - album'),
                        default='artist - title - artist')
     strict_metadata = Column(Boolean, default=True)
+    played_reporting_fields = Column(Enum('dj', 'dj - show title', 'show title'),
+                                     default='dj')
+
+

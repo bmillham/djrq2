@@ -332,8 +332,6 @@ class Queries:
                 row.catalog = ','.join(args[field])
             elif field == 'strict_metadata':
                 row.strict_metadata = int(args[field])
-            elif field == 'metadata_fields':
-                row.metadata_fields = args[field]
             elif field == 'auto_update_requests':
                 row.auto_update_requests = int(args[field])
             elif field != 'sid':

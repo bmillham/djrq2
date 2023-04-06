@@ -43,6 +43,15 @@
              </option>
              </select>
              </div>
+            <div class='form-group'>
+             <label for='played_reporting_fields'><b>Played By</b> information to save</label>
+             <select class='form-control' id='played_reporting_fields' name='played_reporting_fields'>
+             : for o in ('dj', 'dj - show title', 'show title')
+              <option value='${o}' ${'selected' if ctx.siteoptions.played_reporting_fields == o else ''}>${o.title()}</option>
+             : end
+            </option>
+            </select>
+            </div>
             <button type="submit" class="btn btn-primary" >Save</button>
            </form>
           </div>
