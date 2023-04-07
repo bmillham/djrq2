@@ -267,7 +267,7 @@ class Queries:
         return self.db.query(Song).filter(
                 (Song.title.match(phrase) |\
                  Song.artist_fullname.match(phrase) |\
-                 Song.album_fullname.match(phrase)))
+                 Song.album_fullname.match(phrase))).order_by(Song.title)
 
     def advanced_search(self, search_for=None, phrase=None):
         if search_for == 'title':
@@ -277,7 +277,7 @@ class Queries:
         elif search_for == 'album':
             search = Song.album_fullname
         p = r'%'+phrase+r'%'
-        r = self.db.query(Song).filter(search.ilike(phrase))
+        r = self.db.query(Song).filter(search.ilike(phrase)).order_by(search)
         return r
 
     def verify_user(self, uname, pword):

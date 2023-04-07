@@ -285,7 +285,7 @@ class Queries:
         search = {'title': Song.title,
              'artist': Artist.name,
              'album': Album.name}
-        return self.db.query(Song).join(Artist).join(Album).filter(search[search_for].like(phrase), Song.catalog_id.in_(self.catalogs))
+        return self.db.query(Song).join(Artist).join(Album).filter(search[search_for].like(phrase), Song.catalog_id.in_(self.catalogs)).order_by(search[search_for])
 
     def get_current_requests(self):
         return self.db.query(RequestList).\
