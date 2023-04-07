@@ -154,8 +154,12 @@ class IceServer(IceDict):
                     return None
                 for source in ls:
                     #print('source', source, relay)
-                    mp = source['listenurl'].split('/')[-1]
-                    #print('mp', mp)
+                    try:
+                        mp = source['listenurl'].split('/')[-1]
+                    except KeyError:
+                        print('No listenurl was found')
+                        mp = None
+                        #print('mp', mp)
                     if mp in mps:
                         if 'title' in source:
                             source['active_source'] = mp
