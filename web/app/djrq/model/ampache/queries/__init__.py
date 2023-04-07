@@ -279,7 +279,7 @@ class Queries:
         
     def full_text_search(self, phrase):
         return self.db.query(Song).join(Artist).join(Album).\
-                filter(((Song.title.match(phrase)) | (Artist.name.match(phrase)) | (Album.name.match(phrase))), Song.catalog_id.in_(self.catalogs))
+                filter(((Song.title.match(phrase)) | (Artist.name.match(phrase)) | (Album.name.match(phrase))), Song.catalog_id.in_(self.catalogs)).order_by(Song.title)
 
     def advanced_search(self, search_for, phrase):
         search = {'title': Song.title,
