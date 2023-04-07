@@ -48,6 +48,7 @@ def update_database(ctx=None, djlist=None, as_dj=None, info=None, found_info=Non
         #    print(f'Unable to find a match for {info["title"]}')
     #print(f'Found {dbsong.count()} matches')
     songs = []
+    site_options = ctx.queries.get_siteoptions()
     for ds in dbsong:
         songs.append(ds)
         lengths.append(ds.time)
@@ -64,10 +65,11 @@ def update_database(ctx=None, djlist=None, as_dj=None, info=None, found_info=Non
                 else:
                     print('Requested by', r.name)
                     requested_by = r.name
-                try:
-                    ctx.queries.update_request_to_played(r.id)
-                except Exception as e:
-                    print(f'Unable to update request status: {e}')
+                if site_options.auto_update_requests:
+                    try:
+                        ctx.queries.update_request_to_played(r.id)
+                    except Exception as e:
+                        print(f'Unable to update request status: {e}')
 
         if not no_updates:
             try:
