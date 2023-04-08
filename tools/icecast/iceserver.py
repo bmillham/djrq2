@@ -142,7 +142,11 @@ class IceServer(IceDict):
             else:
                 mps = [self._autodj_mount_point]
             for relay in [False, True]:
-                listen_info = self._get(relay=relay, listen=listen)
+                try:
+                    listen_info = self._get(relay=relay, listen=listen)
+                except IOError:
+                    print('IOError getting info from Icecast server')
+                    return None
                 #print('listen info', listen_info)
                 try:
                     if type(listen_info['source']) == dict:
