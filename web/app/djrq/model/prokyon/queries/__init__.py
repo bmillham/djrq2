@@ -336,6 +336,8 @@ class Queries:
                 row.strict_metadata = int(args[field])
             elif field == 'auto_update_requests':
                 row.auto_update_requests = int(args[field])
+            elif field == 'show_icecast':
+                row.show_icecast = int(args[field])
             elif field != 'sid':
                 row.__setattr__(field, args[field])
         return self.db.commit()

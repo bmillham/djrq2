@@ -33,6 +33,15 @@
               </select>
             </div>
             <div class='form-group'>
+             <label for='show_icecast'>Bot Will Display</label>
+             <select class='form-control' id='show_icecast' name='show_icecast'>
+              <option value='0' ${'selected' if not ctx.siteoptions.show_icecast else ''}>
+               Show Database Information (including time)</option>
+              <option value='1' ${'selected' if ctx.siteoptions.show_icecast else ''}>
+               Show Icecast Stream Information</option>
+             </select>
+            </div>
+            <div class='form-group'>
              <label for='auto_update_requests'>Allow bot to update requests to played status</label>
              <select class='form-control' id='auto_update_requests' name='auto_update_requests'>
              <option value='1' ${'selected' if ctx.siteoptions.auto_update_requests else ''}>

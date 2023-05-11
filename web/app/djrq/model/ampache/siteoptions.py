@@ -15,5 +15,6 @@ class SiteOptions(Base):
     strict_metadata = Column(Boolean, default=True)
     played_reporting_fields = Column(Enum('dj', 'dj - show title', 'show title'),
                                      default='dj')
+    show_icecast = Column(Boolean, default=False)
 
 
