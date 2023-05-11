@@ -207,7 +207,8 @@ while True:
         if len(db_album) > 1:
             db_album = [f"On {len(db_album)} albums"]
         send_title = f"{active_source['server_name']}"
-        if update_info is None:
+        site_options = djs[active_source['dj_db']].context.queries.get_siteoptions()
+        if update_info is None or site_options.show_icecast:
             send_title += f" Playing: {active_source['title']}"
         else:
             if len(db_artist) == 0 and len(db_title) == 0 and len(db_album) == 0:
