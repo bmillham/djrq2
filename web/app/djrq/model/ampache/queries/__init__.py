@@ -5,9 +5,11 @@ from ..artist import Artist
 from ..album import Album
 from ..siteoptions import SiteOptions
 from ..users import Users
+#from ..user import User
 from ..suggestions import Suggestions
 from ..mistags import Mistags
 from ..catalog import Catalog
+from ..object_count import ObjectCount
 import sqlalchemy
 from sqlalchemy.sql import func, or_, and_
 from sqlalchemy.orm.exc import NoResultFound
@@ -266,9 +268,31 @@ class Queries:
             filter(Song.title == title)
 
     def add_played_song(self, track_id, played_by, played_by_me):
-        np = Played(track_id=track_id, date_played=datetime.utcnow(), played_by=played_by, played_by_me=played_by_me)
+        ts = datetime.utcnow()
+        np = Played(track_id=track_id, date_played=ts, played_by=played_by, played_by_me=played_by_me)
         self.db.add(np)
         self.db.commit()
+        user_id = get_user(fullname=played_by)
+        if not user_id:
+            uid = User(username=played_by, fullname=played_by, access=100)
+            self.db.add(uid)
+            self.db.commit()
+            user_id = get_user(fullname=played_by)
+            
+        if played_by_me:
+            agent = 'IDJC:1'
+        else:
+            agent = 'IDJC:0'
+        ob = ObjectCount(object_id=track_id, date=ts.timestamp(), user=user_id, agent=agent)
+        self.db.add(ob)
+        self.db.commit()
+
+    def get_user(self, fullname):
+        usr = self.db.query(User).filter(User.fullname == fullname)
+        if usr.count() > 0:
+            return usr.one().id
+        else:
+            return None
 
     def get_artist_with_dash(self):
         return self.db.query(Artist).filter(Artist.name.match(' - '))
