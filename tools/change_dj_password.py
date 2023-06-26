@@ -8,10 +8,9 @@ import scrypt
 from os import urandom
 
 parser = argparse.ArgumentParser(description='Change a DJs password')
-parser.add_argument('dbtype', choices=['prokyon', 'ampache'], help='Database type to add')
-parser.add_argument('-d', '--debug', action='store_true', help='Turn on debug messages')
-parser.add_argument('-j', '--dj', required=True, help='The DJ to change password')
-parser.add_argument('-p', '--passwd', required=True, help='New Password for the new DJ')
+parser.add_argument('dbtype', choices=['prokyon', 'ampache'], help='Database type for the DJ')
+parser.add_argument('-j', '--dj', required=True, help='The DJ to change password for')
+parser.add_argument('-p', '--passwd', required=True, help='New Password for the DJ')
 parser.add_argument('-u', '--server-user', required=True, help='Username for the database server')
 parser.add_argument('-P', '--server-passwd', required=True,
                     help='Password for the database server')
