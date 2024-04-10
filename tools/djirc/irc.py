@@ -7,6 +7,7 @@ except:
     client = None
     events = None
 from time import sleep
+import sys
 
 class IRC(object):
     def __init__(self, server=None, port=6667, channel=None, nick=None, no_irc=False):

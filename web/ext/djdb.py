@@ -27,7 +27,7 @@ class DJDatabaseExtension(DatabaseExtension):
                 server = config['database']['server_map'][d.server] if d.server in config['database']['server_map'].keys() else d.server
             except KeyError:
                 server = d.server
-            url = "mysql://{}:{}@{}/{}?charset=utf8".format(d.user, d.password, server, d.db)
+            url = "mysql://{}:{}@{}/{}?charset=utf8mb4".format(d.user, d.password, server, d.db)
             engines[d.dj.lower()] = SQLAlchemyConnection(url)
 
         engines['lastplay'].stop(context)
